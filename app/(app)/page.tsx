@@ -1,4 +1,3 @@
-import { Header } from "@/components/Header";
 import {
   AITutorSection,
   CTASection,
@@ -25,7 +24,6 @@ export default async function Home() {
 
   return (
     <div className="min-h-screen bg-[#0B0F19] text-white">
-      <Header />
       <main>
         <HeroSection />
         <StatsSection
