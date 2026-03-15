@@ -10,6 +10,7 @@ declare module "@portabletext/react" {
 
   export type PortableTextComponentProps = {
     children?: ReactNode;
+    // biome-ignore lint/suspicious/noExplicitAny: External module typing must stay permissive for PortableText value shapes.
     value?: any;
   };
 
