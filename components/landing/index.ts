@@ -1,7 +1,9 @@
-export { CTASection } from "./CTASection";
-export { FeaturedCoursesSection } from "./FeaturedCoursesSection";
-export { FeaturesSection } from "./FeaturesSection";
+export { CTA } from "./CTA";
+export { ContinueLearning } from "./ContinueLearning";
+export { Features } from "./Features";
 export { Footer } from "./Footer";
-export { HeroSection } from "./HeroSection";
-export { HowItWorksSection } from "./HowItWorksSection";
-export { LearningPathsSection } from "./LearningPathsSection";
+export { Hero } from "./Hero";
+export { HowItWorks } from "./HowItWorks";
+export { PlatformPreview } from "./PlatformPreview";
+export { PopularCourses } from "./PopularCourses";
+export { TrainingPaths } from "./TrainingPaths";
