@@ -1,186 +1,289 @@
 "use client";
 
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
-import { Menu, Search, Shield, X } from "lucide-react";
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  ChevronRight,
+  Command,
+  Menu,
+  Search,
+  Shield,
+  TerminalSquare,
+  X,
+} from "lucide-react";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-const primaryLinks = [
-  { href: "/#courses", label: "Courses" },
+const navLinks = [
   { href: "/#paths", label: "Paths" },
   { href: "/pricing", label: "Pricing" },
   { href: "/#community", label: "Community" },
   { href: "/#docs", label: "Docs" },
 ];
 
-const courseCategories = [
-  "Web Security",
-  "Network Security",
-  "Linux Security",
-  "Red Team",
+const commandPaletteLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/dashboard/courses", label: "Courses" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/notes", label: "Notes" },
+  { href: "/#paths", label: "Paths" },
 ];
 
-const learningPaths = [
-  "Web Pentester",
-  "Red Team Operator",
-  "Bug Bounty Hunter",
-  "Linux Hacker",
+const courseMegaMenu = [
+  {
+    category: "Web Security",
+    courses: [
+      {
+        title: "Web Hacking Fundamentals",
+        description: "Understand HTTP attack surface, inputs, and web recon.",
+      },
+      {
+        title: "SQL Injection",
+        description: "Exploit SQL flaws and learn modern mitigation patterns.",
+      },
+      {
+        title: "Authentication Attacks",
+        description: "Break weak auth flows and hardened session handling.",
+      },
+    ],
+  },
+  {
+    category: "Network Security",
+    courses: [
+      {
+        title: "Network Pentesting",
+        description:
+          "Enumerate internal systems and validate exploitable paths.",
+      },
+      {
+        title: "Enumeration Techniques",
+        description:
+          "Map targets quickly with practical service discovery tactics.",
+      },
+    ],
+  },
+  {
+    category: "Linux Exploitation",
+    courses: [
+      {
+        title: "Linux Privilege Escalation",
+        description:
+          "Abuse misconfigurations to gain root-level access safely.",
+      },
+      {
+        title: "Linux Fundamentals",
+        description:
+          "Build shell confidence with systems and permissions basics.",
+      },
+    ],
+  },
 ];
 
 export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [commandOpen, setCommandOpen] = useState(false);
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 10);
+    const handleScroll = () => setIsScrolled(window.scrollY > 24);
     handleScroll();
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    const handleCommandToggle = (event: KeyboardEvent) => {
+      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        setCommandOpen((prev) => !prev);
+      }
+
+      if (event.key === "Escape") {
+        setCommandOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleCommandToggle);
+    return () => window.removeEventListener("keydown", handleCommandToggle);
+  }, []);
+
+  useEffect(() => {
+    if (!commandOpen) {
+      setQuery("");
+    }
+  }, [commandOpen]);
+
+  const filteredLinks = useMemo(
+    () =>
+      commandPaletteLinks.filter((item) =>
+        item.label.toLowerCase().includes(query.toLowerCase()),
+      ),
+    [query],
+  );
+
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-50 border-b border-emerald-400/10 transition-all duration-200",
-        isScrolled ? "bg-[#0B0F19]/90 backdrop-blur-xl" : "bg-[#0B0F19]",
-      )}
-    >
-      <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Link href="/" className="group inline-flex items-center gap-3">
-          <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-[#111827] shadow-[0_0_24px_rgba(0,255,156,0.1)] transition group-hover:border-emerald-400/50">
-            <Shield className="h-5 w-5 text-[#22C55E]" />
-          </span>
-          <div className="leading-tight">
-            <p className="text-sm text-zinc-400">Next</p>
-            <p className="text-base font-semibold text-white">
-              Cyber <span className="text-[#00FF9C]">Camp</span>
-            </p>
+    <>
+      <header
+        className={cn(
+          "sticky top-0 z-50 border-b transition-all duration-300",
+          isScrolled
+            ? "border-cyan-400/20 bg-[#050816]/90 shadow-[0_10px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            : "border-transparent bg-transparent",
+        )}
+      >
+        <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="group inline-flex items-center gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-[#0b1229] shadow-[0_0_25px_rgba(34,211,238,0.22)] transition group-hover:border-cyan-300/70">
+              <Shield className="h-5 w-5 text-cyan-300" />
+            </span>
+            <div className="leading-tight">
+              <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+                Next
+              </p>
+              <p className="text-base font-semibold text-white">
+                Cyber <span className="text-cyan-300">Camp</span>
+              </p>
+            </div>
+          </Link>
+
+          <div className="hidden items-center gap-1 md:flex">
+            <CoursesMegaMenu />
+            {navLinks.map((link) => (
+              <NavLink key={link.label} href={link.href} label={link.label} />
+            ))}
           </div>
-        </Link>
 
-        <div className="hidden items-center gap-1 md:flex">
-          <MegaMenu
-            label="Courses"
-            items={courseCategories}
-            baseHref="/#courses"
-          />
-          <MegaMenu label="Paths" items={learningPaths} baseHref="/#paths" />
-          {primaryLinks.slice(2).map((link) => (
-            <NavLink key={link.label} href={link.href} label={link.label} />
-          ))}
-        </div>
+          <div className="hidden items-center gap-2 md:flex">
+            <button
+              type="button"
+              onClick={() => setCommandOpen(true)}
+              className="inline-flex h-10 min-w-44 items-center justify-between rounded-lg border border-cyan-400/20 bg-[#0d1430]/70 px-3 text-sm text-zinc-300 transition hover:border-cyan-300/40 hover:text-cyan-200"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                Search
+              </span>
+              <span className="inline-flex items-center gap-1 rounded border border-cyan-400/20 px-1.5 py-0.5 text-xs text-zinc-400">
+                <Command className="h-3 w-3" />K
+              </span>
+            </button>
 
-        <div className="hidden items-center gap-2 md:flex">
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button
+                  variant="ghost"
+                  className="text-zinc-200 hover:bg-cyan-400/10 hover:text-cyan-200"
+                >
+                  Sign In
+                </Button>
+              </SignInButton>
+            </SignedOut>
+
+            <SignedIn>
+              <Link href="/dashboard">
+                <Button
+                  variant="outline"
+                  className="border-cyan-400/30 bg-transparent text-zinc-100 hover:bg-cyan-400/10 hover:text-cyan-200"
+                >
+                  Dashboard
+                </Button>
+              </Link>
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "w-9 h-9 ring-1 ring-cyan-400/40",
+                  },
+                }}
+              />
+            </SignedIn>
+          </div>
+
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Search"
-            className="text-zinc-300 hover:bg-emerald-400/10 hover:text-[#00FF9C]"
+            className="text-zinc-300 hover:bg-cyan-400/10 hover:text-cyan-200 md:hidden"
+            aria-label="Toggle menu"
+            onClick={() => setMobileOpen((prev) => !prev)}
           >
-            <Search className="h-4 w-4" />
+            {mobileOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </Button>
+        </nav>
 
-          <SignedOut>
-            <SignInButton mode="modal">
-              <Button
-                variant="ghost"
-                className="text-zinc-300 hover:bg-emerald-400/10 hover:text-[#00FF9C]"
-              >
-                Sign In
-              </Button>
-            </SignInButton>
-            <Link href="/pricing">
-              <Button className="bg-[#22C55E] font-semibold text-black hover:bg-[#00FF9C]">
-                Get Started
-              </Button>
-            </Link>
-          </SignedOut>
-
-          <SignedIn>
-            <Link href="/dashboard">
-              <Button
-                variant="outline"
-                className="border-emerald-400/30 bg-transparent text-zinc-100 hover:bg-emerald-400/10 hover:text-[#00FF9C]"
-              >
-                Dashboard
-              </Button>
-            </Link>
-            <UserButton
-              appearance={{
-                elements: {
-                  avatarBox: "w-9 h-9 ring-1 ring-emerald-400/40",
-                },
-              }}
-            />
-          </SignedIn>
-        </div>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-zinc-300 hover:bg-emerald-400/10 hover:text-[#00FF9C] md:hidden"
-          aria-label="Toggle menu"
-          onClick={() => setMobileOpen((prev) => !prev)}
-        >
-          {mobileOpen ? (
-            <X className="h-5 w-5" />
-          ) : (
-            <Menu className="h-5 w-5" />
+        <div
+          className={cn(
+            "overflow-hidden border-t border-cyan-400/10 bg-[#060b1d]/95 backdrop-blur-xl transition-all duration-300 md:hidden",
+            mobileOpen ? "max-h-[80vh]" : "max-h-0 border-transparent",
           )}
-        </Button>
-      </nav>
-
-      <div
-        className={cn(
-          "overflow-hidden border-t border-emerald-400/10 bg-[#0B0F19]/95 backdrop-blur-xl transition-all duration-300 md:hidden",
-          mobileOpen ? "max-h-[70vh]" : "max-h-0 border-transparent",
-        )}
-      >
-        <div className="space-y-1 px-4 py-4">
-          {primaryLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="block rounded-md px-3 py-2 text-sm text-zinc-200 transition hover:bg-emerald-400/10 hover:text-[#00FF9C]"
+        >
+          <div className="space-y-1 px-4 py-4">
+            <button
+              type="button"
+              onClick={() => setCommandOpen(true)}
+              className="mb-2 flex w-full items-center gap-2 rounded-md border border-cyan-400/20 px-3 py-2 text-sm text-zinc-200"
             >
-              {link.label}
+              <Search className="h-4 w-4" /> Search (⌘/Ctrl + K)
+            </button>
+
+            <Link
+              href="/#courses"
+              className="block rounded-md px-3 py-2 text-sm text-zinc-200 transition hover:bg-cyan-400/10 hover:text-cyan-200"
+            >
+              Courses
             </Link>
-          ))}
-
-          <div className="my-2 h-px bg-emerald-400/10" />
-
-          <SignedOut>
-            <SignInButton mode="modal">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-zinc-200 hover:bg-emerald-400/10 hover:text-[#00FF9C]"
+            {navLinks.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="block rounded-md px-3 py-2 text-sm text-zinc-200 transition hover:bg-cyan-400/10 hover:text-cyan-200"
               >
-                Sign In
-              </Button>
-            </SignInButton>
-          </SignedOut>
+                {link.label}
+              </Link>
+            ))}
 
-          <SignedIn>
-            <Link href="/dashboard" className="block">
-              <Button
-                variant="ghost"
-                className="w-full justify-start text-zinc-200 hover:bg-emerald-400/10 hover:text-[#00FF9C]"
-              >
-                Dashboard
-              </Button>
-            </Link>
-          </SignedIn>
+            <div className="my-2 h-px bg-cyan-400/10" />
+
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-zinc-200 hover:bg-cyan-400/10 hover:text-cyan-200"
+                >
+                  Sign In
+                </Button>
+              </SignInButton>
+            </SignedOut>
+
+            <SignedIn>
+              <Link href="/dashboard" className="block">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start text-zinc-200 hover:bg-cyan-400/10 hover:text-cyan-200"
+                >
+                  Dashboard
+                </Button>
+              </Link>
+              <div className="px-3 py-2">
+                <UserButton />
+              </div>
+            </SignedIn>
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <CommandPalette
+        open={commandOpen}
+        query={query}
+        setQuery={setQuery}
+        setOpen={setCommandOpen}
+        filteredLinks={filteredLinks}
+      />
+    </>
   );
 }
 
@@ -188,47 +291,133 @@ function NavLink({ href, label }: { href: string; label: string }) {
   return (
     <Link
       href={href}
-      className="rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-emerald-400/10 hover:text-[#00FF9C]"
+      className="rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-400/10 hover:text-cyan-200"
     >
       {label}
     </Link>
   );
 }
 
-function MegaMenu({
-  label,
-  items,
-  baseHref,
-}: {
-  label: string;
-  items: string[];
-  baseHref: string;
-}) {
+function CoursesMegaMenu() {
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="rounded-md px-3 py-2 text-sm font-normal text-zinc-300 hover:bg-emerald-400/10 hover:text-[#00FF9C]"
-        >
-          {label}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="start"
-        className="w-56 border-emerald-400/20 bg-[#111827] text-zinc-100"
+    <div className="group relative">
+      <button
+        type="button"
+        className="rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-400/10 hover:text-cyan-200"
       >
-        {items.map((item) => (
-          <DropdownMenuItem key={item} asChild>
-            <Link
-              href={baseHref}
-              className="cursor-pointer focus:bg-emerald-400/10 focus:text-[#00FF9C]"
-            >
-              {item}
-            </Link>
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        Courses
+      </button>
+      <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-3 w-[min(92vw,820px)] -translate-x-1/2 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
+        <div className="rounded-2xl border border-cyan-400/20 bg-[#060c22]/95 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
+          <div className="grid gap-4 md:grid-cols-3">
+            {courseMegaMenu.map((section) => (
+              <div key={section.category}>
+                <p className="mb-3 text-xs uppercase tracking-[0.24em] text-cyan-300/80">
+                  {section.category}
+                </p>
+                <div className="space-y-3">
+                  {section.courses.map((course) => (
+                    <Link
+                      key={course.title}
+                      href="/#courses"
+                      className="block rounded-xl border border-cyan-400/15 bg-[#0d1430]/70 p-3 transition hover:border-cyan-300/40 hover:bg-[#111b3f]"
+                    >
+                      <p className="text-sm font-semibold text-white">
+                        {course.title}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-zinc-400">
+                        {course.description}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CommandPalette({
+  open,
+  query,
+  setQuery,
+  setOpen,
+  filteredLinks,
+}: {
+  open: boolean;
+  query: string;
+  setQuery: (value: string) => void;
+  setOpen: (value: boolean) => void;
+  filteredLinks: { href: string; label: string }[];
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (open) {
+      inputRef.current?.focus();
+    }
+  }, [open]);
+
+  if (!open) {
+    return null;
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-[60] flex items-start justify-center bg-black/70 px-4 pt-24 backdrop-blur-sm"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) {
+          setOpen(false);
+        }
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          setOpen(false);
+        }
+      }}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Command palette"
+    >
+      <div className="w-full max-w-xl rounded-2xl border border-cyan-400/30 bg-[#070d24] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.65)]">
+        <div className="mb-3 flex items-center gap-3 rounded-xl border border-cyan-400/20 bg-[#0b1430] px-3 py-2">
+          <Search className="h-4 w-4 text-zinc-400" />
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search pages..."
+            className="w-full bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-500"
+          />
+          <kbd className="rounded border border-cyan-400/20 px-2 py-1 text-xs text-zinc-500">
+            ESC
+          </kbd>
+        </div>
+
+        <div className="space-y-2">
+          {filteredLinks.length > 0 ? (
+            filteredLinks.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className="flex items-center justify-between rounded-lg border border-transparent px-3 py-2 text-sm text-zinc-200 transition hover:border-cyan-400/30 hover:bg-cyan-400/10 hover:text-cyan-200"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <TerminalSquare className="h-4 w-4" />
+                  {item.label}
+                </span>
+                <ChevronRight className="h-4 w-4 text-zinc-500" />
+              </Link>
+            ))
+          ) : (
+            <p className="px-3 py-4 text-sm text-zinc-400">No matches found.</p>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
