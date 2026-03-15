@@ -1,0 +1,5 @@
+ignoredBuiltDependencies:
+  - '@clerk/shared'
+  - esbuild
+  - msw
+  - sharp
