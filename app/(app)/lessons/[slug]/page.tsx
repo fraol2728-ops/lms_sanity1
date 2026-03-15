@@ -1,6 +1,5 @@
-import { notFound } from "next/navigation";
 import { auth } from "@clerk/nextjs/server";
-import { Header } from "@/components/Header";
+import { notFound } from "next/navigation";
 import { LessonPageContent } from "@/components/lessons";
 import { sanityFetch } from "@/sanity/lib/live";
 import { LESSON_BY_SLUG_QUERY } from "@/sanity/lib/queries";
@@ -46,7 +45,6 @@ export default async function LessonPage({ params }: LessonPageProps) {
       />
 
       {/* Navigation */}
-      <Header />
 
       {/* Main Content */}
       <main className="relative z-10 px-6 lg:px-12 py-8 max-w-7xl mx-auto">

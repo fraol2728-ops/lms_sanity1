@@ -1,7 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { BookOpen } from "lucide-react";
-import { Header } from "@/components/Header";
+import { redirect } from "next/navigation";
 import { CourseCard } from "@/components/courses";
 import { sanityFetch } from "@/sanity/lib/live";
 import { DASHBOARD_COURSES_QUERY } from "@/sanity/lib/queries";
@@ -69,7 +68,6 @@ export default async function MyCoursesPage() {
       />
 
       {/* Navigation */}
-      <Header />
 
       {/* Main Content */}
       <main className="relative z-10 px-6 lg:px-12 py-12 max-w-7xl mx-auto">
@@ -84,8 +82,8 @@ export default async function MyCoursesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {startedCourses.map((course) => (
               <CourseCard
-                key={course.slug!.current!}
-                slug={{ current: course.slug!.current! }}
+                key={course.slug?.current ?? course._id}
+                slug={{ current: course.slug?.current ?? course._id }}
                 title={course.title}
                 description={course.description}
                 tier={course.tier}
