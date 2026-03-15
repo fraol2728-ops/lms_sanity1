@@ -1,52 +1,63 @@
-import { Binary, Bot, FlaskConical, Route } from "lucide-react";
+import {
+  BookCopy,
+  ChartNoAxesColumn,
+  GraduationCap,
+  Shield,
+} from "lucide-react";
 
 const features = [
   {
-    title: "Structured Learning",
+    title: "Hands-on Courses",
     description:
-      "Progressive modules that build fundamentals before advanced attack chains.",
-    icon: Route,
+      "Build practical security intuition with modules modeled after real attack scenarios.",
+    icon: Shield,
   },
   {
-    title: "Real-World Techniques",
+    title: "Structured Learning Paths",
     description:
-      "Learn workflows used by red teams, pentesters, and bug bounty experts.",
-    icon: Binary,
+      "Move from fundamentals to advanced exploitation with clear path progression.",
+    icon: GraduationCap,
   },
   {
-    title: "AI Cyber Tutor",
+    title: "Track Your Progress",
     description:
-      "Get instant explanations, hints, and challenge walk-throughs as you learn.",
-    icon: Bot,
+      "Follow completed lessons, milestones, and momentum over every training cycle.",
+    icon: ChartNoAxesColumn,
   },
   {
-    title: "Practical Lessons",
+    title: "Expert-Level Content",
     description:
-      "Hands-on exercises designed for retention and immediate application.",
-    icon: FlaskConical,
+      "Study tactics used by red teams, pentesters, and top-tier bug bounty hunters.",
+    icon: BookCopy,
   },
 ];
 
 export function FeaturesSection() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-16 lg:px-12">
-      <h2 className="text-3xl font-bold text-white sm:text-4xl">
-        Why Next Cyber Camp
-      </h2>
-      <div className="mt-8 grid gap-5 md:grid-cols-2">
+    <section className="mx-auto max-w-7xl px-6 py-20 lg:px-12">
+      <div className="max-w-3xl">
+        <p className="text-xs uppercase tracking-[0.26em] text-cyan-300/80">
+          Platform Features
+        </p>
+        <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
+          Purpose-built for cybersecurity mastery
+        </h2>
+      </div>
+
+      <div className="mt-10 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {features.map((feature) => (
-          <div
+          <article
             key={feature.title}
-            className="rounded-2xl border border-zinc-700 bg-[#111827]/80 p-6 transition-colors hover:border-emerald-400/50"
+            className="rounded-2xl border border-cyan-400/20 bg-gradient-to-b from-[#0d1531] to-[#090f23] p-6 shadow-[0_8px_30px_rgba(2,6,23,0.6)] transition duration-300 hover:-translate-y-1 hover:border-cyan-300/40"
           >
-            <feature.icon className="h-6 w-6 text-emerald-300" />
-            <h3 className="mt-4 text-xl font-semibold text-white">
+            <feature.icon className="h-6 w-6 text-cyan-300" />
+            <h3 className="mt-4 text-lg font-semibold text-white">
               {feature.title}
             </h3>
             <p className="mt-2 text-sm leading-6 text-zinc-400">
               {feature.description}
             </p>
-          </div>
+          </article>
         ))}
       </div>
     </section>
