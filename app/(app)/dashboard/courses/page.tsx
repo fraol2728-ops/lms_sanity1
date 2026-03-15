@@ -1,7 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { BookOpen } from "lucide-react";
 import { redirect } from "next/navigation";
-import { CourseCard } from "@/components/courses";
+import { MyCoursesGrid } from "@/components/dashboard/MyCoursesGrid";
 import { sanityFetch } from "@/sanity/lib/live";
 import { DASHBOARD_COURSES_QUERY } from "@/sanity/lib/queries";
 import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
@@ -44,6 +44,17 @@ export default async function MyCoursesPage() {
     return acc;
   }, []);
 
+  const dashboardCourses = startedCourses.map((course) => ({
+    id: course._id,
+    title: course.title ?? "Untitled Course",
+    description: course.description,
+    thumbnailUrl: course.thumbnail?.asset?.url,
+    lessonCount: course.totalLessons,
+    completedLessons: course.completedLessons,
+    href: `/courses/${course.slug?.current ?? ""}`,
+    level: course.tier ? course.tier.toUpperCase() : null,
+  }));
+
   return (
     <div className="min-h-screen bg-[#09090b] text-white overflow-hidden">
       {/* Animated gradient mesh background */}
@@ -78,24 +89,8 @@ export default async function MyCoursesPage() {
           </p>
         </div>
 
-        {startedCourses.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {startedCourses.map((course) => (
-              <CourseCard
-                key={course.slug?.current ?? course._id}
-                slug={{ current: course.slug?.current ?? course._id }}
-                title={course.title}
-                description={course.description}
-                tier={course.tier}
-                thumbnail={course.thumbnail}
-                moduleCount={course.moduleCount}
-                lessonCount={course.totalLessons}
-                completedLessonCount={course.completedLessons}
-                isCompleted={course.completedBy?.includes(user.id) ?? false}
-                showProgress
-              />
-            ))}
-          </div>
+        {dashboardCourses.length > 0 ? (
+          <MyCoursesGrid courses={dashboardCourses} />
         ) : (
           <div className="text-center py-16">
             <div className="w-16 h-16 rounded-2xl bg-zinc-800/50 flex items-center justify-center mx-auto mb-4">
