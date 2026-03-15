@@ -34,6 +34,13 @@ export const lessonType = defineType({
         Rule.required().error("Slug is required for URL generation"),
       ],
     }),
+     defineField({
+      title: "Video file",
+      name: "video",
+      type: "mux.video",
+      group: ["content", "video"],
+      description: "Upload or select a video for this lesson",
+    }),
     defineField({
       name: "description",
       type: "text",
