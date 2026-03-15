@@ -62,7 +62,7 @@ function AdminBreadcrumb() {
     params: { baseId },
     projectId,
     dataset,
-  });
+  } as any);
 
   // Don't show breadcrumb on dashboard
   if (segments.length <= 1) return null;

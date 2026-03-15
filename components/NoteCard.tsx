@@ -44,7 +44,7 @@ export function NoteCard({ documentId }: NoteCardProps) {
     query: `*[_id == $id][0]{ _id }`,
     params: { id: documentId },
     perspective: "published",
-  });
+  } as any);
   const hasPublishedVersion = !!publishedDoc;
 
   // Listen to document events
