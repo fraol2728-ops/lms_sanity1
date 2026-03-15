@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import MuxPlayer from "@mux/mux-player-react";
 import { VideoOff } from "lucide-react";
 import { getMuxSignedTokens } from "@/lib/actions/mux";
 
@@ -83,20 +82,14 @@ export function MuxVideoPlayer({
 
   return (
     <div className={className}>
-      <MuxPlayer
-        playbackId={playbackId}
-        tokens={tokens ?? undefined}
-        metadata={{
-          video_title: title ?? "Lesson video",
-        }}
-        streamType="on-demand"
-        autoPlay={false}
-        className="w-full aspect-video rounded-xl overflow-hidden"
-        accentColor="#8b5cf6"
-        onError={() => {
-          // Error handling - player will show its own error UI
-        }}
-      />
+      <video
+        controls
+        preload="metadata"
+        className="w-full aspect-video rounded-xl overflow-hidden bg-black"
+        src={`https://stream.mux.com/${playbackId}.m3u8${tokens?.playback ? `?token=${tokens.playback}` : ""}`}
+      >
+        {title ?? "Lesson video"}
+      </video>
     </div>
   );
 }

@@ -19,14 +19,19 @@ import {
 import { sanityFetch } from "@/sanity/lib/live";
 import { FEATURED_COURSES_QUERY, STATS_QUERY } from "@/sanity/lib/queries";
 import { currentUser } from "@clerk/nextjs/server";
+import type { FEATURED_COURSES_QUERYResult, STATS_QUERYResult } from "@/sanity.types";
 
 export default async function Home() {
   // Fetch featured courses, stats, and check auth status
-  const [{ data: courses }, { data: stats }, user] = await Promise.all([
+  const [{ data: courses }, { data: stats }, user] = (await Promise.all([
     sanityFetch({ query: FEATURED_COURSES_QUERY }),
     sanityFetch({ query: STATS_QUERY }),
     currentUser(),
-  ]);
+  ])) as [
+    { data: FEATURED_COURSES_QUERYResult },
+    { data: STATS_QUERYResult },
+    Awaited<ReturnType<typeof currentUser>>,
+  ];
 
   const isSignedIn = !!user;
 

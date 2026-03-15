@@ -63,7 +63,7 @@ function DocumentActionsContent({
     query: `*[_id == $id][0]{ _id }`,
     params: { id: baseId },
     perspective: "published",
-  });
+  } as any);
 
   const isDraft = doc?._id.startsWith("drafts.");
   const hasPublishedVersion = !!publishedDoc;

@@ -5,6 +5,7 @@ import { Header } from "@/components/Header";
 import { CourseCard } from "@/components/courses";
 import { sanityFetch } from "@/sanity/lib/live";
 import { DASHBOARD_COURSES_QUERY } from "@/sanity/lib/queries";
+import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
 
 export default async function MyCoursesPage() {
   const user = await currentUser();
@@ -13,10 +14,10 @@ export default async function MyCoursesPage() {
     redirect("/");
   }
 
-  const { data: courses } = await sanityFetch({
+  const { data: courses } = (await sanityFetch({
     query: DASHBOARD_COURSES_QUERY,
     params: { userId: user.id },
-  });
+  })) as { data: DASHBOARD_COURSES_QUERYResult };
 
   // Calculate completion for each course and filter to started ones
   type Course = (typeof courses)[number];

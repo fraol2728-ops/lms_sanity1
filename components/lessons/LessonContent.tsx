@@ -1,3 +1,4 @@
+import type React from "react";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import type { TypedObject } from "@portabletext/types";
 import { urlFor } from "@/sanity/lib/image";
@@ -52,7 +53,7 @@ const components: PortableTextComponents = {
         {children}
       </code>
     ),
-    link: ({ children, value }) => (
+    link: ({ children, value }: { children?: React.ReactNode; value?: { href?: string } }) => (
       <a
         href={value?.href}
         target="_blank"
@@ -64,7 +65,7 @@ const components: PortableTextComponents = {
     ),
   },
   types: {
-    image: ({ value }) => {
+    image: ({ value }: { value?: { asset?: unknown; alt?: string; caption?: string } }) => {
       if (!value?.asset) {
         return null;
       }

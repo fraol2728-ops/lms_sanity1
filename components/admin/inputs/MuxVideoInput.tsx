@@ -7,7 +7,6 @@ import {
   type DocumentHandle,
 } from "@sanity/sdk-react";
 import MuxUploader from "@mux/mux-uploader-react";
-import MuxPlayer from "@mux/mux-player-react";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -89,7 +88,7 @@ function MuxVideoInputField({ path, label, ...handle }: MuxVideoInputProps) {
       // Fetch the asset document using server action
       import("@/sanity/lib/client").then(({ client }) => {
         client
-          .fetch<MuxAssetData>(`*[_id == $id][0]{ playbackId, status, data }`, {
+          .fetch(`*[_id == $id][0]{ playbackId, status, data }`, {
             id: assetRef,
           })
           .then(setAssetData)
@@ -242,15 +241,15 @@ function MuxVideoInputField({ path, label, ...handle }: MuxVideoInputProps) {
         <div className="rounded-lg border border-zinc-700 bg-zinc-800/30 overflow-hidden">
           {/* Video Player */}
           <div className="relative">
-            {playbackId && tokens ? (
-              <MuxPlayer
-                playbackId={playbackId}
-                tokens={tokens}
-                streamType="on-demand"
-                autoPlay={false}
-                className="w-full aspect-video"
-                accentColor="#8b5cf6"
-              />
+            {playbackId ? (
+              <video
+                controls
+                preload="metadata"
+                className="w-full aspect-video bg-black"
+                src={`https://stream.mux.com/${playbackId}.m3u8${tokens?.playback ? `?token=${tokens.playback}` : ""}`}
+              >
+                Uploaded lesson video
+              </video>
             ) : (
               <div className="aspect-video bg-zinc-900 flex items-center justify-center">
                 <Loader2 className="h-6 w-6 animate-spin text-zinc-500" />
