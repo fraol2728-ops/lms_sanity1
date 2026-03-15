@@ -1,13 +1,14 @@
 "use client";
 
 import { useAuth } from "@clerk/nextjs";
-import { CourseHero } from "./CourseHero";
-import { ModuleAccordion } from "./ModuleAccordion";
-import { CourseCompleteButton } from "./CourseCompleteButton";
-import { GatedFallback } from "./GatedFallback";
-import { useUserTier, hasTierAccess } from "@/lib/hooks/use-user-tier";
+import { hasTierAccess, useUserTier } from "@/lib/hooks/use-user-tier";
 import type { COURSE_WITH_MODULES_QUERYResult } from "@/sanity.types";
 import { Skeleton } from "../ui/skeleton";
+import { CourseCompleteButton } from "./CourseCompleteButton";
+import { CourseHero } from "./CourseHero";
+import { CourseProgress } from "./CourseProgress";
+import { GatedFallback } from "./GatedFallback";
+import { ModuleAccordion } from "./ModuleAccordion";
 
 interface CourseContentProps {
   course: NonNullable<COURSE_WITH_MODULES_QUERYResult>;
@@ -17,29 +18,37 @@ interface CourseContentProps {
 export function CourseContent({ course, userId }: CourseContentProps) {
   const { isLoaded: isAuthLoaded } = useAuth();
   const userTier = useUserTier();
-
-  // Check if user has access to this course
   const hasAccess = hasTierAccess(userTier, course.tier);
 
-  // Calculate completion stats from actual lesson data
-  let totalLessons = 0;
-  let completedLessons = 0;
+  const lessons = (course.modules ?? []).flatMap(
+    (module) => module.lessons ?? [],
+  );
+  const totalLessons = lessons.length;
+  const completedLessons = lessons.filter((lesson) =>
+    userId ? lesson.completedBy?.includes(userId) : false,
+  ).length;
+  const progressPercent =
+    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
 
-  for (const m of course.modules ?? []) {
-    for (const l of m.lessons ?? []) {
-      totalLessons++;
-      if (userId && l.completedBy?.includes(userId)) {
-        completedLessons++;
-      }
-    }
-  }
+  const firstLessonSlug = lessons[0]?.slug?.current;
+  const firstIncompleteLessonSlug = lessons.find((lesson) =>
+    userId ? !lesson.completedBy?.includes(userId) : true,
+  )?.slug?.current;
+
+  const courseHref = `/courses/${course.slug?.current}`;
+  const startHref = firstLessonSlug
+    ? `/lessons/${firstLessonSlug}`
+    : courseHref;
+  const continueHref = firstIncompleteLessonSlug
+    ? `/lessons/${firstIncompleteLessonSlug}`
+    : startHref;
 
   const isCourseCompleted = userId
     ? (course.completedBy?.includes(userId) ?? false)
     : false;
 
   if (!isAuthLoaded) {
-    return <Skeleton className="w-full h-full" />;
+    return <Skeleton className="h-full w-full" />;
   }
 
   return (
@@ -48,19 +57,20 @@ export function CourseContent({ course, userId }: CourseContentProps) {
         title={course.title}
         description={course.description ?? null}
         tier={course.tier}
-        thumbnail={course.thumbnail}
-        category={course.category}
         moduleCount={course.moduleCount}
         lessonCount={course.lessonCount}
+        startHref={startHref}
+        continueHref={continueHref}
       />
 
       {hasAccess ? (
         <div className="space-y-8">
-          {/* Course completion progress */}
+          <CourseProgress progress={progressPercent} />
+
           {userId && (
             <CourseCompleteButton
               courseId={course._id}
-              courseSlug={course.slug!.current!}
+              courseSlug={course.slug?.current ?? ""}
               isCompleted={isCourseCompleted}
               completedLessons={completedLessons}
               totalLessons={totalLessons}

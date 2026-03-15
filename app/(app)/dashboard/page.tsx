@@ -1,11 +1,13 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { ArrowRight, BookOpen, Sparkles } from "lucide-react";
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { CourseList } from "@/components/courses";
+import { Achievements } from "@/components/dashboard/Achievements";
+import { ContinueLearning } from "@/components/dashboard/ContinueLearning";
+import { CourseProgressCard } from "@/components/dashboard/CourseProgressCard";
+import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { getUserTier } from "@/lib/course-access";
 import { sanityFetch } from "@/sanity/lib/live";
 import { DASHBOARD_COURSES_QUERY } from "@/sanity/lib/queries";
+import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -22,120 +24,87 @@ export default async function DashboardPage() {
     getUserTier(),
   ]);
 
-  const firstName = user.firstName ?? user.username ?? "there";
+  const firstName = user.firstName ?? user.username ?? "Operator";
+
+  const dashboardCourses = courses as DASHBOARD_COURSES_QUERYResult;
+
+  const courseProgress = dashboardCourses.map((course) => {
+    const lessons = (course.modules ?? []).flatMap(
+      (module) => module.lessons ?? [],
+    );
+    const totalLessons = lessons.length;
+    const completedLessons = lessons.filter((lesson) =>
+      lesson.completedBy?.includes(user.id),
+    ).length;
+    const progress =
+      totalLessons > 0
+        ? Math.round((completedLessons / totalLessons) * 100)
+        : 0;
+    return {
+      id: course._id,
+      title: course.title ?? "Untitled Course",
+      progress,
+      courseHref: `/courses/${course.slug?.current ?? ""}`,
+      nextLessonTitle:
+        progress < 100 ? "Continue your next mission" : "Final review",
+      lessonHref: `/courses/${course.slug?.current ?? ""}`,
+    };
+  });
+
+  const activeCourse =
+    courseProgress.find((course) => course.progress < 100) ?? courseProgress[0];
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white overflow-hidden">
-      {/* Animated gradient mesh background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[120px] animate-pulse" />
-        <div
-          className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[100px] animate-pulse"
-          style={{ animationDelay: "1s" }}
-        />
-        <div
-          className="absolute top-[40%] right-[20%] w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[80px] animate-pulse"
-          style={{ animationDelay: "2s" }}
-        />
-      </div>
+    <div className="min-h-screen bg-[#05080f] text-white">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(34,211,238,0.12),transparent_35%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.1),transparent_35%)]" />
+      <div className="relative mx-auto flex max-w-[1400px]">
+        <DashboardSidebar />
 
-      {/* Noise texture overlay */}
-      <div
-        className="fixed inset-0 pointer-events-none opacity-[0.015]"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* Navigation */}
-
-      {/* Main Content */}
-      <main className="relative z-10 px-6 lg:px-12 py-12 max-w-7xl mx-auto">
-        {/* Welcome Header */}
-        <div className="mb-12">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight">
-              Welcome back,{" "}
-              <span className="bg-gradient-to-r from-violet-400 via-fuchsia-400 to-cyan-400 bg-clip-text text-transparent">
-                {firstName}
-              </span>
+        <main className="w-full px-5 pb-10 pt-24 lg:px-10 lg:pt-10">
+          <section className="mb-8 rounded-2xl border border-cyan-500/20 bg-[#070d18]/80 p-6">
+            <p className="text-sm uppercase tracking-[0.2em] text-cyan-400">
+              Welcome back, {firstName}
+            </p>
+            <h1 className="mt-2 text-3xl font-bold text-white">
+              Continue your cybersecurity training
             </h1>
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 shrink-0">
-              <Sparkles className="w-4 h-4 text-violet-400" />
-              <span className="text-sm text-violet-300">
-                {userTier === "ultra"
-                  ? "Ultra Member"
-                  : userTier === "pro"
-                    ? "Pro Member"
-                    : "Free Member"}
-              </span>
-            </div>
+            <p className="mt-2 text-zinc-400">
+              Current access:{" "}
+              <span className="capitalize text-cyan-300">{userTier}</span>
+            </p>
+          </section>
+
+          <div className="space-y-8">
+            {activeCourse && (
+              <ContinueLearning
+                title={activeCourse.title}
+                lessonTitle={activeCourse.nextLessonTitle}
+                progress={activeCourse.progress}
+                resumeHref={activeCourse.lessonHref}
+              />
+            )}
+
+            <section>
+              <h3 className="mb-4 text-xl font-semibold text-white">
+                My Courses
+              </h3>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {courseProgress.map((course, index) => (
+                  <CourseProgressCard
+                    key={course.id}
+                    title={course.title}
+                    progress={course.progress}
+                    href={course.courseHref}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </section>
+
+            <Achievements />
           </div>
-          <p className="text-lg text-zinc-400 max-w-2xl">
-            Pick up where you left off or discover something new. Your learning
-            journey continues here.
-          </p>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-12">
-          <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
-                <BookOpen className="w-5 h-5 text-violet-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold">{courses.length}</p>
-                <p className="text-sm text-zinc-500">Available Courses</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 rounded-xl bg-zinc-900/50 border border-zinc-800">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-2xl font-bold capitalize">{userTier}</p>
-                <p className="text-sm text-zinc-500">Current Plan</p>
-              </div>
-            </div>
-          </div>
-
-          {userTier !== "ultra" && (
-            <Link
-              href="/pricing"
-              className="p-6 rounded-xl bg-gradient-to-br from-violet-600/20 to-fuchsia-600/20 border border-violet-500/30 hover:border-violet-500/50 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-lg font-semibold text-white group-hover:text-violet-300 transition-colors">
-                    Upgrade to {userTier === "free" ? "Pro" : "Ultra"}
-                  </p>
-                  <p className="text-sm text-zinc-400">
-                    {userTier === "pro"
-                      ? "Get AI Learning Assistant & exclusive content"
-                      : "Unlock more courses & features"}
-                  </p>
-                </div>
-                <ArrowRight className="w-5 h-5 text-violet-400 group-hover:translate-x-1 transition-transform" />
-              </div>
-            </Link>
-          )}
-        </div>
-
-        {/* Course List */}
-        <div>
-          <h2 className="text-2xl font-bold mb-6">All Courses</h2>
-          <CourseList
-            courses={courses}
-            showFilters
-            showSearch
-            emptyMessage="No courses available yet. Check back soon!"
-          />
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,21 +1,19 @@
 "use client";
 
-import Link from "next/link";
+import { motion } from "framer-motion";
 import { CheckCircle2, Circle, Play } from "lucide-react";
-import { cn } from "@/lib/utils";
+import Link from "next/link";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { cn } from "@/lib/utils";
 import type { LESSON_BY_ID_QUERYResult } from "@/sanity.types";
 
-// Infer types from Sanity query result
 type Course = NonNullable<LESSON_BY_ID_QUERYResult>["courses"][number];
-type CourseModules = Course["modules"];
-type Module = NonNullable<CourseModules>[number];
-type Lesson = NonNullable<Module["lessons"]>[number];
+type Module = NonNullable<Course["modules"]>[number];
 
 interface LessonSidebarProps {
   courseSlug: string;
@@ -32,112 +30,83 @@ export function LessonSidebar({
   currentLessonId,
   completedLessonIds = [],
 }: LessonSidebarProps) {
-  if (!modules || modules.length === 0) {
-    return null;
-  }
+  if (!modules?.length) return null;
 
-  // Find which module contains the current lesson
-  const currentModuleId = modules.find((m) =>
-    m.lessons?.some((l) => l._id === currentLessonId),
+  const currentModuleId = modules.find((module) =>
+    module.lessons?.some((lesson) => lesson._id === currentLessonId),
   )?._id;
 
   return (
-    <div className="w-full lg:w-80 shrink-0">
-      <div className="sticky top-24 bg-zinc-900/50 border border-zinc-800 rounded-xl overflow-hidden">
-        {/* Course header */}
-        <div className="p-4 border-b border-zinc-800">
+    <aside className="w-full lg:w-80">
+      <motion.div
+        initial={{ opacity: 0, x: -18 }}
+        animate={{ opacity: 1, x: 0 }}
+        className="sticky top-24 overflow-hidden rounded-xl border border-cyan-500/25 bg-[#07101d]/90"
+      >
+        <div className="border-b border-cyan-500/20 p-4">
           <Link
             href={`/courses/${courseSlug}`}
-            className="text-sm text-zinc-400 hover:text-white transition-colors"
+            className="text-xs uppercase tracking-[0.18em] text-cyan-300"
           >
-            ← Back to course
+            ← Back to Course
           </Link>
-          <h3 className="font-semibold text-white mt-2 line-clamp-2">
+          <h3 className="mt-2 line-clamp-2 font-semibold text-white">
             {courseTitle ?? "Course"}
           </h3>
         </div>
 
-        {/* Modules and lessons */}
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="max-h-[70vh] overflow-y-auto p-2">
           <Accordion
             type="multiple"
             defaultValue={currentModuleId ? [currentModuleId] : []}
-            className="w-full"
+            className="space-y-2"
           >
-            {modules.map((module, moduleIndex) => {
-              const lessonCount = module.lessons?.length ?? 0;
-              const completedCount =
-                module.lessons?.filter((l) =>
-                  completedLessonIds.includes(l._id),
-                ).length ?? 0;
+            {modules.map((module, moduleIndex) => (
+              <AccordionItem
+                key={module._id}
+                value={module._id}
+                className="rounded-lg border border-zinc-800 bg-zinc-900/50 px-1"
+              >
+                <AccordionTrigger className="px-3 py-2 text-left text-sm hover:no-underline">
+                  <span>
+                    Module {moduleIndex + 1} — {module.title ?? "Untitled"}
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="space-y-1 pb-2">
+                  {module.lessons?.map((lesson) => {
+                    const active = lesson._id === currentLessonId;
+                    const done = completedLessonIds.includes(lesson._id);
 
-              return (
-                <AccordionItem
-                  key={module._id}
-                  value={module._id}
-                  className="border-b border-zinc-800 last:border-b-0"
-                >
-                  <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-zinc-800/50 text-left">
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <span className="flex items-center justify-center w-6 h-6 rounded bg-violet-500/20 text-violet-400 text-xs font-bold shrink-0">
-                        {moduleIndex + 1}
-                      </span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-zinc-500 uppercase tracking-wider">
-                            Module
-                          </span>
-                        </div>
-                        <p className="font-medium text-sm text-white truncate mt-0.5">
-                          {module.title ?? "Untitled Module"}
-                        </p>
-                        <p className="text-xs text-zinc-500">
-                          {completedCount}/{lessonCount} lessons
-                        </p>
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-
-                  <AccordionContent className="pb-3 pt-1">
-                    <div className="ml-4 border-l-2 border-zinc-800 pl-3 space-y-1">
-                      {module.lessons?.map((lesson, lessonIndex) => {
-                        const isActive = lesson._id === currentLessonId;
-                        const isCompleted = completedLessonIds.includes(
-                          lesson._id,
-                        );
-
-                        return (
-                          <Link
-                            key={lesson._id}
-                            href={`/lessons/${lesson.slug!.current!}`}
-                            className={cn(
-                              "flex items-center gap-2.5 pl-2 pr-3 py-2 rounded-lg text-sm transition-colors",
-                              isActive
-                                ? "bg-violet-500/20 text-violet-300"
-                                : "text-zinc-400 hover:text-white hover:bg-zinc-800/50",
-                            )}
-                          >
-                            {isCompleted ? (
-                              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                            ) : isActive ? (
-                              <Play className="w-4 h-4 text-violet-400 shrink-0 fill-violet-400" />
-                            ) : (
-                              <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
-                            )}
-                            <span className="truncate">
-                              {lesson.title ?? "Untitled Lesson"}
-                            </span>
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              );
-            })}
+                    return (
+                      <Link
+                        key={lesson._id}
+                        href={`/lessons/${lesson.slug?.current}`}
+                        className={cn(
+                          "flex items-center gap-2 rounded-md px-2 py-2 text-sm transition",
+                          active
+                            ? "bg-cyan-500/20 text-cyan-200"
+                            : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-100",
+                        )}
+                      >
+                        {done ? (
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                        ) : active ? (
+                          <Play className="h-4 w-4 shrink-0 text-cyan-400" />
+                        ) : (
+                          <Circle className="h-4 w-4 shrink-0 text-zinc-600" />
+                        )}
+                        <span className="truncate">
+                          {lesson.title ?? "Untitled Lesson"}
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
           </Accordion>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </aside>
   );
 }
