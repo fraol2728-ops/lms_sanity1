@@ -1,99 +1,84 @@
-import Image from "next/image";
+import { ArrowLeft, Clock3, Layers, PlayCircle, Shield } from "lucide-react";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, Play, Tag } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { TIER_STYLES } from "@/lib/constants";
 import type { COURSE_WITH_MODULES_QUERYResult } from "@/sanity.types";
 
-// Infer props from Sanity query result
 type Course = NonNullable<COURSE_WITH_MODULES_QUERYResult>;
 
 type CourseHeroProps = Pick<
   Course,
-  "title" | "description" | "tier" | "thumbnail" | "category" | "moduleCount" | "lessonCount"
->;
+  "title" | "description" | "tier" | "moduleCount" | "lessonCount"
+> & {
+  startHref: string;
+  continueHref: string;
+};
 
 export function CourseHero({
   title,
   description,
   tier,
-  thumbnail,
-  category,
   moduleCount,
   lessonCount,
+  startHref,
+  continueHref,
 }: CourseHeroProps) {
   const displayTier = tier ?? "free";
   const styles = TIER_STYLES[displayTier];
+  const estimatedMinutes = (lessonCount ?? 0) * 12;
 
   return (
-    <div className="mb-12">
-      {/* Back link */}
+    <section className="mb-10 rounded-2xl border border-cyan-500/20 bg-[#07101d]/85 p-7 shadow-[0_0_55px_rgba(14,116,144,0.15)]">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors mb-8"
+        className="mb-5 inline-flex items-center gap-2 text-sm text-zinc-400 transition hover:text-cyan-300"
       >
-        <ArrowLeft className="w-4 h-4" />
-        Back to dashboard
+        <ArrowLeft className="h-4 w-4" /> Back to dashboard
       </Link>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Thumbnail */}
-        <div
-          className={`relative w-full lg:w-80 h-48 lg:h-52 rounded-2xl bg-gradient-to-br ${styles.gradient} flex items-center justify-center overflow-hidden shrink-0`}
-        >
-          {thumbnail?.asset?.url ? (
-            <Image
-              src={thumbnail.asset.url}
-              alt={title ?? "Course thumbnail"}
-              fill
-              className="object-cover"
-            />
-          ) : (
-            <div className="text-7xl opacity-50">📚</div>
-          )}
-          <div className="absolute inset-0 bg-black/10" />
+      <div className="space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge className={`${styles.text} ${styles.border} bg-transparent`}>
+            <Shield className="mr-1 h-3 w-3" />
+            {displayTier.toUpperCase()} LEVEL
+          </Badge>
+          <Badge variant="outline" className="border-zinc-700 text-zinc-300">
+            <Layers className="mr-1 h-3 w-3" />
+            {moduleCount ?? 0} Modules
+          </Badge>
+          <Badge variant="outline" className="border-zinc-700 text-zinc-300">
+            <Clock3 className="mr-1 h-3 w-3" />
+            {estimatedMinutes} min
+          </Badge>
         </div>
 
-        {/* Course Info */}
-        <div className="flex-1">
-          <div className="flex flex-wrap items-center gap-3 mb-4">
-            <Badge className={`${styles.text} ${styles.border} bg-transparent`}>
-              {displayTier.toUpperCase()}
-            </Badge>
-            {category?.title && (
-              <Badge
-                variant="outline"
-                className="border-zinc-700 text-zinc-400"
-              >
-                <Tag className="w-3 h-3 mr-1" />
-                {category.title}
-              </Badge>
-            )}
-          </div>
+        <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">
+          {title ?? "Untitled Course"}
+        </h1>
+        <p className="max-w-3xl text-zinc-400">
+          {description ?? "No description available."}
+        </p>
 
-          <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-4 text-white">
-            {title ?? "Untitled Course"}
-          </h1>
-
-          {description && (
-            <p className="text-lg text-zinc-400 mb-6 leading-relaxed max-w-2xl">
-              {description}
-            </p>
-          )}
-
-          <div className="flex items-center gap-6 text-sm text-zinc-500">
-            <span className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              {moduleCount ?? 0} modules
-            </span>
-            <span className="flex items-center gap-2">
-              <Play className="w-4 h-4" />
-              {lessonCount ?? 0} lessons
-            </span>
-          </div>
+        <div className="flex flex-wrap gap-3 pt-2">
+          <Button
+            asChild
+            className="bg-cyan-500 text-[#061018] hover:bg-cyan-400"
+          >
+            <Link href={startHref}>Start Course</Link>
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            className="border-cyan-500/40 bg-transparent text-cyan-200 hover:bg-cyan-500/10"
+          >
+            <Link href={continueHref}>
+              <PlayCircle className="mr-2 h-4 w-4" />
+              Continue Course
+            </Link>
+          </Button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
-
