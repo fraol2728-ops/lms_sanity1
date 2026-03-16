@@ -134,15 +134,15 @@ export function Header() {
         )}
       >
         <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="group inline-flex items-center gap-3">
+          <Link href="/" className="group inline-flex items-center gap-2.5 sm:gap-3">
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-[#0b1229] shadow-[0_0_25px_rgba(34,211,238,0.22)] transition group-hover:border-cyan-300/70">
               <Shield className="h-5 w-5 text-cyan-300" />
             </span>
             <div className="leading-tight">
-              <p className="text-xs uppercase tracking-[0.24em] text-zinc-500">
+              <p className="hidden text-xs uppercase tracking-[0.24em] text-zinc-500 sm:block">
                 Next
               </p>
-              <p className="text-base font-semibold text-white">
+              <p className="whitespace-nowrap text-sm font-semibold text-white sm:text-base">
                 Cyber <span className="text-cyan-300">Camp</span>
               </p>
             </div>
