@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
+import { CategoryCards } from "@/components/courses/CategoryCards";
 import { CourseCard } from "@/components/courses/CourseCard";
 import {
   type CourseFilter,
@@ -14,7 +15,7 @@ export interface CatalogCourse {
   title: string;
   slug: string;
   instructor: string;
-  difficulty: "Beginner" | "Advanced";
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
   category: "Web Security" | "Linux" | "Network Security" | "Bug Bounty";
   lessonCount: number;
   durationLabel: string;
@@ -28,6 +29,7 @@ interface CoursesGridProps {
 export function CoursesGrid({ courses }: CoursesGridProps) {
   const [query, setQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<CourseFilter>("All");
+  const [selectedCategory, setSelectedCategory] = useState<string>("All");
 
   const filteredCourses = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -39,19 +41,42 @@ export function CoursesGrid({ courses }: CoursesGridProps) {
         course.instructor.toLowerCase().includes(normalizedQuery) ||
         course.category.toLowerCase().includes(normalizedQuery);
 
-      const categoryMatch =
-        selectedFilter === "All" ||
-        course.category === selectedFilter ||
-        course.difficulty === selectedFilter;
+      const levelMatch =
+        selectedFilter === "All" || course.difficulty === selectedFilter;
 
-      return textMatch && categoryMatch;
+      const categoryMatch =
+        selectedCategory === "All" || course.category === selectedCategory;
+
+      return textMatch && levelMatch && categoryMatch;
     });
-  }, [courses, query, selectedFilter]);
+  }, [courses, query, selectedFilter, selectedCategory]);
 
   return (
     <section className="space-y-6">
-      <CourseSearch value={query} onChange={setQuery} />
-      <CourseFilters selected={selectedFilter} onSelect={setSelectedFilter} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.45, ease: "easeOut" }}
+      >
+        <CourseSearch value={query} onChange={setQuery} />
+      </motion.div>
+
+      <CategoryCards
+        selectedCategory={selectedCategory}
+        onSelectCategory={(category) =>
+          setSelectedCategory((prev) => (prev === category ? "All" : category))
+        }
+      />
+
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.4 }}
+        transition={{ duration: 0.45, ease: "easeOut", delay: 0.05 }}
+      >
+        <CourseFilters selected={selectedFilter} onSelect={setSelectedFilter} />
+      </motion.div>
 
       <motion.div
         variants={{
@@ -63,7 +88,8 @@ export function CoursesGrid({ courses }: CoursesGridProps) {
           },
         }}
         initial="hidden"
-        animate="show"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.15 }}
         className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3"
       >
         {filteredCourses.map((course) => (

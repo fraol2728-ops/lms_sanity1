@@ -1,4 +1,7 @@
-import { CoursesGrid, type CatalogCourse } from "@/components/courses/CoursesGrid";
+import {
+  type CatalogCourse,
+  CoursesGrid,
+} from "@/components/courses/CoursesGrid";
 import { sanityFetch } from "@/sanity/lib/live";
 import { DASHBOARD_COURSES_QUERY } from "@/sanity/lib/queries";
 import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
@@ -10,8 +13,13 @@ const categoryCycle: CatalogCourse["category"][] = [
   "Bug Bounty",
 ];
 
-const inferDifficulty = (tier: string | null | undefined): CatalogCourse["difficulty"] =>
-  tier === "ultra" ? "Advanced" : "Beginner";
+const inferDifficulty = (
+  tier: string | null | undefined,
+): CatalogCourse["difficulty"] => {
+  if (tier === "ultra") return "Advanced";
+  if (tier === "pro") return "Intermediate";
+  return "Beginner";
+};
 
 export default async function CoursesPage() {
   const { data } = (await sanityFetch({
@@ -47,8 +55,8 @@ export default async function CoursesPage() {
             Explore Cybersecurity Courses
           </h1>
           <p className="mx-auto mt-4 max-w-3xl text-zinc-200/90">
-            Learn ethical hacking, penetration testing, and cybersecurity skills
-            with structured training.
+            Master ethical hacking, penetration testing, and cybersecurity
+            skills with structured training.
           </p>
         </section>
 
