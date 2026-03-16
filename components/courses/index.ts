@@ -7,3 +7,6 @@ export { CourseProgress } from "./CourseProgress";
 export { GatedFallback } from "./GatedFallback";
 export { ModuleAccordion } from "./ModuleAccordion";
 export { type TierFilter, TierFilterTabs } from "./TierFilterTabs";
+export { CourseSearch } from "./CourseSearch";
+export { CourseFilters } from "./CourseFilters";
+export { CoursesGrid, type CatalogCourse } from "./CoursesGrid";

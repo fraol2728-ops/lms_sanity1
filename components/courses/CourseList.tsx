@@ -5,7 +5,6 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { CourseCard } from "./CourseCard";
 import { TierFilterTabs, type TierFilter } from "./TierFilterTabs";
-import { useUserTier, hasTierAccess } from "@/lib/hooks/use-user-tier";
 import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
 
 // Infer course type from Sanity query result
@@ -24,7 +23,6 @@ export function CourseList({
   showSearch = true,
   emptyMessage = "No courses found",
 }: CourseListProps) {
-  const userTier = useUserTier();
   const [tierFilter, setTierFilter] = useState<TierFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -81,14 +79,17 @@ export function CourseList({
           {filteredCourses.map((course) => (
             <CourseCard
               key={course.slug!.current!}
-              slug={{ current: course.slug!.current! }}
+              href={`/courses/${course.slug!.current!}`}
               title={course.title}
-              description={course.description}
-              tier={course.tier}
-              thumbnail={course.thumbnail}
-              moduleCount={course.moduleCount}
-              lessonCount={course.lessonCount}
-              isLocked={!hasTierAccess(userTier, course.tier)}
+              instructor={course.category?.title ?? "Next Cyber Camp Instructor"}
+              difficulty={
+                course.tier === "ultra"
+                  ? "Advanced"
+                  : "Beginner"
+              }
+              thumbnailUrl={course.thumbnail?.asset?.url}
+              lessonCount={course.lessonCount ?? 0}
+              durationLabel={`${Math.max(1, Math.ceil((course.lessonCount ?? 0) / 4))} Hours`}
             />
           ))}
         </div>
