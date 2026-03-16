@@ -1,4 +1,5 @@
 import { ArrowLeft, Clock3, Layers, PlayCircle, Shield } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ type Course = NonNullable<COURSE_WITH_MODULES_QUERYResult>;
 
 type CourseHeroProps = Pick<
   Course,
-  "title" | "description" | "tier" | "moduleCount" | "lessonCount"
+  "title" | "description" | "thumbnail" | "tier" | "moduleCount" | "lessonCount"
 > & {
   startHref: string;
   continueHref: string;
@@ -18,6 +19,7 @@ type CourseHeroProps = Pick<
 export function CourseHero({
   title,
   description,
+  thumbnail,
   tier,
   moduleCount,
   lessonCount,
@@ -60,6 +62,26 @@ export function CourseHero({
           {description ?? "No description available."}
         </p>
 
+        <div className="relative mt-2 overflow-hidden rounded-2xl border border-cyan-400/25 bg-gradient-to-br from-[#0a1730]/95 via-[#0b1b34]/90 to-[#050b14]/95 p-2 shadow-[0_20px_60px_rgba(6,182,212,0.18)]">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_45%),radial-gradient(circle_at_bottom_right,rgba(147,51,234,0.2),transparent_50%)]" />
+          <div className="relative overflow-hidden rounded-xl border border-cyan-300/15 bg-black/30">
+            {thumbnail?.asset?.url ? (
+              <Image
+                src={thumbnail.asset.url}
+                alt={title ?? "Course thumbnail"}
+                width={1200}
+                height={675}
+                className="h-48 w-full object-cover md:h-64"
+                priority
+              />
+            ) : (
+              <div className="flex h-48 w-full items-center justify-center bg-gradient-to-br from-cyan-900/40 via-violet-900/30 to-slate-950 md:h-64">
+                <span className="text-5xl">📚</span>
+              </div>
+            )}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#020617]/75 via-transparent to-cyan-200/10" />
+          </div>
+        </div>
         <div className="flex flex-wrap gap-3 pt-2">
           <Button
             asChild

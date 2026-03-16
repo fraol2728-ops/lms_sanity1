@@ -56,6 +56,7 @@ export function CourseContent({ course, userId }: CourseContentProps) {
       <CourseHero
         title={course.title}
         description={course.description ?? null}
+        thumbnail={course.thumbnail ?? null}
         tier={course.tier}
         moduleCount={course.moduleCount}
         lessonCount={course.lessonCount}
