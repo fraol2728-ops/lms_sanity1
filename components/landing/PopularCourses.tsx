@@ -15,7 +15,7 @@ export function PopularCourses({ courses }: PopularCoursesProps) {
       <div className="mb-8">
         <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">Popular Courses</p>
         <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-          Trending cybersecurity courses from Next Cyber Camp
+          Trending courses from Next Cyber Camp
         </h2>
       </div>
 
