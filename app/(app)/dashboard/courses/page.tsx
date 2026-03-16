@@ -44,16 +44,24 @@ export default async function MyCoursesPage() {
     return acc;
   }, []);
 
-  const dashboardCourses = startedCourses.map((course) => ({
-    id: course._id,
-    title: course.title ?? "Untitled Course",
-    description: course.description,
-    thumbnailUrl: course.thumbnail?.asset?.url,
-    lessonCount: course.totalLessons,
-    completedLessons: course.completedLessons,
-    href: `/courses/${course.slug?.current ?? ""}`,
-    level: course.tier ? course.tier.toUpperCase() : null,
-  }));
+  const dashboardCourses = startedCourses.map((course) => {
+    const estimatedHours = Math.max(1, Math.ceil(course.totalLessons / 3));
+
+    return {
+      id: course._id,
+      title: course.title ?? "Untitled Course",
+      description: course.description,
+      thumbnailUrl: course.thumbnail?.asset?.url,
+      lessonCount: course.totalLessons,
+      completedLessons: course.completedLessons,
+      href: `/courses/${course.slug?.current ?? ""}`,
+      level: course.tier
+        ? `${course.tier.charAt(0).toUpperCase()}${course.tier.slice(1).toLowerCase()}`
+        : null,
+      category: course.category?.title ?? null,
+      estimatedTime: `${estimatedHours} ${estimatedHours === 1 ? "hour" : "hours"}`,
+    };
+  });
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white overflow-hidden">

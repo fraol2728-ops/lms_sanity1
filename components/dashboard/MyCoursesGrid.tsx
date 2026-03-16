@@ -15,6 +15,8 @@ interface DashboardCourse {
   completedLessons: number;
   href: string;
   level?: string | null;
+  category?: string | null;
+  estimatedTime?: string;
 }
 
 interface MyCoursesGridProps {
@@ -68,12 +70,13 @@ export function MyCoursesGrid({ courses }: MyCoursesGridProps) {
             <motion.div key={course.id} variants={itemVariants}>
               <CourseCard
                 title={course.title}
-                description={course.description}
                 thumbnailUrl={course.thumbnailUrl}
                 lessonCount={course.lessonCount}
                 completedLessons={course.completedLessons}
                 href={course.href}
                 level={course.level}
+                category={course.category}
+                estimatedTime={course.estimatedTime}
               />
             </motion.div>
           ))}
