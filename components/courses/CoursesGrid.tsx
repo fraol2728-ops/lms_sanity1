@@ -16,17 +16,23 @@ export interface CatalogCourse {
   slug: string;
   instructor: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
-  category: "Web Security" | "Linux" | "Network Security" | "Bug Bounty";
+  category: string;
   lessonCount: number;
   durationLabel: string;
   thumbnailUrl?: string | null;
 }
 
-interface CoursesGridProps {
-  courses: CatalogCourse[];
+interface CategoryOption {
+  id: string;
+  title: string;
 }
 
-export function CoursesGrid({ courses }: CoursesGridProps) {
+interface CoursesGridProps {
+  courses: CatalogCourse[];
+  categories: CategoryOption[];
+}
+
+export function CoursesGrid({ courses, categories }: CoursesGridProps) {
   const [query, setQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<CourseFilter>("All");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -63,6 +69,7 @@ export function CoursesGrid({ courses }: CoursesGridProps) {
       </motion.div>
 
       <CategoryCards
+        categories={categories}
         selectedCategory={selectedCategory}
         onSelectCategory={(category) =>
           setSelectedCategory((prev) => (prev === category ? "All" : category))
