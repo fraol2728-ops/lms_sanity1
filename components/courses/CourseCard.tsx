@@ -1,10 +1,11 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 type LegacyTier = "free" | "ultra" | "pro" | null;
 
@@ -12,14 +13,16 @@ export interface CourseCardProps {
   href?: string;
   title?: string | null;
   instructor?: string;
-  difficulty?: "Beginner" | "Advanced";
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
   thumbnailUrl?: string | null;
   lessonCount?: number | null;
   durationLabel?: string;
   // legacy compatibility
   description?: string | null;
   tier?: LegacyTier;
-  thumbnail?: { asset?: { url?: string | null; [key: string]: unknown } | null } | null;
+  thumbnail?: {
+    asset?: { url?: string | null; [key: string]: unknown } | null;
+  } | null;
   moduleCount?: number | null;
 }
 
@@ -48,7 +51,10 @@ export function CourseCard({
     }`;
 
   return (
-    <motion.div whileHover={{ y: -6, scale: 1.01 }} transition={{ duration: 0.2 }}>
+    <motion.div
+      whileHover={{ y: -6, scale: 1.01 }}
+      transition={{ duration: 0.2 }}
+    >
       <Link
         href={href ?? "#"}
         className="group block overflow-hidden rounded-2xl border border-zinc-800 bg-zinc-900/80 shadow-lg shadow-black/20 transition-all duration-300 hover:border-violet-500/40 hover:shadow-violet-500/20"
@@ -72,11 +78,25 @@ export function CourseCard({
             <h3 className="line-clamp-2 text-lg font-semibold text-white transition-colors group-hover:text-violet-300">
               {resolvedTitle}
             </h3>
-            {description && <p className="line-clamp-2 text-sm text-zinc-400">{description}</p>}
-            <p className="text-sm text-zinc-400">Instructor: {resolvedInstructor}</p>
+            {description && (
+              <p className="line-clamp-2 text-sm text-zinc-400">
+                {description}
+              </p>
+            )}
+            <p className="text-sm text-zinc-400">
+              Instructor: {resolvedInstructor}
+            </p>
             <Badge
               variant="secondary"
-              className="border border-zinc-700 bg-zinc-800/80 text-zinc-200"
+              className={cn(
+                "border bg-zinc-800/80",
+                resolvedDifficulty === "Beginner" &&
+                  "border-emerald-500/40 text-emerald-200",
+                resolvedDifficulty === "Intermediate" &&
+                  "border-amber-500/40 text-amber-200",
+                resolvedDifficulty === "Advanced" &&
+                  "border-rose-500/40 text-rose-200",
+              )}
             >
               {resolvedDifficulty}
             </Badge>

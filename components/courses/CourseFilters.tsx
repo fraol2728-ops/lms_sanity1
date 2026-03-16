@@ -4,11 +4,8 @@ import { cn } from "@/lib/utils";
 
 export const COURSE_FILTERS = [
   "All",
-  "Web Security",
-  "Linux",
-  "Network Security",
-  "Bug Bounty",
   "Beginner",
+  "Intermediate",
   "Advanced",
 ] as const;
 
@@ -30,9 +27,9 @@ export function CourseFilters({ selected, onSelect }: CourseFiltersProps) {
             type="button"
             onClick={() => onSelect(filter)}
             className={cn(
-              "rounded-full border px-4 py-2 text-sm font-medium transition-all",
+              "rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300",
               active
-                ? "border-violet-400 bg-violet-500/20 text-violet-200 shadow-md shadow-violet-500/20"
+                ? "border-cyan-300 bg-cyan-500/20 text-cyan-100 shadow-md shadow-cyan-500/25"
                 : "border-zinc-700 bg-zinc-900/70 text-zinc-300 hover:border-zinc-500 hover:text-white",
             )}
           >
