@@ -3,15 +3,16 @@ import {
   CoursesGrid,
 } from "@/components/courses/CoursesGrid";
 import { sanityFetch } from "@/sanity/lib/live";
-import { DASHBOARD_COURSES_QUERY } from "@/sanity/lib/queries";
+import {
+  COURSES_CATEGORIES_QUERY,
+  DASHBOARD_COURSES_QUERY,
+} from "@/sanity/lib/queries";
 import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
 
-const categoryCycle: CatalogCourse["category"][] = [
-  "Web Security",
-  "Linux",
-  "Network Security",
-  "Bug Bounty",
-];
+interface CategoryResult {
+  _id: string;
+  title: string | null;
+}
 
 const inferDifficulty = (
   tier: string | null | undefined,
@@ -22,13 +23,28 @@ const inferDifficulty = (
 };
 
 export default async function CoursesPage() {
-  const { data } = (await sanityFetch({
-    query: DASHBOARD_COURSES_QUERY,
-  })) as { data: DASHBOARD_COURSES_QUERYResult };
+  const [{ data: coursesData }, { data: categoriesData }] = (await Promise.all([
+    sanityFetch({
+      query: DASHBOARD_COURSES_QUERY,
+    }) as Promise<{ data: DASHBOARD_COURSES_QUERYResult }>,
+    sanityFetch({
+      query: COURSES_CATEGORIES_QUERY,
+    }) as Promise<{ data: CategoryResult[] }>,
+  ])) as [
+    { data: DASHBOARD_COURSES_QUERYResult },
+    { data: CategoryResult[] },
+  ];
 
-  const courses: CatalogCourse[] = data
+  const categories = categoriesData
+    .filter((category) => Boolean(category.title))
+    .map((category) => ({
+      id: category._id,
+      title: category.title ?? "General",
+    }));
+
+  const courses: CatalogCourse[] = coursesData
     .filter((course) => Boolean(course.slug?.current))
-    .map((course, index) => {
+    .map((course) => {
       const lessonCount = course.lessonCount ?? 0;
       const estimatedHours = Math.max(1, Math.ceil(lessonCount / 4));
 
@@ -40,7 +56,7 @@ export default async function CoursesPage() {
           ? `${course.category.title} Team`
           : "Next Cyber Camp Instructor",
         difficulty: inferDifficulty(course.tier),
-        category: categoryCycle[index % categoryCycle.length],
+        category: course.category?.title ?? "General",
         lessonCount,
         durationLabel: `${estimatedHours} ${estimatedHours === 1 ? "Hour" : "Hours"}`,
         thumbnailUrl: course.thumbnail?.asset?.url,
@@ -60,7 +76,7 @@ export default async function CoursesPage() {
           </p>
         </section>
 
-        <CoursesGrid courses={courses} />
+        <CoursesGrid courses={courses} categories={categories} />
       </main>
     </div>
   );

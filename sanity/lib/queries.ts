@@ -137,6 +137,13 @@ export const DASHBOARD_COURSES_QUERY = defineQuery(`*[
   "lessonCount": count(modules[]->lessons[])
 }`);
 
+export const COURSES_CATEGORIES_QUERY = defineQuery(`*[
+  _type == "category"
+] | order(title asc) {
+  _id,
+  title
+}`);
+
 export const COURSE_WITH_MODULES_QUERY = defineQuery(`*[
   _type == "course"
   && slug.current == $slug
