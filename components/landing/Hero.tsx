@@ -40,7 +40,7 @@ export function Hero() {
               Start Learning
             </Button>
           </Link>
-          <Link href="#courses">
+          <Link href="/courses">
             <Button
               variant="outline"
               className="h-11 w-full border-cyan-400/40 bg-[#081127]/70 px-8 text-cyan-100 hover:bg-cyan-400/10 sm:w-auto"
