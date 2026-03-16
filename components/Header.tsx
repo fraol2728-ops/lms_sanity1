@@ -16,10 +16,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "/#paths", label: "Paths" },
+  { href: "/paths", label: "Paths" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/#community", label: "Community" },
-  { href: "/#docs", label: "Docs" },
+  { href: "/community", label: "Community" },
+  { href: "/docs", label: "Docs" },
 ];
 
 const commandPaletteLinks = [
@@ -27,7 +27,7 @@ const commandPaletteLinks = [
   { href: "/dashboard/courses", label: "Courses" },
   { href: "/pricing", label: "Pricing" },
   { href: "/notes", label: "Notes" },
-  { href: "/#paths", label: "Paths" },
+  { href: "/paths", label: "Paths" },
 ];
 
 const courseMegaMenu = [
@@ -242,7 +242,7 @@ export function Header() {
             </button>
 
             <Link
-              href="/#courses"
+              href="/courses"
               className="block rounded-md px-3 py-2 text-sm text-zinc-200 transition hover:bg-cyan-400/10 hover:text-cyan-200"
             >
               Courses
