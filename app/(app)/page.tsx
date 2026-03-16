@@ -69,21 +69,31 @@ function getContinueCourse(
 export default async function Home() {
   const { userId } = await auth();
 
-  const featuredCoursesPromise = sanityFetch({
-    query: FEATURED_COURSES_QUERY,
-  }) as Promise<{ data: FEATURED_COURSES_QUERYResult }>;
+  let courses: FEATURED_COURSES_QUERYResult = [];
+  let dashboardCourses: DASHBOARD_COURSES_QUERYResult = [];
 
-  const dashboardCoursesPromise = userId
-    ? (sanityFetch({
-        query: DASHBOARD_COURSES_QUERY,
-        params: { userId },
-      }) as Promise<{ data: DASHBOARD_COURSES_QUERYResult }>)
-    : Promise.resolve({ data: [] as DASHBOARD_COURSES_QUERYResult });
+  try {
+    const featuredCoursesPromise = sanityFetch({
+      query: FEATURED_COURSES_QUERY,
+    }) as Promise<{ data: FEATURED_COURSES_QUERYResult }>;
 
-  const [{ data: courses }, { data: dashboardCourses }] = await Promise.all([
-    featuredCoursesPromise,
-    dashboardCoursesPromise,
-  ]);
+    const dashboardCoursesPromise = userId
+      ? (sanityFetch({
+          query: DASHBOARD_COURSES_QUERY,
+          params: { userId },
+        }) as Promise<{ data: DASHBOARD_COURSES_QUERYResult }>)
+      : Promise.resolve({ data: [] as DASHBOARD_COURSES_QUERYResult });
+
+    const [featuredResult, dashboardResult] = await Promise.all([
+      featuredCoursesPromise,
+      dashboardCoursesPromise,
+    ]);
+
+    courses = featuredResult.data ?? [];
+    dashboardCourses = dashboardResult.data ?? [];
+  } catch (error) {
+    console.error("Failed to load homepage Sanity data", error);
+  }
 
   const continueCourse = userId ? getContinueCourse(dashboardCourses, userId) : null;
 
@@ -94,7 +104,7 @@ export default async function Home() {
         <PlatformPreview />
         <Features />
         <TrainingPaths />
-        <PopularCourses courses={courses ?? []} />
+        <PopularCourses courses={courses} />
         <HowItWorks />
         <ContinueLearning continueCourse={continueCourse} />
         <CTA />
