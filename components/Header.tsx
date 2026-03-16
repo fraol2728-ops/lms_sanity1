@@ -149,9 +149,14 @@ export function Header() {
           </Link>
 
           <div className="hidden items-center gap-1 md:flex">
-            <CoursesMegaMenu />
+            <CoursesMegaMenu isScrolled={isScrolled} />
             {navLinks.map((link) => (
-              <NavLink key={link.label} href={link.href} label={link.label} />
+              <NavLink
+                key={link.label}
+                href={link.href}
+                label={link.label}
+                isScrolled={isScrolled}
+              />
             ))}
           </div>
 
@@ -174,7 +179,10 @@ export function Header() {
               <SignInButton mode="modal">
                 <Button
                   variant="ghost"
-                  className="text-zinc-200 hover:bg-cyan-400/10 hover:text-cyan-200"
+                  className={cn(
+                    "hover:bg-cyan-400/10 hover:text-cyan-200",
+                    isScrolled ? "text-zinc-200" : "text-zinc-700",
+                  )}
                 >
                   Sign In
                 </Button>
@@ -185,7 +193,10 @@ export function Header() {
               <Link href="/dashboard">
                 <Button
                   variant="outline"
-                  className="border-cyan-400/30 bg-transparent text-zinc-100 hover:bg-cyan-400/10 hover:text-cyan-200"
+                  className={cn(
+                    "border-cyan-400/30 bg-transparent hover:bg-cyan-400/10 hover:text-cyan-200",
+                    isScrolled ? "text-zinc-100" : "text-zinc-800",
+                  )}
                 >
                   Dashboard
                 </Button>
@@ -287,23 +298,37 @@ export function Header() {
   );
 }
 
-function NavLink({ href, label }: { href: string; label: string }) {
+function NavLink({
+  href,
+  label,
+  isScrolled,
+}: {
+  href: string;
+  label: string;
+  isScrolled: boolean;
+}) {
   return (
     <Link
       href={href}
-      className="rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-400/10 hover:text-cyan-200"
+      className={cn(
+        "rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
+        isScrolled ? "text-zinc-300" : "text-zinc-600",
+      )}
     >
       {label}
     </Link>
   );
 }
 
-function CoursesMegaMenu() {
+function CoursesMegaMenu({ isScrolled }: { isScrolled: boolean }) {
   return (
     <div className="group relative">
       <button
         type="button"
-        className="rounded-md px-3 py-2 text-sm text-zinc-300 transition hover:bg-cyan-400/10 hover:text-cyan-200"
+        className={cn(
+          "rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
+          isScrolled ? "text-zinc-300" : "text-zinc-600",
+        )}
       >
         Courses
       </button>
