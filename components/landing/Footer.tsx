@@ -32,7 +32,7 @@ export function Footer() {
         ))}
       </div>
       <div className="border-t border-zinc-800 py-5 text-center text-xs text-zinc-500">
-        © {new Date().getFullYear()} Next Cyber Camp. All rights reserved.
+        © {new Date().getFullYear()} Powered By Fraol Belachew. All rights reserved.
       </div>
     </footer>
   );
