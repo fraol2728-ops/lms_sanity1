@@ -4,7 +4,6 @@ import { GatedFallback } from "@/components/courses/GatedFallback";
 import { hasTierAccess, useUserTier } from "@/lib/hooks/use-user-tier";
 import type { LESSON_BY_ID_QUERYResult } from "@/sanity.types";
 import { LessonLayout } from "./LessonLayout";
-import { LessonNavigation } from "./LessonNavigation";
 import { LessonPlayer } from "./LessonPlayer";
 import { LessonSidebar } from "./LessonSidebar";
 
@@ -22,18 +21,12 @@ export function LessonPageContent({ lesson, userId }: LessonPageContentProps) {
   const hasAccess = !!accessibleCourse;
   const activeCourse = accessibleCourse ?? courses[0];
 
-  const isCompleted = userId
-    ? (lesson.completedBy?.includes(userId) ?? false)
-    : false;
-
   const modules = activeCourse?.modules;
-  let prevLesson: { slug: string; title: string } | null = null;
   let nextLesson: { slug: string; title: string } | null = null;
   const completedLessonIds: string[] = [];
+  const allLessons: Array<{ id: string; slug: string; title: string }> = [];
 
   if (modules) {
-    const allLessons: Array<{ id: string; slug: string; title: string }> = [];
-
     for (const module of modules) {
       for (const nestedLesson of module.lessons ?? []) {
         allLessons.push({
@@ -49,13 +42,6 @@ export function LessonPageContent({ lesson, userId }: LessonPageContentProps) {
     }
 
     const currentIndex = allLessons.findIndex((item) => item.id === lesson._id);
-    prevLesson =
-      currentIndex > 0
-        ? {
-            slug: allLessons[currentIndex - 1].slug,
-            title: allLessons[currentIndex - 1].title,
-          }
-        : null;
     nextLesson =
       currentIndex < allLessons.length - 1
         ? {
@@ -83,14 +69,12 @@ export function LessonPageContent({ lesson, userId }: LessonPageContentProps) {
         )
       }
       content={
-        <>
-          <LessonPlayer
-            lesson={lesson}
-            userId={userId}
-            isCompleted={isCompleted}
-          />
-          <LessonNavigation prevLesson={prevLesson} nextLesson={nextLesson} />
-        </>
+        <LessonPlayer
+          lesson={lesson}
+          courseId={activeCourse?._id ?? "default-course"}
+          totalLessons={allLessons.length}
+          nextLesson={nextLesson}
+        />
       }
     />
   );

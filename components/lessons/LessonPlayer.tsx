@@ -2,25 +2,31 @@
 
 import { motion } from "framer-motion";
 import { BookText } from "lucide-react";
+import { CompleteButton } from "@/components/lesson/CompleteButton";
+import { LessonProgress } from "@/components/lesson/LessonProgress";
 import { LessonResources } from "@/components/lesson/LessonResources";
+import { NextLessonButton } from "@/components/lesson/NextLessonButton";
 import type { LESSON_BY_ID_QUERYResult } from "@/sanity.types";
-import { LessonCompleteButton } from "./LessonCompleteButton";
 import { LessonContent } from "./LessonContent";
 import { MuxVideoPlayer } from "./MuxVideoPlayer";
 
 interface LessonPlayerProps {
   lesson: NonNullable<LESSON_BY_ID_QUERYResult>;
-  userId: string | null;
-  isCompleted: boolean;
+  courseId: string;
+  totalLessons: number;
+  nextLesson: { slug: string; title: string } | null;
 }
 
 export function LessonPlayer({
   lesson,
-  userId,
-  isCompleted,
+  courseId,
+  totalLessons,
+  nextLesson,
 }: LessonPlayerProps) {
   return (
     <div className="space-y-6">
+      <LessonProgress courseId={courseId} totalLessons={totalLessons} />
+
       <motion.section
         initial={{ opacity: 0, y: 22 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -64,15 +70,14 @@ export function LessonPlayer({
 
       <LessonResources lesson={lesson} />
 
-      {userId && (
-        <div className="flex justify-end">
-          <LessonCompleteButton
-            lessonId={lesson._id}
-            lessonSlug={lesson.slug?.current ?? ""}
-            isCompleted={isCompleted}
-          />
-        </div>
-      )}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end"
+      >
+        <CompleteButton courseId={courseId} lessonId={lesson._id} />
+        <NextLessonButton nextLesson={nextLesson} />
+      </motion.div>
     </div>
   );
 }
