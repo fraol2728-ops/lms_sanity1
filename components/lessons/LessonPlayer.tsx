@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { BookText } from "lucide-react";
+import { LessonResources } from "@/components/lesson/LessonResources";
 import type { LESSON_BY_ID_QUERYResult } from "@/sanity.types";
 import { LessonCompleteButton } from "./LessonCompleteButton";
 import { LessonContent } from "./LessonContent";
@@ -60,6 +61,8 @@ export function LessonPlayer({
           <LessonContent content={lesson.content} />
         </motion.section>
       )}
+
+      <LessonResources lesson={lesson} />
 
       {userId && (
         <div className="flex justify-end">
