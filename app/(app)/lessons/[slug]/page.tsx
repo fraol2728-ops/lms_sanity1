@@ -11,7 +11,6 @@ interface LessonPageProps {
 export default async function LessonPage({ params }: LessonPageProps) {
   const { slug } = await params;
   const { userId } = await auth();
-
   const { data: lesson } = await sanityFetch({
     query: LESSON_BY_SLUG_QUERY,
     params: { slug },

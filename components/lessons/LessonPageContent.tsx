@@ -1,18 +1,21 @@
 "use client";
 
 import { GatedFallback } from "@/components/courses/GatedFallback";
+import { LessonSidebar } from "@/components/lesson/LessonSidebar";
 import { hasTierAccess, useUserTier } from "@/lib/hooks/use-user-tier";
 import type { LESSON_BY_ID_QUERYResult } from "@/sanity.types";
 import { LessonLayout } from "./LessonLayout";
 import { LessonPlayer } from "./LessonPlayer";
-import { LessonSidebar } from "./LessonSidebar";
 
 interface LessonPageContentProps {
   lesson: NonNullable<LESSON_BY_ID_QUERYResult>;
   userId: string | null;
 }
 
-export function LessonPageContent({ lesson, userId }: LessonPageContentProps) {
+export function LessonPageContent({
+  lesson,
+  userId: _userId,
+}: LessonPageContentProps) {
   const userTier = useUserTier();
   const courses = lesson.courses ?? [];
   const accessibleCourse = courses.find((course) =>
@@ -23,7 +26,6 @@ export function LessonPageContent({ lesson, userId }: LessonPageContentProps) {
 
   const modules = activeCourse?.modules;
   let nextLesson: { slug: string; title: string } | null = null;
-  const completedLessonIds: string[] = [];
   const allLessons: Array<{ id: string; slug: string; title: string }> = [];
 
   if (modules) {
@@ -34,10 +36,6 @@ export function LessonPageContent({ lesson, userId }: LessonPageContentProps) {
           slug: nestedLesson.slug?.current ?? "",
           title: nestedLesson.title ?? "Untitled Lesson",
         });
-
-        if (userId && nestedLesson.completedBy?.includes(userId)) {
-          completedLessonIds.push(nestedLesson._id);
-        }
       }
     }
 
@@ -64,7 +62,7 @@ export function LessonPageContent({ lesson, userId }: LessonPageContentProps) {
             courseTitle={activeCourse.title}
             modules={activeCourse.modules ?? null}
             currentLessonId={lesson._id}
-            completedLessonIds={completedLessonIds}
+            courseId={activeCourse?._id ?? "default-course"}
           />
         )
       }
