@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { PricingTable } from "@clerk/nextjs";
 import { CheckCircle2, Code2, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { getTierColorClasses, TIER_FEATURES } from "@/lib/constants";
+
+export const metadata: Metadata = {
+  title: "Pricing",
+  description:
+    "Compare Free, Pro, and Ultra plans for Next Cyber Camp cybersecurity training and choose the right tier for your goals.",
+  alternates: {
+    canonical: "/pricing",
+  },
+};
 
 export default function PricingPage() {
   return (

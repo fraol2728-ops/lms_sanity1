@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CourseContent } from "@/components/courses";
 import { sanityFetch } from "@/sanity/lib/live";
@@ -8,14 +9,67 @@ interface CoursePageProps {
   params: Promise<{ slug: string }>;
 }
 
+async function getCourse(slug: string, userId?: string | null) {
+  const { data: course } = await sanityFetch({
+    query: COURSE_WITH_MODULES_QUERY,
+    params: { slug, userId: userId ?? null },
+  });
+
+  return course;
+}
+
+export async function generateMetadata({
+  params,
+}: CoursePageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const course = await getCourse(slug);
+
+  if (!course) {
+    return {
+      title: "Course Not Found",
+      description: "The requested cybersecurity course could not be found.",
+    };
+  }
+
+  const title = `${course.title ?? "Course"} Course`;
+  const description =
+    course.description ??
+    "Explore this cybersecurity course on Next Cyber Camp and build practical security skills.";
+  const thumbnailUrl = course.thumbnail?.asset?.url;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/courses/${slug}`,
+    },
+    openGraph: {
+      title,
+      description,
+      type: "article",
+      url: `/courses/${slug}`,
+      images: thumbnailUrl
+        ? [
+            {
+              url: thumbnailUrl,
+              alt: `${course.title ?? "Course"} thumbnail`,
+            },
+          ]
+        : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: thumbnailUrl ? [thumbnailUrl] : undefined,
+    },
+  };
+}
+
 export default async function CoursePage({ params }: CoursePageProps) {
   const { slug } = await params;
   const { userId } = await auth();
-
-  const { data: course } = await sanityFetch({
-    query: COURSE_WITH_MODULES_QUERY,
-    params: { slug, userId: userId },
-  });
+  const course = await getCourse(slug, userId);
 
   if (!course) {
     notFound();
@@ -23,7 +77,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
 
   return (
     <div className="min-h-screen bg-[#09090b] text-white overflow-hidden">
-      {/* Animated gradient mesh background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[120px] animate-pulse" />
         <div
@@ -36,7 +89,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
         />
       </div>
 
-      {/* Noise texture overlay */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.015]"
         style={{
@@ -44,9 +96,6 @@ export default async function CoursePage({ params }: CoursePageProps) {
         }}
       />
 
-      {/* Navigation */}
-
-      {/* Main Content */}
       <main className="relative z-10 px-6 lg:px-12 py-12 max-w-7xl mx-auto">
         <CourseContent course={course} userId={userId} />
       </main>

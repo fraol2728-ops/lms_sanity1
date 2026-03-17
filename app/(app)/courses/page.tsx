@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import {
   type CatalogCourse,
   CoursesGrid,
@@ -8,6 +9,15 @@ import {
   DASHBOARD_COURSES_QUERY,
 } from "@/sanity/lib/queries";
 import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
+
+export const metadata: Metadata = {
+  title: "Courses",
+  description:
+    "Browse cybersecurity courses in ethical hacking, web security, networking, and exploit development.",
+  alternates: {
+    canonical: "/courses",
+  },
+};
 
 interface CategoryResult {
   _id: string;
@@ -30,10 +40,7 @@ export default async function CoursesPage() {
     sanityFetch({
       query: COURSES_CATEGORIES_QUERY,
     }) as Promise<{ data: CategoryResult[] }>,
-  ])) as [
-    { data: DASHBOARD_COURSES_QUERYResult },
-    { data: CategoryResult[] },
-  ];
+  ])) as [{ data: DASHBOARD_COURSES_QUERYResult }, { data: CategoryResult[] }];
 
   const categories = categoriesData
     .filter((category) => Boolean(category.title))
