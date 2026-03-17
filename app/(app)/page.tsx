@@ -1,7 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import {
-  CTA,
   ContinueLearning,
+  CTA,
   Features,
   Footer,
   Hero,
@@ -11,8 +11,13 @@ import {
   TrainingPaths,
 } from "@/components/landing";
 import { sanityFetch } from "@/sanity/lib/live";
-import { DASHBOARD_COURSES_QUERY, FEATURED_COURSES_QUERY } from "@/sanity/lib/queries";
+import {
+  ALL_COURSES_QUERY,
+  DASHBOARD_COURSES_QUERY,
+  FEATURED_COURSES_QUERY,
+} from "@/sanity/lib/queries";
 import type {
+  ALL_COURSES_QUERYResult,
   DASHBOARD_COURSES_QUERYResult,
   FEATURED_COURSES_QUERYResult,
 } from "@/sanity.types";
@@ -33,24 +38,34 @@ function getContinueCourse(
         course.modules?.reduce((courseTotal, module) => {
           const moduleCompleted =
             module.lessons?.reduce((lessonTotal, lesson) => {
-              return lessonTotal + (lesson.completedBy?.includes(userId) ? 1 : 0);
+              return (
+                lessonTotal + (lesson.completedBy?.includes(userId) ? 1 : 0)
+              );
             }, 0) ?? 0;
 
           return courseTotal + moduleCompleted;
         }, 0) ?? 0;
 
       const progressPercent =
-        totalLessons > 0 ? Math.min(100, (completedLessons / totalLessons) * 100) : 0;
+        totalLessons > 0
+          ? Math.min(100, (completedLessons / totalLessons) * 100)
+          : 0;
 
       return {
         title: course.title ?? "Untitled Course",
         totalLessons,
         completedLessons,
         progressPercent,
-        href: course.slug?.current ? `/courses/${course.slug.current}` : "/dashboard",
+        href: course.slug?.current
+          ? `/courses/${course.slug.current}`
+          : "/dashboard",
       };
     })
-    .filter((course) => course.totalLessons > 0 && course.completedLessons < course.totalLessons)
+    .filter(
+      (course) =>
+        course.totalLessons > 0 &&
+        course.completedLessons < course.totalLessons,
+    )
     .sort((a, b) => b.progressPercent - a.progressPercent);
 
   const selected = withProgress[0];
@@ -70,12 +85,17 @@ export default async function Home() {
   const { userId } = await auth();
 
   let courses: FEATURED_COURSES_QUERYResult = [];
+  let allCourses: ALL_COURSES_QUERYResult = [];
   let dashboardCourses: DASHBOARD_COURSES_QUERYResult = [];
 
   try {
     const featuredCoursesPromise = sanityFetch({
       query: FEATURED_COURSES_QUERY,
     }) as Promise<{ data: FEATURED_COURSES_QUERYResult }>;
+
+    const allCoursesPromise = sanityFetch({
+      query: ALL_COURSES_QUERY,
+    }) as Promise<{ data: ALL_COURSES_QUERYResult }>;
 
     const dashboardCoursesPromise = userId
       ? (sanityFetch({
@@ -84,23 +104,28 @@ export default async function Home() {
         }) as Promise<{ data: DASHBOARD_COURSES_QUERYResult }>)
       : Promise.resolve({ data: [] as DASHBOARD_COURSES_QUERYResult });
 
-    const [featuredResult, dashboardResult] = await Promise.all([
-      featuredCoursesPromise,
-      dashboardCoursesPromise,
-    ]);
+    const [featuredResult, allCoursesResult, dashboardResult] =
+      await Promise.all([
+        featuredCoursesPromise,
+        allCoursesPromise,
+        dashboardCoursesPromise,
+      ]);
 
     courses = featuredResult.data ?? [];
+    allCourses = allCoursesResult.data ?? [];
     dashboardCourses = dashboardResult.data ?? [];
   } catch (error) {
     console.error("Failed to load homepage Sanity data", error);
   }
 
-  const continueCourse = userId ? getContinueCourse(dashboardCourses, userId) : null;
+  const continueCourse = userId
+    ? getContinueCourse(dashboardCourses, userId)
+    : null;
 
   return (
     <div className="min-h-screen bg-[#050816] text-white">
       <main>
-        <Hero />
+        <Hero courses={allCourses} />
         <PlatformPreview />
         <Features />
         <TrainingPaths />
