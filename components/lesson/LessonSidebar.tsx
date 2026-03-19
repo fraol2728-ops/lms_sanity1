@@ -34,23 +34,27 @@ export function LessonSidebar({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    const syncProgress = () => {
-      setCompletedIds(getCompletedLessonIds(courseId));
+    let isMounted = true;
+
+    const syncProgress = async () => {
+      const completedLessons = await getCompletedLessonIds(courseId);
+      if (isMounted) {
+        setCompletedIds(completedLessons);
+      }
     };
 
     const handleProgressUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<{ courseId: string }>;
       if (customEvent.detail?.courseId === courseId) {
-        syncProgress();
+        void syncProgress();
       }
     };
 
-    syncProgress();
-    window.addEventListener("storage", syncProgress);
+    void syncProgress();
     window.addEventListener(progressEventName, handleProgressUpdate);
 
     return () => {
-      window.removeEventListener("storage", syncProgress);
+      isMounted = false;
       window.removeEventListener(progressEventName, handleProgressUpdate);
     };
   }, [courseId]);
