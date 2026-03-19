@@ -83,8 +83,8 @@ export function Hero({ courses }: HeroProps) {
           Next Cyber Camp
         </div>
 
-        <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-black leading-tight text-white sm:text-5xl lg:text-6xl">
-          Master Offensive Security Through Real-World Training
+        <h1 className="mx-auto mt-7 max-w-4xl text-4xl font-black leading-tight text-white sm:text-5xl lg:text-7xl">
+          Offensive Security Through Real-World Training
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-base text-zinc-300 sm:text-lg">
           Learn ethical hacking, penetration testing, and cyber defense with
