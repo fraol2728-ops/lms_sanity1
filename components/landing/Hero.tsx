@@ -138,7 +138,7 @@ export function Hero({ courses }: HeroProps) {
             </Button>
           </div>
 
-          {/* <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
             <span className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">
               Recommended:
             </span>
@@ -153,7 +153,7 @@ export function Hero({ courses }: HeroProps) {
                 className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1.5 text-sm text-cyan-100 transition hover:bg-cyan-400/25"
               >
                 {keyword}
-              </button> */}
+              </button> 
             ))}
           </div>
         </div>
