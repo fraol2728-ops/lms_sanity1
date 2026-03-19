@@ -3,14 +3,14 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronRight, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { AcademyCourse } from "@/lib/academy-data";
 import { cn } from "@/lib/utils";
+import type { AcademyCourseDetailData } from "./types";
 
 interface AcademySidebarProps {
-  course: AcademyCourse;
+  course: AcademyCourseDetailData;
   activeLessonSlug?: string;
 }
 
@@ -19,15 +19,6 @@ export function AcademySidebar({
   activeLessonSlug,
 }: AcademySidebarProps) {
   const [open, setOpen] = useState(false);
-
-  const lessonCount = useMemo(
-    () =>
-      course.modules.reduce(
-        (total, module) => total + module.lessons.length,
-        0,
-      ),
-    [course.modules],
-  );
 
   return (
     <>
@@ -58,43 +49,31 @@ export function AcademySidebar({
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="overflow-hidden lg:hidden"
           >
-            <SidebarPanel
-              course={course}
-              activeLessonSlug={activeLessonSlug}
-              lessonCount={lessonCount}
-            />
+            <SidebarPanel course={course} activeLessonSlug={activeLessonSlug} />
           </motion.aside>
         ) : null}
       </AnimatePresence>
 
-      <aside className="sticky top-24 hidden lg:block">
+      <aside className="sticky top-24 hidden lg:block self-start">
         <motion.div
           initial={{ opacity: 0, x: -24 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
         >
-          <SidebarPanel
-            course={course}
-            activeLessonSlug={activeLessonSlug}
-            lessonCount={lessonCount}
-          />
+          <SidebarPanel course={course} activeLessonSlug={activeLessonSlug} />
         </motion.div>
       </aside>
     </>
   );
 }
 
-interface SidebarPanelProps {
-  course: AcademyCourse;
-  activeLessonSlug?: string;
-  lessonCount: number;
-}
-
 function SidebarPanel({
   course,
   activeLessonSlug,
-  lessonCount,
-}: SidebarPanelProps) {
+}: {
+  course: AcademyCourseDetailData;
+  activeLessonSlug?: string;
+}) {
   return (
     <div className="rounded-3xl border border-cyan-400/15 bg-[#07111f]/90 p-5 shadow-[0_16px_70px_rgba(0,0,0,0.35)] backdrop-blur-xl">
       <div className="space-y-4 border-b border-white/8 pb-5">
@@ -104,54 +83,40 @@ function SidebarPanel({
         <div>
           <h2 className="text-lg font-semibold text-white">{course.title}</h2>
           <p className="mt-2 text-sm leading-6 text-slate-300">
-            {course.location}
+            {course.location ?? "Location announced soon"}
           </p>
         </div>
         <div className="grid grid-cols-2 gap-3 text-sm">
-          <StatPill label="Modules" value={String(course.modules.length)} />
-          <StatPill label="Lessons" value={String(lessonCount)} />
+          <StatPill label="Duration" value={course.duration ?? "TBA"} />
+          <StatPill label="Level" value={course.level ?? "All levels"} />
           <StatPill
-            label="Format"
-            value={course.format}
+            label="Lessons"
+            value={String(course.lessons.length)}
             className="col-span-2"
           />
         </div>
       </div>
 
-      <div className="mt-5 space-y-4">
-        {course.modules.map((module) => (
-          <div key={module.slug} className="space-y-2">
-            <div>
-              <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/80">
-                {module.duration}
-              </p>
-              <h3 className="mt-1 text-sm font-semibold text-slate-100">
-                {module.title}
-              </h3>
-            </div>
-            <div className="space-y-1.5">
-              {module.lessons.map((lesson, index) => {
-                const isActive = lesson.slug === activeLessonSlug;
+      <div className="mt-5 space-y-1.5">
+        {course.lessons.map((lesson, index) => {
+          const isActive = lesson.slug === activeLessonSlug;
 
-                return (
-                  <Link
-                    key={lesson.slug}
-                    href={`/academy/${course.slug}/${lesson.slug}`}
-                    className={cn(
-                      "flex items-center justify-between rounded-2xl border px-3 py-2 text-sm transition-all duration-200",
-                      isActive
-                        ? "border-cyan-300/50 bg-cyan-400/12 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.12)]"
-                        : "border-white/8 bg-white/[0.03] text-slate-300 hover:border-cyan-400/25 hover:bg-cyan-400/8 hover:text-cyan-100",
-                    )}
-                  >
-                    <span className="mr-3 line-clamp-2">{`${index + 1}. ${lesson.title}`}</span>
-                    <ChevronRight className="h-4 w-4 shrink-0" />
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+          return (
+            <Link
+              key={lesson.slug}
+              href={`/academy/${course.slug}/${lesson.slug}`}
+              className={cn(
+                "flex items-center justify-between rounded-2xl border px-3 py-2 text-sm transition-all duration-200",
+                isActive
+                  ? "border-cyan-300/50 bg-cyan-400/12 text-cyan-100 shadow-[0_0_30px_rgba(34,211,238,0.12)]"
+                  : "border-white/8 bg-white/[0.03] text-slate-300 hover:border-cyan-400/25 hover:bg-cyan-400/8 hover:text-cyan-100",
+              )}
+            >
+              <span className="mr-3 line-clamp-2">{`${index + 1}. ${lesson.title}`}</span>
+              <ChevronRight className="h-4 w-4 shrink-0" />
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

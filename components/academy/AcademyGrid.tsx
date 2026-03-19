@@ -1,11 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import type { AcademyCourse } from "@/lib/academy-data";
 import { AcademyCard } from "./AcademyCard";
+import type { AcademyCourseCardData } from "./types";
 
 interface AcademyGridProps {
-  courses: AcademyCourse[];
+  courses: AcademyCourseCardData[];
 }
 
 export function AcademyGrid({ courses }: AcademyGridProps) {
