@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/paths", label: "Paths" },
   { href: "/pricing", label: "Pricing" },
   { href: "/community", label: "Community" },
+  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/docs", label: "Docs" },
 ];
 
@@ -26,6 +27,7 @@ const commandPaletteLinks = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/dashboard/courses", label: "Courses" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/notes", label: "Notes" },
   { href: "/paths", label: "Paths" },
 ];
@@ -134,7 +136,10 @@ export function Header() {
         )}
       >
         <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="group inline-flex items-center gap-2.5 sm:gap-3">
+          <Link
+            href="/"
+            className="group inline-flex items-center gap-2.5 sm:gap-3"
+          >
             <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-[#0b1229] shadow-[0_0_25px_rgba(34,211,238,0.22)] transition group-hover:border-cyan-300/70">
               <Shield className="h-5 w-5 text-cyan-300" />
             </span>

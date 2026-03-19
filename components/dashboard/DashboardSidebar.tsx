@@ -5,6 +5,7 @@ import {
   Award,
   BookOpen,
   LayoutDashboard,
+  Medal,
   Menu,
   NotebookPen,
   Route,
@@ -19,6 +20,7 @@ const sidebarItems = [
   { label: "My Courses", href: "/dashboard/courses", icon: BookOpen },
   { label: "Learning Paths", href: "/dashboard", icon: Route },
   { label: "Achievements", href: "/dashboard", icon: Award },
+  { label: "Leaderboard", href: "/leaderboard", icon: Medal },
   { label: "Notes", href: "/notes", icon: NotebookPen },
   { label: "Settings", href: "/dashboard", icon: Settings },
 ];
