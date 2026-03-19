@@ -3,19 +3,42 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AcademySidebar } from "@/components/academy";
+import type { AcademyCourseDetailData } from "@/components/academy/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getAcademyCourseBySlug } from "@/lib/academy-data";
+import { sanityFetch } from "@/sanity/lib/live";
+
+const ACADEMY_COURSE_QUERY = `*[_type == "academyCourse" && slug.current == $slug][0]{
+  title,
+  "slug": slug.current,
+  description,
+  duration,
+  level,
+  location,
+  "lessons": *[_type == "academyLesson" && references(^._id)] | order(title asc) {
+    title,
+    "slug": slug.current
+  }
+}`;
 
 interface AcademyCoursePageProps {
   params: Promise<{ slug: string }>;
+}
+
+async function getAcademyCourse(slug: string) {
+  const { data } = await sanityFetch({
+    query: ACADEMY_COURSE_QUERY,
+    params: { slug },
+  });
+
+  return data as AcademyCourseDetailData | null;
 }
 
 export async function generateMetadata({
   params,
 }: AcademyCoursePageProps): Promise<Metadata> {
   const { slug } = await params;
-  const course = getAcademyCourseBySlug(slug);
+  const course = await getAcademyCourse(slug);
 
   if (!course) {
     return {
@@ -25,7 +48,7 @@ export async function generateMetadata({
 
   return {
     title: course.title,
-    description: course.description,
+    description: course.description ?? undefined,
     alternates: {
       canonical: `/academy/${course.slug}`,
     },
@@ -36,13 +59,13 @@ export default async function AcademyCoursePage({
   params,
 }: AcademyCoursePageProps) {
   const { slug } = await params;
-  const course = getAcademyCourseBySlug(slug);
+  const course = await getAcademyCourse(slug);
 
   if (!course) {
     notFound();
   }
 
-  const firstLesson = course.modules[0]?.lessons[0];
+  const firstLesson = course.lessons[0];
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#040816] text-white">
@@ -59,19 +82,23 @@ export default async function AcademyCoursePage({
                 <Badge className="border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-cyan-100">
                   Academy course
                 </Badge>
-                <Badge
-                  variant="outline"
-                  className="border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-100"
-                >
-                  {course.level}
-                </Badge>
+                {course.level ? (
+                  <Badge
+                    variant="outline"
+                    className="border-fuchsia-400/20 bg-fuchsia-400/10 text-fuchsia-100"
+                  >
+                    {course.level}
+                  </Badge>
+                ) : null}
               </div>
               <h1 className="mt-5 text-4xl font-semibold tracking-tight text-white sm:text-5xl">
                 {course.title}
               </h1>
-              <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
-                {course.description}
-              </p>
+              {course.description ? (
+                <p className="mt-4 max-w-3xl text-base leading-8 text-slate-300 sm:text-lg">
+                  {course.description}
+                </p>
+              ) : null}
             </div>
 
             {firstLesson ? (
@@ -87,9 +114,21 @@ export default async function AcademyCoursePage({
           </div>
 
           <div className="mt-8 grid gap-4 text-sm text-slate-200 md:grid-cols-3">
-            <MetaCard icon={Clock3} label="Duration" value={course.duration} />
-            <MetaCard icon={MapPin} label="Location" value={course.location} />
-            <MetaCard icon={ShieldCheck} label="Format" value={course.format} />
+            <MetaCard
+              icon={Clock3}
+              label="Duration"
+              value={course.duration ?? "TBA"}
+            />
+            <MetaCard
+              icon={MapPin}
+              label="Location"
+              value={course.location ?? "Location announced soon"}
+            />
+            <MetaCard
+              icon={ShieldCheck}
+              label="Level"
+              value={course.level ?? "All levels"}
+            />
           </div>
         </section>
 
@@ -99,58 +138,34 @@ export default async function AcademyCoursePage({
           <div className="space-y-6">
             <div>
               <p className="text-sm uppercase tracking-[0.28em] text-cyan-200/80">
-                Modules & lessons
+                Lessons
               </p>
               <h2 className="mt-2 text-2xl font-semibold text-white sm:text-3xl">
                 Physical course roadmap
               </h2>
             </div>
 
-            <div className="space-y-5">
-              {course.modules.map((module) => (
-                <div
-                  key={module.slug}
-                  className="rounded-[1.75rem] border border-white/10 bg-[#07111f]/85 p-6 shadow-[0_18px_70px_rgba(0,0,0,0.28)]"
-                >
-                  <div className="flex flex-col gap-3 border-b border-white/8 pb-5 md:flex-row md:items-end md:justify-between">
-                    <div>
-                      <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/80">
-                        {module.duration}
-                      </p>
-                      <h3 className="mt-2 text-xl font-semibold text-white">
-                        {module.title}
-                      </h3>
-                      <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
-                        {module.summary}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 grid gap-4">
-                    {module.lessons.map((lesson) => (
-                      <Link
-                        key={lesson.slug}
-                        href={`/academy/${course.slug}/${lesson.slug}`}
-                        className="group rounded-3xl border border-white/8 bg-white/[0.03] p-5 transition-all duration-300 hover:border-cyan-400/25 hover:bg-cyan-400/[0.05]"
-                      >
-                        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-                          <div>
-                            <h4 className="text-lg font-medium text-white transition-colors group-hover:text-cyan-100">
-                              {lesson.title}
-                            </h4>
-                            <p className="mt-2 max-w-3xl text-sm leading-7 text-slate-300">
-                              {lesson.description}
-                            </p>
-                          </div>
-                          <span className="text-sm text-cyan-200">
-                            {lesson.duration}
-                          </span>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+            <div className="space-y-4">
+              {course.lessons.length ? (
+                course.lessons.map((lesson, index) => (
+                  <Link
+                    key={lesson.slug}
+                    href={`/academy/${course.slug}/${lesson.slug}`}
+                    className="group block rounded-[1.75rem] border border-white/10 bg-[#07111f]/85 p-6 shadow-[0_18px_70px_rgba(0,0,0,0.28)] transition-all duration-300 hover:border-cyan-400/25 hover:bg-cyan-400/[0.05]"
+                  >
+                    <p className="text-xs uppercase tracking-[0.22em] text-cyan-200/80">
+                      Lesson {index + 1}
+                    </p>
+                    <h3 className="mt-3 text-xl font-semibold text-white transition-colors group-hover:text-cyan-100">
+                      {lesson.title}
+                    </h3>
+                  </Link>
+                ))
+              ) : (
+                <div className="rounded-[1.75rem] border border-white/10 bg-[#07111f]/85 p-6 text-slate-300">
+                  No academy lessons have been linked to this course yet.
                 </div>
-              ))}
+              )}
             </div>
           </div>
         </section>

@@ -1,7 +1,20 @@
 import { Compass, MapPin, School, Sparkles } from "lucide-react";
 import type { Metadata } from "next";
 import { AcademyGrid } from "@/components/academy";
-import { getAcademyCourses } from "@/lib/academy-data";
+import type { AcademyCourseCardData } from "@/components/academy/types";
+import { sanityFetch } from "@/sanity/lib/live";
+
+const ACADEMY_COURSES_QUERY = `*[_type == "academyCourse"] | order(title asc) {
+  title,
+  "slug": slug.current,
+  description,
+  thumbnail{
+    asset->{url}
+  },
+  duration,
+  level,
+  location
+}`;
 
 export const metadata: Metadata = {
   title: "Academy",
@@ -12,8 +25,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AcademyPage() {
-  const courses = getAcademyCourses();
+async function getAcademyCourses(): Promise<AcademyCourseCardData[]> {
+  const { data } = await sanityFetch({
+    query: ACADEMY_COURSES_QUERY,
+  });
+
+  return (data ?? []) as AcademyCourseCardData[];
+}
+
+export default async function AcademyPage() {
+  const courses = await getAcademyCourses();
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#040816] text-white">
@@ -56,11 +77,17 @@ export default function AcademyPage() {
             </div>
             <p className="max-w-2xl text-sm leading-6 text-slate-400">
               Explore physical courses with location details, cohort formats,
-              and lesson-based pathways—without backend enrollment logic yet.
+              and lesson-based pathways powered directly by Sanity CMS.
             </p>
           </div>
 
-          <AcademyGrid courses={courses} />
+          {courses.length ? (
+            <AcademyGrid courses={courses} />
+          ) : (
+            <div className="rounded-[1.75rem] border border-white/10 bg-[#07111f]/85 p-8 text-slate-300">
+              Academy courses have not been published in Sanity yet.
+            </div>
+          )}
         </section>
       </main>
     </div>
