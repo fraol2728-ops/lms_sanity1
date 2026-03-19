@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Circle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Check, Circle, Loader2 } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
 import {
   getCompletedLessonIds,
   progressEventName,
@@ -17,51 +17,61 @@ interface CompleteButtonProps {
 
 export function CompleteButton({ courseId, lessonId }: CompleteButtonProps) {
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   useEffect(() => {
-    const syncState = () => {
-      setIsCompleted(getCompletedLessonIds(courseId).includes(lessonId));
+    let isMounted = true;
+
+    const syncState = async () => {
+      const completedLessons = await getCompletedLessonIds(courseId);
+      if (isMounted) {
+        setIsCompleted(completedLessons.includes(lessonId));
+      }
     };
 
     const handleProgressUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<{ courseId: string }>;
       if (customEvent.detail?.courseId === courseId) {
-        syncState();
+        void syncState();
       }
     };
 
-    syncState();
-    window.addEventListener("storage", syncState);
+    void syncState();
     window.addEventListener(progressEventName, handleProgressUpdate);
 
     return () => {
-      window.removeEventListener("storage", syncState);
+      isMounted = false;
       window.removeEventListener(progressEventName, handleProgressUpdate);
     };
   }, [courseId, lessonId]);
 
   const markAsComplete = () => {
-    if (isCompleted) {
+    if (isCompleted || isPending) {
       return;
     }
 
-    const completedLessonIds = getCompletedLessonIds(courseId);
-    saveCompletedLessonIds(courseId, [...completedLessonIds, lessonId]);
-    setIsCompleted(true);
+    startTransition(async () => {
+      const progress = await saveCompletedLessonIds(courseId, lessonId);
+      setIsCompleted(progress.completedLessonIds.includes(lessonId));
+    });
   };
 
   return (
     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.99 }}>
       <Button
         onClick={markAsComplete}
-        disabled={isCompleted}
+        disabled={isCompleted || isPending}
         className={
           isCompleted
             ? "rounded-xl border border-emerald-400/30 bg-emerald-500/10 text-emerald-300"
             : "rounded-xl border border-cyan-400/30 bg-cyan-500/10 text-cyan-200 shadow-[0_0_18px_rgba(34,211,238,0.35)] hover:bg-cyan-500/20"
         }
       >
-        {isCompleted ? (
+        {isPending ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+          </>
+        ) : isCompleted ? (
           <>
             <Check className="mr-2 h-4 w-4" /> Completed ✔
           </>
