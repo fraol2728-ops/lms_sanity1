@@ -4,7 +4,15 @@ import { courseType } from "./courseType";
 import { lessonType } from "./lessonType";
 import { moduleType } from "./moduleType";
 import { noteType } from "./noteType";
+import { userProgressType } from "./userProgressType";
 
 export const schema: { types: SchemaTypeDefinition[] } = {
-  types: [courseType, moduleType, lessonType, categoryType, noteType],
+  types: [
+    courseType,
+    moduleType,
+    lessonType,
+    categoryType,
+    noteType,
+    userProgressType,
+  ],
 };

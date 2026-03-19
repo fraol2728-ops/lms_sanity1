@@ -1,63 +1,75 @@
+import { getUserProgress, saveLessonProgress } from "@/lib/actions";
+
 export const progressEventName = "lesson-progress-updated";
 
-export function getProgressKey(courseId: string) {
-  return `course-progress-${courseId}`;
+export interface CourseProgressSnapshot {
+  courseId: string;
+  completedLessonIds: string[];
+  progress: number;
 }
 
-export function getCompletedLessonIds(courseId: string): string[] {
-  if (typeof window === "undefined") {
-    return [];
-  }
+const progressCache = new Map<string, CourseProgressSnapshot>();
 
-  const storedValue = window.localStorage.getItem(getProgressKey(courseId));
-  if (!storedValue) {
-    return [];
-  }
-
-  try {
-    const parsedValue = JSON.parse(storedValue);
-    if (!Array.isArray(parsedValue)) {
-      return [];
-    }
-
-    return parsedValue.filter(
-      (value): value is string => typeof value === "string",
-    );
-  } catch {
-    return [];
-  }
+function normalizeCompletedLessons(completedLessons: string[] = []) {
+  return completedLessons;
 }
 
-export function saveCompletedLessonIds(courseId: string, lessonIds: string[]) {
+function emitProgressEvent(courseId: string) {
   if (typeof window === "undefined") {
     return;
   }
 
-  const uniqueIds = Array.from(new Set(lessonIds));
-  window.localStorage.setItem(
-    getProgressKey(courseId),
-    JSON.stringify(uniqueIds),
-  );
   window.dispatchEvent(
     new CustomEvent(progressEventName, {
-      detail: {
-        courseId,
-      },
+      detail: { courseId },
     }),
   );
 }
 
-export function getAllCourseProgress() {
-  if (typeof window === "undefined") {
-    return [];
+export async function getCompletedLessonIds(courseId: string) {
+  const cachedProgress = progressCache.get(courseId);
+  if (cachedProgress) {
+    return cachedProgress.completedLessonIds;
   }
 
-  return Object.keys(window.localStorage)
-    .filter((key) => key.startsWith("course-progress-"))
-    .map((key) => ({
-      courseId: key.replace("course-progress-", ""),
-      completedLessonIds: getCompletedLessonIds(
-        key.replace("course-progress-", ""),
-      ),
-    }));
+  const progress = await getUserProgress("", courseId);
+  const snapshot = {
+    courseId,
+    completedLessonIds: normalizeCompletedLessons(progress.completedLessons),
+    progress: progress.progress,
+  };
+
+  progressCache.set(courseId, snapshot);
+  return snapshot.completedLessonIds;
+}
+
+export async function getCourseProgress(courseId: string) {
+  const completedLessonIds = await getCompletedLessonIds(courseId);
+  const cachedProgress = progressCache.get(courseId);
+
+  return {
+    courseId,
+    completedLessonIds,
+    progress: cachedProgress?.progress ?? 0,
+  };
+}
+
+export async function saveCompletedLessonIds(
+  courseId: string,
+  lessonId: string,
+) {
+  const progress = await saveLessonProgress("", courseId, lessonId);
+  const snapshot = {
+    courseId,
+    completedLessonIds: normalizeCompletedLessons(progress.completedLessons),
+    progress: progress.progress,
+  };
+
+  progressCache.set(courseId, snapshot);
+  emitProgressEvent(courseId);
+  return snapshot;
+}
+
+export function getAllCourseProgress() {
+  return Array.from(progressCache.values());
 }
