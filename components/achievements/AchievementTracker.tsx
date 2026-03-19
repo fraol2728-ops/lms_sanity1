@@ -10,6 +10,7 @@ import {
 import { syncAchievementsFromProgress } from "@/components/achievements/achievements-storage";
 import {
   getAllCourseProgress,
+  getCourseProgress,
   progressEventName,
 } from "@/components/lesson/progress-storage";
 
@@ -29,24 +30,21 @@ export function AchievementTracker({
     null,
   );
 
-  const scanProgress = useCallback(() => {
-    const persistedProgress = getAllCourseProgress();
-    const courseProgress = persistedProgress.map((course) => ({
-      courseId: course.courseId,
-      completedLessonIds: course.completedLessonIds,
-      totalLessons:
-        course.courseId === courseId
-          ? totalLessons
-          : course.completedLessonIds.length + 1,
-    }));
-
-    if (!courseProgress.some((course) => course.courseId === courseId)) {
-      courseProgress.push({
-        courseId,
-        completedLessonIds: [],
-        totalLessons,
-      });
-    }
+  const scanProgress = useCallback(async () => {
+    const activeCourseProgress = await getCourseProgress(courseId);
+    const cachedProgress = getAllCourseProgress().filter(
+      (course) => course.courseId !== courseId,
+    );
+    const courseProgress = [...cachedProgress, activeCourseProgress].map(
+      (course) => ({
+        courseId: course.courseId,
+        completedLessonIds: course.completedLessonIds,
+        totalLessons:
+          course.courseId === courseId
+            ? totalLessons
+            : course.completedLessonIds.length + 1,
+      }),
+    );
 
     const newAchievements = syncAchievementsFromProgress({ courseProgress });
     if (newAchievements.length > 0) {
@@ -55,12 +53,12 @@ export function AchievementTracker({
   }, [courseId, totalLessons]);
 
   useEffect(() => {
-    scanProgress();
+    void scanProgress();
 
     const handleProgressUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<{ courseId: string }>;
       if (customEvent.detail?.courseId === courseId) {
-        scanProgress();
+        void scanProgress();
       }
     };
 

@@ -1,9 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  getCompletedLessonIds,
+  getCourseProgress,
   progressEventName,
 } from "@/components/lesson/progress-storage";
 
@@ -16,38 +16,42 @@ export function LessonProgress({
   courseId,
   totalLessons,
 }: LessonProgressProps) {
-  const [completedCount, setCompletedCount] = useState(0);
+  const [percentage, setPercentage] = useState(0);
 
   useEffect(() => {
-    const syncProgress = () => {
-      const lessonIds = getCompletedLessonIds(courseId);
-      setCompletedCount(Math.min(lessonIds.length, totalLessons));
+    let isMounted = true;
+
+    const syncProgress = async () => {
+      const progress = await getCourseProgress(courseId);
+      if (!isMounted) {
+        return;
+      }
+
+      const fallbackPercentage =
+        totalLessons > 0
+          ? Math.round(
+              (progress.completedLessonIds.length / totalLessons) * 100,
+            )
+          : 0;
+
+      setPercentage(progress.progress || fallbackPercentage);
     };
 
     const handleProgressUpdate = (event: Event) => {
       const customEvent = event as CustomEvent<{ courseId: string }>;
       if (customEvent.detail?.courseId === courseId) {
-        syncProgress();
+        void syncProgress();
       }
     };
 
-    syncProgress();
-    window.addEventListener("storage", syncProgress);
+    void syncProgress();
     window.addEventListener(progressEventName, handleProgressUpdate);
 
     return () => {
-      window.removeEventListener("storage", syncProgress);
+      isMounted = false;
       window.removeEventListener(progressEventName, handleProgressUpdate);
     };
   }, [courseId, totalLessons]);
-
-  const percentage = useMemo(() => {
-    if (totalLessons === 0) {
-      return 0;
-    }
-
-    return Math.round((completedCount / totalLessons) * 100);
-  }, [completedCount, totalLessons]);
 
   return (
     <motion.section
