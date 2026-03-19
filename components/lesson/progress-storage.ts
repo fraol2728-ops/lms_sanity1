@@ -46,3 +46,18 @@ export function saveCompletedLessonIds(courseId: string, lessonIds: string[]) {
     }),
   );
 }
+
+export function getAllCourseProgress() {
+  if (typeof window === "undefined") {
+    return [];
+  }
+
+  return Object.keys(window.localStorage)
+    .filter((key) => key.startsWith("course-progress-"))
+    .map((key) => ({
+      courseId: key.replace("course-progress-", ""),
+      completedLessonIds: getCompletedLessonIds(
+        key.replace("course-progress-", ""),
+      ),
+    }));
+}

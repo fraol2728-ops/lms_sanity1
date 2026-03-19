@@ -47,6 +47,7 @@ export function CompleteButton({ courseId, lessonId }: CompleteButtonProps) {
 
     const completedLessonIds = getCompletedLessonIds(courseId);
     saveCompletedLessonIds(courseId, [...completedLessonIds, lessonId]);
+    setIsCompleted(true);
   };
 
   return (

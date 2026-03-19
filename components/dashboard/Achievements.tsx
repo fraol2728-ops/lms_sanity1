@@ -1,35 +1,24 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
-
-const badges = [
-  "First Course Completed",
-  "SQL Injection Master",
-  "Linux Explorer",
-];
+import { AchievementsList } from "@/components/achievements/AchievementsList";
 
 export function Achievements() {
   return (
-    <section>
-      <h3 className="mb-4 text-xl font-semibold text-white">Achievements</h3>
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {badges.map((badge, index) => (
-          <motion.div
-            key={badge}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ delay: index * 0.1, duration: 0.45 }}
-            className="rounded-xl border border-cyan-500/20 bg-[#07101c] p-4"
-          >
-            <div className="mb-3 inline-flex rounded-lg bg-cyan-500/15 p-2 text-cyan-300">
-              <ShieldCheck className="h-4 w-4" />
-            </div>
-            <p className="text-sm font-medium text-zinc-100">{badge}</p>
-          </motion.div>
-        ))}
+    <section className="rounded-3xl border border-cyan-500/20 bg-[#060b14]/80 p-6 shadow-[0_0_32px_rgba(34,211,238,0.06)]">
+      <div className="mb-5 flex items-center gap-3">
+        <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-400/30 bg-cyan-400/10 text-cyan-300 shadow-[0_0_22px_rgba(34,211,238,0.18)]">
+          <ShieldCheck className="h-5 w-5" />
+        </div>
+        <div>
+          <h3 className="text-xl font-semibold text-white">Achievements</h3>
+          <p className="text-sm text-zinc-400">
+            Track your lesson milestones and unlock mission badges.
+          </p>
+        </div>
       </div>
+
+      <AchievementsList />
     </section>
   );
 }
