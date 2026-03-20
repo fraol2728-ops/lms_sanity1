@@ -1,8 +1,7 @@
 "use client";
 
-import { Bot, Cpu, Send, Sparkles, User } from "lucide-react";
+import { Bot, SendHorizonal, User } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -12,42 +11,41 @@ type Message = {
   content: string;
 };
 
-const promptSuggestions = [
-  "Explain SQL Injection",
-  "What is XSS?",
-  "Networking basics",
-  "Linux commands",
-] as const;
+const INITIAL_MESSAGES: Message[] = [
+  {
+    role: "ai",
+    content:
+      "Welcome to AI Lab. Ask anything about cybersecurity and I’ll simulate a helpful response while the live model is still offline.",
+  },
+  {
+    role: "ai",
+    content:
+      "Try topics like phishing detection, SIEM workflows, Linux hardening, incident response, or threat modeling.",
+  },
+];
 
-const MOCK_RESPONSE = "AI response coming soon...";
+const buildMockResponse = (prompt: string) =>
+  `Here is a mock AI response for: “${prompt}”. In the production version, this panel can explain concepts, break down attack paths, and help learners reason through cybersecurity scenarios step by step.`;
 
 export default function AILabPage() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      role: "ai",
-      content:
-        "Welcome to AI Lab. Ask a cybersecurity question to explore the interface while API integration is being prepared.",
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const messageCount = messages.length;
 
   useEffect(() => {
-    if (!scrollRef.current) {
+    const container = scrollRef.current;
+
+    if (!container) {
       return;
     }
 
-    const scrollHeight = scrollRef.current.scrollHeight;
-    const behavior = messageCount > 1 || isTyping ? "smooth" : "auto";
-
-    scrollRef.current.scrollTo({
-      top: scrollHeight,
-      behavior,
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: "smooth",
     });
-  }, [isTyping, messageCount]);
+  });
 
   useEffect(() => {
     return () => {
@@ -57,10 +55,10 @@ export default function AILabPage() {
     };
   }, []);
 
-  const sendMessage = (value: string) => {
-    const trimmed = value.trim();
+  const sendMessage = () => {
+    const trimmedInput = input.trim();
 
-    if (!trimmed || isTyping) {
+    if (!trimmedInput || isTyping) {
       return;
     }
 
@@ -68,207 +66,142 @@ export default function AILabPage() {
       clearTimeout(timeoutRef.current);
     }
 
-    setMessages((current) => [
-      ...current,
-      {
-        role: "user",
-        content: trimmed,
-      },
+    setMessages((currentMessages) => [
+      ...currentMessages,
+      { role: "user", content: trimmedInput },
     ]);
     setInput("");
     setIsTyping(true);
 
     timeoutRef.current = setTimeout(() => {
-      setMessages((current) => [
-        ...current,
+      setMessages((currentMessages) => [
+        ...currentMessages,
         {
           role: "ai",
-          content: MOCK_RESPONSE,
+          content: buildMockResponse(trimmedInput),
         },
       ]);
       setIsTyping(false);
-    }, 1000);
+    }, 1100);
   };
 
   return (
-    <main className="min-h-screen bg-[#030712] text-white">
-      <div className="relative isolate overflow-hidden">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(16,185,129,0.14),transparent_30%),linear-gradient(180deg,rgba(8,15,30,0.92),rgba(3,7,18,1))]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-300/60 to-transparent" />
-        <div className="pointer-events-none absolute -top-16 left-[6%] h-64 w-64 rounded-full bg-cyan-500/15 blur-3xl" />
-        <div className="pointer-events-none absolute right-[8%] bottom-20 h-72 w-72 rounded-full bg-emerald-500/10 blur-3xl" />
-
-        <section className="relative mx-auto flex min-h-screen max-w-7xl flex-col px-4 py-8 sm:px-6 lg:px-8">
-          <div className="overflow-hidden rounded-[32px] border border-cyan-400/15 bg-slate-950/75 shadow-[0_0_0_1px_rgba(34,211,238,0.06),0_24px_90px_rgba(0,0,0,0.45)] backdrop-blur-xl">
-            <div className="border-b border-cyan-400/15 px-6 py-8 sm:px-8 lg:px-10">
-              <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-                <div className="space-y-4">
-                  <Badge className="rounded-full border border-cyan-400/25 bg-cyan-400/10 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-cyan-200 hover:bg-cyan-400/10">
-                    <Sparkles className="mr-1 size-3.5" />
-                    AI-Powered Learning Space
-                  </Badge>
-                  <div>
-                    <h1 className="text-4xl font-black tracking-tight text-white sm:text-5xl">
-                      AI Lab
-                    </h1>
-                    <p className="mt-3 max-w-2xl text-sm text-slate-300 sm:text-base">
-                      Your Cybersecurity AI Assistant
-                    </p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:min-w-[420px]">
-                  {[
-                    ["Mode", "Mock Chat"],
-                    ["Accent", "Neon Blue/Green"],
-                    ["Status", "API Ready"],
-                  ].map(([label, value]) => (
-                    <div
-                      key={label}
-                      className="rounded-2xl border border-cyan-400/15 bg-white/5 px-4 py-3"
-                    >
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
-                        {label}
-                      </p>
-                      <p className="mt-2 text-sm font-semibold text-cyan-200">
-                        {value}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
+    <main className="h-screen overflow-hidden bg-[#0a0f1f] text-slate-100">
+      <div className="flex h-screen flex-col bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_28%),linear-gradient(180deg,#0b1020_0%,#070b16_100%)]">
+        <header className="border-b border-cyan-400/10 bg-slate-950/40 px-6 py-4 backdrop-blur xl:px-8">
+          <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
+                Cybersecurity LMS
+              </p>
+              <h1 className="mt-1 text-2xl font-semibold text-white">AI Lab</h1>
             </div>
-
-            <div className="border-b border-cyan-400/15 px-6 py-5 sm:px-8 lg:px-10">
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-slate-200">
-                <Sparkles className="size-4 text-emerald-300" />
-                Prompt Suggestions
-              </div>
-              <div className="flex flex-wrap gap-3">
-                {promptSuggestions.map((suggestion) => (
-                  <Button
-                    key={suggestion}
-                    type="button"
-                    variant="outline"
-                    onClick={() => sendMessage(suggestion)}
-                    className="rounded-full border-cyan-400/20 bg-cyan-400/5 px-4 text-sm text-slate-100 shadow-[0_0_24px_rgba(34,211,238,0.08)] transition hover:border-emerald-300/40 hover:bg-emerald-400/10 hover:text-white"
-                  >
-                    {suggestion}
-                  </Button>
-                ))}
-              </div>
+            <div className="rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-100">
+              Mock chat • Dark cyber UI
             </div>
+          </div>
+        </header>
 
-            <div
-              ref={scrollRef}
-              className="h-[calc(100vh-25rem)] min-h-[420px] space-y-5 overflow-y-auto px-6 py-6 sm:px-8 lg:px-10"
-            >
-              {messages.map((message, index) => {
-                const isUser = message.role === "user";
+        <div
+          ref={scrollRef}
+          className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8"
+        >
+          <div className="mx-auto flex w-full max-w-5xl flex-col space-y-6 pb-6">
+            {messages.map((message, index) => {
+              const isUser = message.role === "user";
 
-                return (
+              return (
+                <div
+                  key={`${message.role}-${index}-${message.content}`}
+                  className={cn(
+                    "flex",
+                    isUser ? "justify-end" : "justify-start",
+                  )}
+                >
                   <div
-                    key={`${message.role}-${index}-${message.content}`}
                     className={cn(
-                      "animate-fade-in flex",
-                      isUser ? "justify-end" : "justify-start",
+                      "flex max-w-3xl items-end gap-3",
+                      isUser ? "flex-row-reverse" : "flex-row",
                     )}
-                    style={{ animationDelay: `${index * 70}ms` }}
                   >
                     <div
                       className={cn(
-                        "flex max-w-[88%] items-end gap-3 sm:max-w-[75%]",
-                        isUser ? "flex-row-reverse" : "flex-row",
+                        "flex size-10 shrink-0 items-center justify-center rounded-full border",
+                        isUser
+                          ? "border-cyan-300/30 bg-cyan-400/20 text-cyan-100"
+                          : "border-slate-700 bg-slate-900 text-emerald-300",
                       )}
                     >
-                      <div
-                        className={cn(
-                          "flex size-10 shrink-0 items-center justify-center rounded-2xl border shadow-[0_0_30px_rgba(34,211,238,0.12)]",
-                          isUser
-                            ? "border-emerald-400/25 bg-emerald-400/10 text-emerald-300"
-                            : "border-cyan-400/25 bg-cyan-400/10 text-cyan-300",
-                        )}
-                      >
-                        {isUser ? (
-                          <User className="size-4" />
-                        ) : (
-                          <Bot className="size-4" />
-                        )}
-                      </div>
-
-                      <div
-                        className={cn(
-                          "rounded-[24px] px-5 py-4 text-sm leading-7",
-                          isUser
-                            ? "bg-[linear-gradient(135deg,rgba(14,165,233,0.95),rgba(16,185,129,0.75))] text-white"
-                            : "border border-cyan-400/15 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,47,73,0.78))] text-slate-100",
-                        )}
-                      >
-                        {!isUser && (
-                          <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-300/90">
-                            <Cpu className="size-3.5" />
-                            AI Assistant
-                          </div>
-                        )}
-                        <p>{message.content}</p>
-                      </div>
+                      {isUser ? (
+                        <User className="size-4" />
+                      ) : (
+                        <Bot className="size-4" />
+                      )}
                     </div>
-                  </div>
-                );
-              })}
 
-              {isTyping && (
-                <div className="animate-fade-in flex justify-start">
-                  <div className="flex items-end gap-3">
-                    <div className="flex size-10 items-center justify-center rounded-2xl border border-cyan-400/25 bg-cyan-400/10 text-cyan-300 shadow-[0_0_30px_rgba(34,211,238,0.12)]">
-                      <Bot className="size-4" />
-                    </div>
-                    <div className="rounded-[24px] border border-cyan-400/15 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,47,73,0.78))] px-5 py-4 text-slate-100">
-                      <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-300/90">
-                        <Cpu className="size-3.5" />
-                        Typing
-                      </div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="size-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:-0.3s]" />
-                        <span className="size-2 animate-bounce rounded-full bg-cyan-300 [animation-delay:-0.15s]" />
-                        <span className="size-2 animate-bounce rounded-full bg-cyan-300" />
-                      </div>
+                    <div
+                      className={cn(
+                        "rounded-2xl px-4 py-3 text-sm leading-7 shadow-lg",
+                        isUser
+                          ? "rounded-br-md bg-cyan-500 text-slate-950"
+                          : "rounded-bl-md border border-slate-800 bg-slate-900/95 text-slate-100",
+                      )}
+                    >
+                      <p className="whitespace-pre-wrap">{message.content}</p>
                     </div>
                   </div>
                 </div>
-              )}
-            </div>
+              );
+            })}
 
-            <div className="border-t border-cyan-400/15 bg-black/20 px-6 py-5 sm:px-8 lg:px-10">
-              <form
-                className="flex flex-col gap-3 sm:flex-row"
-                onSubmit={(event) => {
-                  event.preventDefault();
-                  sendMessage(input);
-                }}
-              >
+            {isTyping && (
+              <div className="flex justify-start">
+                <div className="flex items-end gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-emerald-300">
+                    <Bot className="size-4" />
+                  </div>
+                  <div className="rounded-2xl rounded-bl-md border border-slate-800 bg-slate-900/95 px-4 py-4 shadow-lg">
+                    <div className="flex items-center gap-1.5">
+                      <span className="size-2 rounded-full bg-cyan-300 animate-bounce [animation-delay:-0.3s]" />
+                      <span className="size-2 rounded-full bg-cyan-300 animate-bounce [animation-delay:-0.15s]" />
+                      <span className="size-2 rounded-full bg-cyan-300 animate-bounce" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="shrink-0 border-t border-slate-800 bg-slate-950/95 px-4 py-4 backdrop-blur sm:px-6 lg:px-8">
+          <div className="mx-auto w-full max-w-5xl">
+            <div className="rounded-[28px] border border-slate-800 bg-slate-900/90 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
+              <div className="flex items-center gap-3">
                 <Input
                   value={input}
                   onChange={(event) => setInput(event.target.value)}
-                  placeholder="Ask about XSS, SQL injection, Linux, networking, or incident response..."
-                  className="h-12 rounded-2xl border-cyan-400/20 bg-slate-950/70 px-4 text-slate-100 placeholder:text-slate-500 focus-visible:border-cyan-300 focus-visible:ring-cyan-400/30"
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter" && !event.shiftKey) {
+                      event.preventDefault();
+                      sendMessage();
+                    }
+                  }}
+                  placeholder="Ask anything about cybersecurity..."
+                  className="h-14 border-0 bg-transparent px-4 text-base text-slate-100 placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
                 <Button
-                  type="submit"
+                  type="button"
+                  onClick={sendMessage}
                   disabled={!input.trim() || isTyping}
-                  className="h-12 rounded-2xl bg-[linear-gradient(135deg,#0891b2,#10b981)] px-5 text-white shadow-[0_0_30px_rgba(16,185,129,0.22)] hover:opacity-95 disabled:bg-slate-700"
+                  className="size-12 rounded-2xl bg-cyan-400 text-slate-950 hover:bg-cyan-300 disabled:bg-slate-800 disabled:text-slate-500"
                 >
-                  <Send className="size-4" />
-                  Send
+                  <SendHorizonal className="size-4" />
+                  <span className="sr-only">Send message</span>
                 </Button>
-              </form>
-              <p className="mt-3 text-xs text-slate-500">
-                Press Enter to send. This is a polished mock UI and is ready for
-                future API integration.
-              </p>
+              </div>
             </div>
           </div>
-        </section>
+        </div>
       </div>
     </main>
   );
