@@ -13,7 +13,6 @@ const serverActionAllowedOrigins = [
 
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: true,
   experimental: {
     serverActions: {
       allowedOrigins: [...new Set(serverActionAllowedOrigins)],
