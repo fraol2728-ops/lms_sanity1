@@ -21,7 +21,7 @@ const navLinks = [
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   { href: "/community", label: "Community" },
-  { href: "/ai", label: "AI Lab" },
+  { href: "/ai", label: "AI Lab", isNew: true },
 ];
 
 const commandPaletteLinks = [
@@ -31,7 +31,7 @@ const commandPaletteLinks = [
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   { href: "/community", label: "Community" },
-  { href: "/ai", label: "AI Lab" },
+  { href: "/ai", label: "AI Lab", isNew: true },
   { href: "/notes", label: "Notes" },
 ];
 
@@ -166,6 +166,7 @@ export function Header() {
                 label={link.label}
                 isScrolled={isScrolled}
                 isActive={pathname === link.href}
+                isNew={link.isNew}
               />
             ))}
           </div>
@@ -265,6 +266,7 @@ export function Header() {
                 href={link.href}
                 label={link.label}
                 isActive={pathname === link.href}
+                isNew={link.isNew}
               />
             ))}
 
@@ -314,17 +316,19 @@ function NavLink({
   label,
   isScrolled,
   isActive,
+  isNew,
 }: {
   href: string;
   label: string;
   isScrolled: boolean;
   isActive?: boolean;
+  isNew?: boolean;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        "rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
+        "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
         isActive
           ? "bg-cyan-400/12 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.12)]"
           : isScrolled
@@ -333,7 +337,12 @@ function NavLink({
       )}
       aria-current={isActive ? "page" : undefined}
     >
-      {label}
+      <span>{label}</span>
+      {isNew ? (
+        <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+          New
+        </span>
+      ) : null}
     </Link>
   );
 }
@@ -342,21 +351,28 @@ function MobileNavLink({
   href,
   label,
   isActive,
+  isNew,
 }: {
   href: string;
   label: string;
   isActive?: boolean;
+  isNew?: boolean;
 }) {
   return (
     <Link
       href={href}
       className={cn(
-        "block rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
+        "inline-flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
         isActive ? "bg-cyan-400/12 text-cyan-200" : "text-zinc-200",
       )}
       aria-current={isActive ? "page" : undefined}
     >
-      {label}
+      <span>{label}</span>
+      {isNew ? (
+        <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
+          New
+        </span>
+      ) : null}
     </Link>
   );
 }
@@ -367,7 +383,7 @@ function CoursesMegaMenu({ isScrolled }: { isScrolled: boolean }) {
       <button
         type="button"
         className={cn(
-          "rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
+          "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
           isScrolled ? "text-zinc-300" : "text-zinc-600",
         )}
       >
