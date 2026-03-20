@@ -3,7 +3,7 @@
 import { Search, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -24,24 +24,9 @@ export function Hero({ courses }: HeroProps) {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const keywordRecommendations = useMemo(() => {
-    const words = courses.flatMap((course) => {
-      const searchSource = `${course.title ?? ""} ${course.description ?? ""}`;
-      return searchSource
-        .toLowerCase()
-        .split(/[^a-z0-9+#]+/)
-        .filter((word) => word.length > 4);
-    });
-
-    const uniqueKeywords = [...new Set(words)];
-    return uniqueKeywords.slice(0, 8);
-  }, [courses]);
-
-  const autoCompleteOptions = useMemo(() => {
-    return courses
-      .map((course) => course.title)
-      .filter((title): title is string => Boolean(title));
-  }, [courses]);
+  const autoCompleteOptions = courses
+    .map((course) => course.title)
+    .filter((title): title is string => Boolean(title));
 
   const handleSearch = (keyword?: string) => {
     const query = (keyword ?? searchTerm).trim().toLowerCase();
@@ -136,25 +121,6 @@ export function Hero({ courses }: HeroProps) {
             >
               Search Courses
             </Button>
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            <span className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">
-              Recommended:
-            </span>
-            {keywordRecommendations.map((keyword) => (
-              <button
-                key={keyword}
-                type="button"
-                onClick={() => {
-                  setSearchTerm(keyword);
-                  handleSearch(keyword);
-                }}
-                className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-3 py-1.5 text-sm text-cyan-100 transition hover:bg-cyan-400/25"
-              >
-                {keyword}
-              </button> 
-            ))}
           </div>
         </div>
       </div>
