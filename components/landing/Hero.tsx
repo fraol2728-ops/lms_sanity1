@@ -80,7 +80,7 @@ export function Hero({ courses }: HeroProps) {
       <div className="relative mx-auto max-w-7xl px-6 pb-24 pt-24 text-center lg:px-12 lg:pb-32">
         <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-cyan-100">
           <ShieldCheck className="h-4 w-4" />
-          Next Cyber Camp
+          DevFraol Academy-NextCC
         </div>
 
         <h1 className="mx-auto mt-7 max-w-5xl text-4xl font-black leading-tight text-white sm:text-4xl lg:text-7xl">
