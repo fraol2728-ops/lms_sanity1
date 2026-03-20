@@ -1,7 +1,7 @@
 "use client";
 
 import { Bot, SendHorizonal, User } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -24,65 +24,73 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ];
 
-const buildMockResponse = (prompt: string) =>
-  `Here is a mock AI response for: “${prompt}”. In the production version, this panel can explain concepts, break down attack paths, and help learners reason through cybersecurity scenarios step by step.`;
-
 export default function AILabPage() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const container = scrollRef.current;
+  const appendMessage = (message: Message) => {
+    setMessages((currentMessages) => [...currentMessages, message]);
 
-    if (!container) {
-      return;
-    }
+    requestAnimationFrame(() => {
+      const container = scrollRef.current;
 
-    container.scrollTo({
-      top: container.scrollHeight,
-      behavior: "smooth",
-    });
-  });
-
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+      if (!container) {
+        return;
       }
-    };
-  }, []);
 
-  const sendMessage = () => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+  };
+
+  const sendMessage = async () => {
     const trimmedInput = input.trim();
 
     if (!trimmedInput || isTyping) {
       return;
     }
 
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-
-    setMessages((currentMessages) => [
-      ...currentMessages,
-      { role: "user", content: trimmedInput },
-    ]);
+    appendMessage({ role: "user", content: trimmedInput });
     setInput("");
     setIsTyping(true);
 
-    timeoutRef.current = setTimeout(() => {
-      setMessages((currentMessages) => [
-        ...currentMessages,
-        {
-          role: "ai",
-          content: buildMockResponse(trimmedInput),
+    try {
+      const response = await fetch("/api/ai", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      ]);
+        body: JSON.stringify({ message: trimmedInput }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch AI response");
+      }
+
+      const data = (await response.json()) as { text?: string };
+      const aiResponse = data.text?.trim();
+
+      if (!aiResponse) {
+        throw new Error("Empty AI response");
+      }
+
+      appendMessage({
+        role: "ai",
+        content: aiResponse,
+      });
+    } catch {
+      appendMessage({
+        role: "ai",
+        content:
+          "I’m having trouble reaching the AI service right now. Please try again in a moment.",
+      });
+    } finally {
       setIsTyping(false);
-    }, 1100);
+    }
   };
 
   return (
