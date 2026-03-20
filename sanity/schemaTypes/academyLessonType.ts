@@ -1,15 +1,15 @@
-import { BookIcon } from "@sanity/icons";
-import { defineType, defineField } from "sanity";
+import { PlayIcon } from "@sanity/icons";
+import { defineField, defineType } from "sanity";
 
-export const academyCourseType = defineType({
-  name: "academyCourse",
-  title: "Academy Course",
+export const academyLessonType = defineType({
+  name: "academyLesson",
+  title: "Academy Lesson",
   type: "document",
-  icon: BookIcon,
+  icon: PlayIcon,
   fields: [
     defineField({
       name: "title",
-      title: "Course Title",
+      title: "Lesson Title",
       type: "string",
     }),
     defineField({
@@ -19,27 +19,22 @@ export const academyCourseType = defineType({
       options: { source: "title" },
     }),
     defineField({
-      name: "description",
-      title: "Description",
-      type: "text",
+      name: "course",
+      title: "Course",
+      type: "reference",
+      to: [{ type: "academyCourse" }],
     }),
     defineField({
-      name: "duration",
-      title: "Duration",
-      type: "string",
+      name: "content",
+      title: "Content",
+      type: "array",
+      of: [{ type: "block" }],
     }),
     defineField({
-      name: "level",
-      title: "Level",
-      type: "string",
-      options: {
-        list: ["Beginner", "Intermediate", "Advanced"],
-      },
-    }),
-    defineField({
-      name: "location",
-      title: "Location",
-      type: "string",
+      name: "tasks",
+      title: "Tasks",
+      type: "array",
+      of: [{ type: "string" }],
     }),
   ],
 });
