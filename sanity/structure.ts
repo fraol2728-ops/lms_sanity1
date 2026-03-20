@@ -4,7 +4,6 @@ import {
   DocumentsIcon,
   PlayIcon,
   TagIcon,
-  UserIcon,
 } from "@sanity/icons";
 import type { StructureResolver } from "sanity/structure";
 
@@ -34,28 +33,14 @@ export const structure: StructureResolver = (S) =>
               documentTypeItem(S, "module", "Modules", DocumentsIcon),
               documentTypeItem(S, "lesson", "Lessons", PlayIcon),
               documentTypeItem(S, "category", "Categories", TagIcon),
-            ])
-        ),
-      S.listItem()
-        .title("Academy")
-        .icon(DocumentIcon)
-        .child(
-          S.list()
-            .title("Academy")
-            .items([
-              documentTypeItem(S, "academyCourse", "Academy Courses", BookIcon),
-              documentTypeItem(S, "academyLesson", "Academy Lessons", PlayIcon),
-            ])
+            ]),
         ),
       S.listItem()
         .title("Other")
-        .icon(UserIcon)
+        .icon(DocumentIcon)
         .child(
           S.list()
             .title("Other")
-            .items([
-              documentTypeItem(S, "note", "Notes", DocumentIcon),
-              documentTypeItem(S, "userProgress", "User Progress", UserIcon),
-            ])
+            .items([documentTypeItem(S, "note", "Notes", DocumentIcon)]),
         ),
     ]);
