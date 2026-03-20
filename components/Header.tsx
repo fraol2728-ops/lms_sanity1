@@ -11,25 +11,28 @@ import {
   X,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
-  { href: "/paths", label: "Paths" },
+  { href: "/", label: "Home" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/community", label: "Community" },
-  { href: "/leaderboard", label: "Leaderboard" },
   { href: "/docs", label: "Docs" },
+  { href: "/community", label: "Community" },
+  { href: "/ai", label: "AI Lab" },
 ];
 
 const commandPaletteLinks = [
+  { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard" },
   { href: "/dashboard/courses", label: "Courses" },
   { href: "/pricing", label: "Pricing" },
-  { href: "/leaderboard", label: "Leaderboard" },
+  { href: "/docs", label: "Docs" },
+  { href: "/community", label: "Community" },
+  { href: "/ai", label: "AI Lab" },
   { href: "/notes", label: "Notes" },
-  { href: "/paths", label: "Paths" },
 ];
 
 const courseMegaMenu = [
@@ -83,6 +86,7 @@ const courseMegaMenu = [
 ];
 
 export function Header() {
+  const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
@@ -161,6 +165,7 @@ export function Header() {
                 href={link.href}
                 label={link.label}
                 isScrolled={isScrolled}
+                isActive={pathname === link.href}
               />
             ))}
           </div>
@@ -246,20 +251,21 @@ export function Header() {
               <Search className="h-4 w-4" /> Search (⌘/Ctrl + K)
             </button>
 
-            <Link
+            <MobileNavLink href="/" label="Home" isActive={pathname === "/"} />
+            <MobileNavLink
               href="/courses"
-              className="block rounded-md px-3 py-2 text-sm text-zinc-200 transition hover:bg-cyan-400/10 hover:text-cyan-200"
-            >
-              Courses
-            </Link>
-            {navLinks.map((link) => (
-              <Link
+              label="Courses"
+              isActive={
+                pathname === "/courses" || pathname.startsWith("/courses/")
+              }
+            />
+            {navLinks.slice(1).map((link) => (
+              <MobileNavLink
                 key={link.label}
                 href={link.href}
-                className="block rounded-md px-3 py-2 text-sm text-zinc-200 transition hover:bg-cyan-400/10 hover:text-cyan-200"
-              >
-                {link.label}
-              </Link>
+                label={link.label}
+                isActive={pathname === link.href}
+              />
             ))}
 
             <div className="my-2 h-px bg-cyan-400/10" />
@@ -307,18 +313,48 @@ function NavLink({
   href,
   label,
   isScrolled,
+  isActive,
 }: {
   href: string;
   label: string;
   isScrolled: boolean;
+  isActive?: boolean;
 }) {
   return (
     <Link
       href={href}
       className={cn(
         "rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
-        isScrolled ? "text-zinc-300" : "text-zinc-600",
+        isActive
+          ? "bg-cyan-400/12 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.12)]"
+          : isScrolled
+            ? "text-zinc-300"
+            : "text-zinc-600",
       )}
+      aria-current={isActive ? "page" : undefined}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function MobileNavLink({
+  href,
+  label,
+  isActive,
+}: {
+  href: string;
+  label: string;
+  isActive?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "block rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
+        isActive ? "bg-cyan-400/12 text-cyan-200" : "text-zinc-200",
+      )}
+      aria-current={isActive ? "page" : undefined}
     >
       {label}
     </Link>
@@ -419,32 +455,32 @@ function CommandPalette({
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search pages..."
-            className="w-full bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-500"
+            placeholder="Search navigation"
+            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-500"
           />
-          <kbd className="rounded border border-cyan-400/20 px-2 py-1 text-xs text-zinc-500">
-            ESC
-          </kbd>
         </div>
 
         <div className="space-y-2">
           {filteredLinks.length > 0 ? (
-            filteredLinks.map((item) => (
+            filteredLinks.map((link) => (
               <Link
-                key={item.href}
-                href={item.href}
+                key={link.href}
+                href={link.href}
                 onClick={() => setOpen(false)}
-                className="flex items-center justify-between rounded-lg border border-transparent px-3 py-2 text-sm text-zinc-200 transition hover:border-cyan-400/30 hover:bg-cyan-400/10 hover:text-cyan-200"
+                className="flex items-center justify-between rounded-xl border border-cyan-400/10 bg-[#0a1128] px-4 py-3 text-sm text-zinc-200 transition hover:border-cyan-300/30 hover:bg-[#0d1736] hover:text-cyan-200"
               >
-                <span className="inline-flex items-center gap-2">
-                  <TerminalSquare className="h-4 w-4" />
-                  {item.label}
+                <span className="inline-flex items-center gap-3">
+                  <TerminalSquare className="h-4 w-4 text-cyan-300" />
+                  {link.label}
                 </span>
                 <ChevronRight className="h-4 w-4 text-zinc-500" />
               </Link>
             ))
           ) : (
-            <p className="px-3 py-4 text-sm text-zinc-400">No matches found.</p>
+            <div className="rounded-xl border border-dashed border-cyan-400/20 px-4 py-6 text-center text-sm text-zinc-400">
+              No navigation results for{" "}
+              <span className="text-cyan-300">{query}</span>
+            </div>
           )}
         </div>
       </div>

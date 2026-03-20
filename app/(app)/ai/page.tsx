@@ -4,6 +4,7 @@ import { Bot, Cpu, Send, Shield, Sparkles, User } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
 type ChatRole = "user" | "assistant";
 
@@ -22,17 +23,17 @@ const promptSuggestions = [
 
 const mockResponses: Record<string, string> = {
   "Explain SQL Injection":
-    "SQL injection is an attack where malicious SQL is inserted into an application's input fields to manipulate the database. Prevent it with parameterized queries, input validation, and least-privilege database accounts.",
+    "SQL injection happens when unsafe input is interpreted as part of a database query. Strong defenses include parameterized queries, strict validation, and least-privilege database accounts.",
   "What is XSS?":
-    "Cross-site scripting (XSS) happens when untrusted scripts run in a user's browser. The main defenses are output encoding, sanitization, Content Security Policy, and avoiding unsafe HTML rendering.",
+    "Cross-site scripting, or XSS, is when attacker-controlled script executes in a victim's browser. Reduce risk with output encoding, sanitization, safe rendering patterns, and Content Security Policy.",
   "Networking basics":
-    "Networking basics start with IP addressing, DNS, routing, ports, protocols like TCP/UDP, and how packets move between hosts. In cybersecurity, understanding traffic flow is essential for monitoring and defense.",
+    "Networking basics include IP addressing, subnets, DNS, routing, ports, protocols like TCP and UDP, and how packets move through systems. That foundation helps you understand both attacks and defenses.",
   "Linux commands":
-    "Start with pwd, ls, cd, cat, grep, find, chmod, ps, top, and ssh. These commands help you inspect systems, navigate files, review logs, and work efficiently in security labs.",
+    "Useful Linux commands include pwd, ls, cd, cat, grep, find, chmod, ps, ss, top, and ssh. They help you inspect systems, troubleshoot services, and move quickly during labs.",
 };
 
 const fallbackResponse =
-  "I can help break down cybersecurity topics, defensive strategies, networking, Linux, web vulnerabilities, and incident response workflows. API integration can plug into this interface next.";
+  "AI Lab is running with mock responses for now. Ask about cybersecurity concepts, Linux, networking, secure coding, or common attack paths, and this interface can later be connected to a real model API.";
 
 function buildAssistantResponse(input: string) {
   const normalized = input.trim().toLowerCase();
@@ -46,11 +47,15 @@ function buildAssistantResponse(input: string) {
   }
 
   if (normalized.includes("phishing")) {
-    return "Phishing is a social engineering attack that tricks users into revealing credentials, installing malware, or approving fraudulent actions. Train users to verify senders, inspect URLs, and report suspicious messages quickly.";
+    return "Phishing is a social engineering technique that tries to trick people into sharing credentials, opening malware, or approving fraudulent actions. Defensive habits include verifying senders, inspecting domains, and reporting suspicious messages quickly.";
   }
 
   if (normalized.includes("firewall")) {
-    return "A firewall filters inbound and outbound traffic based on security rules. It helps reduce attack surface by allowing trusted traffic, blocking suspicious activity, and segmenting sensitive systems.";
+    return "A firewall filters traffic based on security rules. It helps reduce attack surface by allowing trusted flows, blocking unwanted traffic, and segmenting systems that should not talk directly.";
+  }
+
+  if (normalized.includes("incident response")) {
+    return "Incident response usually follows preparation, identification, containment, eradication, recovery, and lessons learned. Speed matters, but so do clean documentation and evidence handling.";
   }
 
   return fallbackResponse;
@@ -62,7 +67,7 @@ export default function AIPage() {
       id: "assistant-welcome",
       role: "assistant",
       content:
-        "Welcome to your AI Cyber Assistant. Ask about threats, tooling, networking, Linux, secure coding, or defensive best practices.",
+        "Welcome to AI Lab. Ask about threats, networking, Linux, secure coding, or blue-team workflows to explore mock cybersecurity guidance.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -71,17 +76,15 @@ export default function AIPage() {
   const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const shouldScroll = messages.length > 0 || isTyping;
-
-    if (!shouldScroll) {
+    if (!scrollRef.current) {
       return;
     }
 
-    scrollRef.current?.scrollTo({
+    scrollRef.current.scrollTo({
       top: scrollRef.current.scrollHeight,
       behavior: "smooth",
     });
-  }, [messages.length, isTyping]);
+  });
 
   useEffect(() => {
     return () => {
@@ -110,46 +113,53 @@ export default function AIPage() {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    const userMessage: ChatMessage = {
-      id: `${Date.now()}-user`,
-      role: "user",
-      content: trimmed,
-    };
-
-    setMessages((current) => [...current, userMessage]);
+    setMessages((current) => [
+      ...current,
+      {
+        id: `${Date.now()}-user`,
+        role: "user",
+        content: trimmed,
+      },
+    ]);
     setInput("");
     setIsTyping(true);
 
     typingTimeoutRef.current = setTimeout(() => {
-      const assistantMessage: ChatMessage = {
-        id: `${Date.now()}-assistant`,
-        role: "assistant",
-        content: buildAssistantResponse(trimmed),
-      };
-
-      setMessages((current) => [...current, assistantMessage]);
+      setMessages((current) => [
+        ...current,
+        {
+          id: `${Date.now()}-assistant`,
+          role: "assistant",
+          content: buildAssistantResponse(trimmed),
+        },
+      ]);
       setIsTyping(false);
     }, 1100);
   };
 
   return (
-    <main className="min-h-screen bg-[#030711] text-white">
-      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_30%),linear-gradient(to_bottom,rgba(6,182,212,0.05),transparent_35%)]" />
+    <main className="min-h-screen overflow-hidden bg-[#030711] text-white">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_30%),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_34%),linear-gradient(to_bottom,rgba(8,15,35,0.15),transparent_45%)]" />
 
-      <div className="relative mx-auto flex min-h-screen max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <section className="flex w-full flex-col overflow-hidden rounded-[28px] border border-cyan-400/20 bg-[#06101c]/85 shadow-[0_0_0_1px_rgba(34,211,238,0.08),0_20px_80px_rgba(3,7,18,0.65)] backdrop-blur-xl">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute top-20 left-[8%] h-72 w-72 rounded-full bg-emerald-500/10 blur-[110px]" />
+        <div className="absolute right-[8%] bottom-20 h-80 w-80 rounded-full bg-cyan-500/10 blur-[130px]" />
+      </div>
+
+      <div className="relative mx-auto flex min-h-screen max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <section className="flex w-full flex-col overflow-hidden rounded-[30px] border border-cyan-400/15 bg-[#06101c]/85 shadow-[0_0_0_1px_rgba(34,211,238,0.06),0_20px_80px_rgba(3,7,18,0.65)] backdrop-blur-xl">
           <div className="border-b border-cyan-400/15 px-6 py-6 sm:px-8">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
               <div>
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-emerald-300">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-emerald-400/25 bg-emerald-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.22em] text-emerald-300">
                   <Shield className="size-3.5" />
-                  Security AI Interface
+                  Cybersecurity Workspace
                 </div>
                 <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                  AI Cyber Assistant
+                  AI Lab
                 </h1>
                 <p className="mt-2 max-w-2xl text-sm text-slate-300 sm:text-base">
-                  Ask anything about cybersecurity
+                  Your Cybersecurity AI Assistant
                 </p>
               </div>
 
@@ -203,20 +213,25 @@ export default function AIPage() {
               return (
                 <div
                   key={message.id}
-                  className={`animate-fade-in flex ${isUser ? "justify-end" : "justify-start"}`}
+                  className={cn(
+                    "animate-fade-in flex",
+                    isUser ? "justify-end" : "justify-start",
+                  )}
                   style={{ animationDelay: `${index * 80}ms` }}
                 >
                   <div
-                    className={`flex max-w-[85%] items-end gap-3 sm:max-w-[75%] ${
-                      isUser ? "flex-row-reverse" : "flex-row"
-                    }`}
+                    className={cn(
+                      "flex max-w-[85%] items-end gap-3 sm:max-w-[75%]",
+                      isUser ? "flex-row-reverse" : "flex-row",
+                    )}
                   >
                     <div
-                      className={`flex size-10 shrink-0 items-center justify-center rounded-2xl border ${
+                      className={cn(
+                        "flex size-10 shrink-0 items-center justify-center rounded-2xl border",
                         isUser
                           ? "border-emerald-400/30 bg-emerald-400/10 text-emerald-300"
-                          : "border-cyan-400/30 bg-cyan-400/10 text-cyan-300"
-                      }`}
+                          : "border-cyan-400/30 bg-cyan-400/10 text-cyan-300",
+                      )}
                     >
                       {isUser ? (
                         <User className="size-4" />
@@ -226,11 +241,12 @@ export default function AIPage() {
                     </div>
 
                     <div
-                      className={`rounded-[24px] px-5 py-4 text-sm leading-7 shadow-lg ${
+                      className={cn(
+                        "rounded-[24px] px-5 py-4 text-sm leading-7 shadow-lg",
                         isUser
                           ? "bg-[linear-gradient(135deg,rgba(16,185,129,0.22),rgba(14,165,233,0.18))] text-slate-50 shadow-emerald-950/30"
-                          : "border border-cyan-400/15 bg-[linear-gradient(180deg,rgba(15,23,42,0.95),rgba(8,47,73,0.82))] text-slate-100 shadow-cyan-950/20"
-                      }`}
+                          : "border border-cyan-400/15 bg-[linear-gradient(180deg,rgba(15,23,42,0.95),rgba(8,47,73,0.82))] text-slate-100 shadow-cyan-950/20",
+                      )}
                     >
                       {!isUser && (
                         <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-300/90">
