@@ -6,7 +6,7 @@ export const academyCourseType = defineType({
   title: "Academy Course",
   type: "document",
   icon: BookIcon,
-  fields: [],
+  fields: [...],
   preview: {
     prepare() {
       return {
