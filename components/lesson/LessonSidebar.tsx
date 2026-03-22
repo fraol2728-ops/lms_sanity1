@@ -73,7 +73,7 @@ export function LessonSidebar({
   }
 
   return (
-    <aside className="w-full lg:w-80">
+    <aside className="w-full lg:w-80 lg:h-[calc(100vh-6rem)]">
       <div className="mb-3 flex items-center justify-between rounded-xl border border-cyan-500/30 bg-[#061222]/85 p-3 lg:hidden">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-300/80">
@@ -105,7 +105,7 @@ export function LessonSidebar({
         animate={{ opacity: 1, x: 0 }}
         className={cn(
           "overflow-hidden rounded-2xl border border-cyan-500/25 bg-[#061222]/90 shadow-[0_10px_40px_rgba(34,211,238,0.15)]",
-          "lg:sticky lg:top-24",
+          "lg:flex lg:h-full lg:flex-col",
           !mobileOpen && "hidden lg:block",
         )}
       >
@@ -124,7 +124,7 @@ export function LessonSidebar({
           </p>
         </div>
 
-        <div className="max-h-[70vh] space-y-3 overflow-y-auto p-3">
+        <div className="space-y-3 overflow-y-auto p-3 lg:flex-1">
           {modules.map((module, moduleIndex) => (
             <div
               key={module._id}
