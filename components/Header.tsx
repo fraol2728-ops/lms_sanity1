@@ -148,10 +148,10 @@ export function Header() {
               <Shield className="h-5 w-5 text-cyan-300" />
             </span>
             <div className="leading-tight">
-              <p className="hidden text-xs uppercase tracking-[0.24em] text-zinc-500 sm:block">
+              {/* <p className="hidden text-xs uppercase tracking-[0.24em] text-zinc-500 sm:block">
                 Next
-              </p>
-              <p className="whitespace-nowrap text-sm font-semibold text-white sm:text-base">
+              </p> */}
+              <p className="whitespace-nowrap text-sm font-semibold text-zinc-500 sm:text-base">
                 Cyber <span className="text-cyan-300">Camp</span>
               </p>
             </div>
