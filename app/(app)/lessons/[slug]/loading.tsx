@@ -43,9 +43,9 @@ function Loading() {
 
       {/* Main Content with Sidebar */}
       <main className="relative z-10 px-6 lg:px-12 py-8 max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row gap-8">
+        <div className="flex flex-col gap-8 lg:block">
           {/* Sidebar */}
-          <aside className="w-full lg:w-80 shrink-0">
+          <aside className="w-full lg:fixed lg:left-12 lg:top-32 lg:z-20 lg:w-80 xl:left-[max(3rem,calc((100vw-80rem)/2+3rem))]">
             <div className="rounded-xl bg-zinc-900/50 border border-zinc-800 p-5 space-y-4">
               {/* Back Link */}
               <Skeleton className="h-4 w-28 bg-zinc-800 rounded" />
@@ -111,7 +111,7 @@ function Loading() {
           </aside>
 
           {/* Main Content */}
-          <div className="flex-1 space-y-6">
+          <div className="space-y-6 lg:pl-[calc(20rem+2rem)]">
             {/* Video Player Skeleton */}
             <div className="relative rounded-2xl overflow-hidden bg-zinc-900 border border-zinc-800">
               <Skeleton className="w-full aspect-video bg-zinc-800" />
