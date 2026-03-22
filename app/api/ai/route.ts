@@ -1,104 +1,137 @@
-function buildOfflineResponse(message: string) {
-  return [
-    "AI Lab is running in offline fallback mode right now, so this is a simulated cybersecurity tutor response.",
-    "",
-    `Your question: "${message}"`,
-    "",
-    "Quick guidance:",
-    "- Start by defining the system, threat, or workflow you are analyzing.",
-    "- Identify the likely attack surface, affected assets, and the business impact.",
-    "- Apply one practical next step such as enabling logs, tightening access controls, patching exposed services, or validating alerts with known indicators.",
-    "",
-    "If you want, ask a narrower follow-up like:",
-    "- How do I investigate a phishing email?",
-    "- How do I harden a Linux server?",
-    "- How do I build an incident response checklist?",
-  ].join("\n");
+type ChatMessage = {
+  role: "user" | "assistant";
+  content: string;
+};
+
+function normalizeMessages(input: unknown): ChatMessage[] {
+  if (!Array.isArray(input)) {
+    return [];
+  }
+
+  return input
+    .map((item) => {
+      if (!item || typeof item !== "object") {
+        return null;
+      }
+
+      const rawRole =
+        "role" in item && typeof item.role === "string"
+          ? item.role.toLowerCase()
+          : "";
+      const content =
+        "content" in item && typeof item.content === "string"
+          ? item.content.trim()
+          : "";
+
+      if (!content) {
+        return null;
+      }
+
+      const role: ChatMessage["role"] =
+        rawRole === "user" ? "user" : "assistant";
+
+      return { role, content };
+    })
+    .filter((message): message is ChatMessage => message !== null);
 }
 
 export async function POST(req: Request) {
   try {
-    const body = (await req.json()) as { message?: string };
-    const message = body.message?.trim();
+    const body = (await req.json()) as {
+      message?: string;
+      messages?: Array<{ role?: string; content?: string }>;
+    };
 
-    if (!message) {
-      return Response.json({ error: "Message is required" }, { status: 400 });
-    }
+    const apiKey = process.env.OPENROUTER_API_KEY;
 
-    const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return Response.json({ text: buildOfflineResponse(message) });
+      return Response.json(
+        { error: "Missing OPENROUTER_API_KEY configuration." },
+        { status: 500 },
+      );
     }
 
-    const prompt = `
-You are an expert cybersecurity tutor.
+    const message = body.message?.trim() ?? "";
+    const history = normalizeMessages(body.messages);
 
-- Explain clearly and simply
-- Give real-world examples
-- Focus on ethical hacking, networking, and security
-- Be concise but helpful
+    const lastMessage = history[history.length - 1];
 
-User question:
-${message}
-`;
+    const chatMessages =
+      history.length > 0
+        ? history
+        : message
+          ? [{ role: "user", content: message }]
+          : [];
+
+    if (chatMessages.length === 0) {
+      return Response.json(
+        { error: "A valid message is required." },
+        { status: 400 },
+      );
+    }
+
+    if (!lastMessage && !message) {
+      return Response.json(
+        { error: "Message history is invalid." },
+        { status: 400 },
+      );
+    }
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      "https://openrouter.ai/api/v1/chat/completions",
       {
         method: "POST",
         headers: {
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          contents: [
-            {
-              role: "user",
-              parts: [{ text: prompt }],
-            },
-          ],
+          model: "mistralai/mistral-7b-instruct",
+          messages: chatMessages,
         }),
       },
     );
 
+    const data = (await response.json().catch(() => null)) as {
+      error?: { message?: string };
+      choices?: Array<{
+        message?: { content?: string | null };
+      }>;
+    } | null;
+
     if (!response.ok) {
-      throw new Error(
-        `Gemini API request failed with status ${response.status}`,
+      const errorMessage =
+        data?.error?.message ??
+        `OpenRouter request failed with status ${response.status}.`;
+
+      return Response.json(
+        { error: errorMessage },
+        { status: response.status },
       );
     }
 
-    const data = (await response.json()) as {
-      candidates?: Array<{
-        content?: {
-          parts?: Array<{ text?: string }>;
-        };
-      }>;
-    };
-
-    const text =
-      data.candidates?.[0]?.content?.parts
-        ?.map((part) => part.text?.trim() ?? "")
-        .filter(Boolean)
-        .join("\n")
-        .trim() ?? "";
+    const text = data?.choices?.[0]?.message?.content?.trim() ?? "";
 
     if (!text) {
-      return Response.json({ text: buildOfflineResponse(message) });
+      return Response.json(
+        { error: "OpenRouter returned an empty response." },
+        { status: 502 },
+      );
     }
 
     return Response.json({ text });
   } catch (error) {
-    console.error("AI ERROR:", error);
+    console.error("AI route error:", error);
 
     const details =
-      error instanceof Error ? error.message : "Unknown AI request failure";
+      error instanceof Error ? error.message : "Unexpected server error.";
 
     return Response.json(
       {
-        text: buildOfflineResponse("Please retry your question."),
-        error: "AI request failed",
+        error: "Failed to process AI request.",
         details,
       },
-      { status: 200 },
+      { status: 500 },
     );
   }
 }
