@@ -119,14 +119,14 @@ export default function AILabPage() {
         <header className="border-b border-cyan-400/10 bg-slate-950/40 px-6 py-4 backdrop-blur xl:px-8">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
+              {/* <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
                 Cybersecurity LMS
               </p>
               <h1 className="mt-1 text-2xl font-semibold text-white">AI Lab</h1>
             </div>
             <div className="rounded-full border border-cyan-400/15 bg-cyan-400/10 px-3 py-1 text-xs text-cyan-100">
               Mock chat • Dark cyber UI
-            </div>
+            </div> */}
           </div>
         </header>
 
