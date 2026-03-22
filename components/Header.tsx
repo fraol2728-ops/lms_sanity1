@@ -135,7 +135,7 @@ export function Header() {
         className={cn(
           "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300",
           isScrolled
-            ? "border-cyan-400/20 bg-[#050816]/90 shadow-[0_10px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+            ? "border-white/10 bg-[#050816]/70 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl"
             : "border-transparent bg-transparent",
         )}
       >
@@ -192,7 +192,7 @@ export function Header() {
                   variant="ghost"
                   className={cn(
                     "hover:bg-cyan-400/10 hover:text-cyan-200",
-                    isScrolled ? "text-zinc-200" : "text-zinc-700",
+                    "text-zinc-100",
                   )}
                 >
                   Sign In
@@ -206,7 +206,7 @@ export function Header() {
                   variant="outline"
                   className={cn(
                     "border-cyan-400/30 bg-transparent hover:bg-cyan-400/10 hover:text-cyan-200",
-                    isScrolled ? "text-zinc-100" : "text-zinc-800",
+                    "text-zinc-100",
                   )}
                 >
                   Dashboard
@@ -332,8 +332,8 @@ function NavLink({
         isActive
           ? "bg-cyan-400/12 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.12)]"
           : isScrolled
-            ? "text-zinc-300"
-            : "text-zinc-600",
+            ? "text-zinc-100"
+            : "text-zinc-100",
       )}
       aria-current={isActive ? "page" : undefined}
     >
@@ -384,7 +384,7 @@ function CoursesMegaMenu({ isScrolled }: { isScrolled: boolean }) {
         type="button"
         className={cn(
           "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
-          isScrolled ? "text-zinc-300" : "text-zinc-600",
+          isScrolled ? "text-zinc-100" : "text-zinc-100",
         )}
       >
         Courses
