@@ -1,47 +1,39 @@
 import type { Metadata } from "next";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { buildMetadata, siteConfig } from "@/lib/seo";
 import "./globals.css";
 
-const siteName = "Next Cyber Camp";
-const siteUrl = "https://nextcybercamp.com";
-const defaultTitle = `${siteName} | Cybersecurity LMS`;
-const defaultDescription =
-  "Next Cyber Camp is a hands-on cybersecurity LMS with structured courses, guided learning paths, and practical labs for aspiring ethical hackers.";
+const defaultTitle = `${siteConfig.name} | Cybersecurity LMS in Ethiopia`;
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
+  metadataBase: new URL(siteConfig.url),
   title: {
     default: defaultTitle,
-    template: `%s | ${siteName}`,
+    template: `%s | ${siteConfig.name}`,
   },
-  description: defaultDescription,
-  keywords: [
-    "cybersecurity LMS",
-    "ethical hacking courses",
-    "penetration testing training",
-    "cybersecurity learning paths",
-    "Next Cyber Camp",
-  ],
-  openGraph: {
-    type: "website",
-    locale: "en_US",
-    url: siteUrl,
-    siteName,
+  applicationName: siteConfig.name,
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  authors: [{ name: siteConfig.creator }],
+  creator: siteConfig.creator,
+  publisher: siteConfig.name,
+  category: "education",
+  ...buildMetadata({
     title: defaultTitle,
-    description: defaultDescription,
-    images: [
-      {
-        url: "/icon.svg",
-        width: 512,
-        height: 512,
-        alt: "Next Cyber Camp logo",
-      },
-    ],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: defaultTitle,
-    description: defaultDescription,
-    images: ["/icon.svg"],
+    description: siteConfig.description,
+    path: "/",
+    keywords: siteConfig.keywords,
+  }),
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
   icons: {
     icon: [
@@ -53,6 +45,18 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: siteConfig.name,
+  alternateName: ["Fraol Academy", "DevFraol Academy"],
+  description: siteConfig.description,
+  url: siteConfig.url,
+  founder: siteConfig.creator,
+  areaServed: ["Ethiopia", "Addis Ababa"],
+  knowsAbout: siteConfig.keywords,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -60,7 +64,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <StructuredData data={organizationSchema} />
+        {children}
+      </body>
     </html>
   );
 }

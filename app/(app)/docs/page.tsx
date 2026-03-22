@@ -1,14 +1,13 @@
-import type { Metadata } from "next";
 import { DocsLayout } from "@/components/docs/DocsLayout";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: "Documentation",
   description:
-    "Read Next Cyber Camp documentation for platform guides, onboarding steps, and troubleshooting resources.",
-  alternates: {
-    canonical: "/docs",
-  },
-};
+    "Read Dev Fraol Academy documentation for onboarding, course guidance, platform help, and cybersecurity learning resources.",
+  path: "/docs",
+  keywords: ["devfraol academy", "fraol academy docs"],
+});
 
 export default function DocsPage() {
   return <DocsLayout />;

@@ -1,22 +1,20 @@
-import type { Metadata } from "next";
 import { PricingTable } from "@clerk/nextjs";
 import { CheckCircle2, Code2, Loader2, Sparkles } from "lucide-react";
 import Link from "next/link";
+import { buildMetadata } from "@/lib/seo";
 import { getTierColorClasses, TIER_FEATURES } from "@/lib/constants";
 
-export const metadata: Metadata = {
+export const metadata = buildMetadata({
   title: "Pricing",
   description:
-    "Compare Free, Pro, and Ultra plans for Next Cyber Camp cybersecurity training and choose the right tier for your goals.",
-  alternates: {
-    canonical: "/pricing",
-  },
-};
+    "Compare Dev Fraol Academy plans for cybersecurity training in Ethiopia, including online tech courses, AI support, and guided learning paths.",
+  path: "/pricing",
+  keywords: ["fraol academy pricing", "fraol course"],
+});
 
 export default function PricingPage() {
   return (
     <div className="min-h-screen bg-[#09090b] text-white overflow-hidden">
-      {/* Animated gradient mesh background */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[120px] animate-pulse" />
         <div
@@ -29,7 +27,6 @@ export default function PricingPage() {
         />
       </div>
 
-      {/* Noise texture overlay */}
       <div
         className="fixed inset-0 pointer-events-none opacity-[0.015]"
         style={{
@@ -37,11 +34,7 @@ export default function PricingPage() {
         }}
       />
 
-      {/* Navigation */}
-
-      {/* Main Content */}
       <main className="relative z-10 px-6 lg:px-12 py-12 max-w-7xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6">
             <Sparkles className="w-4 h-4 text-violet-400" />
@@ -62,7 +55,6 @@ export default function PricingPage() {
           </p>
         </div>
 
-        {/* What's Included Overview */}
         <div className="grid md:grid-cols-3 gap-6 mb-16">
           {TIER_FEATURES.map((plan) => {
             const colorClasses = getTierColorClasses(plan.color);
@@ -71,9 +63,9 @@ export default function PricingPage() {
                 key={plan.tier}
                 className={`p-6 rounded-xl bg-zinc-900/30 border ${colorClasses.border}`}
               >
-                <h3 className={`text-lg font-bold mb-4 ${colorClasses.text}`}>
+                <h2 className={`text-lg font-bold mb-4 ${colorClasses.text}`}>
                   {plan.tier} includes:
-                </h3>
+                </h2>
                 <ul className="space-y-3">
                   {plan.features.map((feature) => (
                     <li
@@ -92,7 +84,6 @@ export default function PricingPage() {
           })}
         </div>
 
-        {/* Clerk Pricing Table */}
         <div className="clerk-pricing-wrapper rounded-2xl bg-zinc-900/50 border border-zinc-800 p-6 md:p-10">
           <PricingTable
             appearance={{
@@ -182,7 +173,6 @@ export default function PricingPage() {
           />
         </div>
 
-        {/* FAQ or extra info */}
         <div className="mt-16 text-center">
           <p className="text-zinc-400">
             Questions?{" "}
@@ -203,7 +193,6 @@ export default function PricingPage() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="relative z-10 px-6 lg:px-12 py-12 border-t border-zinc-800/50 max-w-7xl mx-auto mt-20">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
@@ -219,13 +208,7 @@ export default function PricingPage() {
             <Link href="#" className="hover:text-white transition-colors">
               Terms
             </Link>
-            <Link href="#" className="hover:text-white transition-colors">
-              Contact
-            </Link>
           </div>
-          <p className="text-sm text-zinc-600">
-            2024 Sonny&apos;s Academy. All rights reserved.
-          </p>
         </div>
       </footer>
     </div>

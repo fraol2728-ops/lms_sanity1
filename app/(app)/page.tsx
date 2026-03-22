@@ -1,3 +1,5 @@
+import { StructuredData } from "@/components/seo/StructuredData";
+import { buildMetadata, siteConfig } from "@/lib/seo";
 import { auth } from "@clerk/nextjs/server";
 import {
   ContinueLearning,
@@ -81,6 +83,20 @@ function getContinueCourse(
   };
 }
 
+export const metadata = buildMetadata({
+  title: "Fraol Academy | Cybersecurity Course Ethiopia",
+  description:
+    "Dev Fraol Academy by Fraol Belachew delivers cybersecurity courses in Ethiopia covering ethical hacking, Linux, networking, and practical online tech training.",
+  path: "/",
+  keywords: [
+    "fraol academy",
+    "devfraol academy",
+    "fraol belachew",
+    "cybersecurity course Ethiopia",
+    "ethical hacking Ethiopia",
+  ],
+});
+
 export default async function Home() {
   const { userId } = await auth();
 
@@ -122,9 +138,47 @@ export default async function Home() {
     ? getContinueCourse(dashboardCourses, userId)
     : null;
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "What is Dev Fraol Academy?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Dev Fraol Academy is an Ethiopian cybersecurity learning platform created by Fraol Belachew for ethical hacking, Linux, networking, and practical cyber security training.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Does Dev Fraol Academy offer online tech courses in Ethiopia?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Yes. The platform offers online tech and cybersecurity courses tailored for learners in Ethiopia, including hands-on content and guided learning paths.",
+        },
+      },
+    ],
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: siteConfig.url,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-[#050816] text-white">
-      <main>
+      <StructuredData data={faqSchema} />
+      <StructuredData data={breadcrumbSchema} />
+      <main aria-label="Dev Fraol Academy homepage">
         <Hero courses={allCourses} />
         <PopularCourses courses={courses} />
         <PlatformPreview />
