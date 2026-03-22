@@ -1,7 +1,20 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 type ChatMessage = {
   role: "user" | "assistant";
   content: string;
 };
+
+function jsonResponse(payload: unknown, init?: ResponseInit): Response {
+  return new Response(JSON.stringify(payload), {
+    status: init?.status ?? 200,
+    headers: {
+      "Content-Type": "application/json",
+      ...init?.headers,
+    },
+  });
+}
 
 function normalizeMessages(input: unknown): ChatMessage[] {
   if (!Array.isArray(input)) {
@@ -35,21 +48,21 @@ function normalizeMessages(input: unknown): ChatMessage[] {
     .filter((message): message is ChatMessage => message !== null);
 }
 
+export async function GET() {
+  return jsonResponse({
+    ok: true,
+    route: "/api/ai",
+    mode: "real-ai",
+    message: "AI route is available. Send a POST request with a message.",
+  });
+}
+
 export async function POST(req: Request) {
   try {
     const body = (await req.json()) as {
       message?: string;
       messages?: Array<{ role?: string; content?: string }>;
     };
-
-    const apiKey = process.env.OPENROUTER_API_KEY;
-
-    if (!apiKey) {
-      return Response.json(
-        { error: "Missing OPENROUTER_API_KEY configuration." },
-        { status: 500 },
-      );
-    }
 
     const message = body.message?.trim() ?? "";
     const history = normalizeMessages(body.messages);
@@ -64,16 +77,28 @@ export async function POST(req: Request) {
           : [];
 
     if (chatMessages.length === 0) {
-      return Response.json(
+      return jsonResponse(
         { error: "A valid message is required." },
         { status: 400 },
       );
     }
 
     if (!lastMessage && !message) {
-      return Response.json(
+      return jsonResponse(
         { error: "Message history is invalid." },
         { status: 400 },
+      );
+    }
+
+    const apiKey = process.env.OPENROUTER_API_KEY;
+
+    if (!apiKey) {
+      return jsonResponse(
+        {
+          error:
+            "OPENROUTER_API_KEY is missing. Configure it to enable real AI responses.",
+        },
+        { status: 500 },
       );
     }
 
@@ -100,12 +125,12 @@ export async function POST(req: Request) {
     } | null;
 
     if (!response.ok) {
-      const errorMessage =
-        data?.error?.message ??
-        `OpenRouter request failed with status ${response.status}.`;
-
-      return Response.json(
-        { error: errorMessage },
+      return jsonResponse(
+        {
+          error:
+            data?.error?.message ??
+            `OpenRouter request failed with status ${response.status}.`,
+        },
         { status: response.status },
       );
     }
@@ -113,20 +138,20 @@ export async function POST(req: Request) {
     const text = data?.choices?.[0]?.message?.content?.trim() ?? "";
 
     if (!text) {
-      return Response.json(
+      return jsonResponse(
         { error: "OpenRouter returned an empty response." },
         { status: 502 },
       );
     }
 
-    return Response.json({ text });
+    return jsonResponse({ text });
   } catch (error) {
     console.error("AI route error:", error);
 
     const details =
       error instanceof Error ? error.message : "Unexpected server error.";
 
-    return Response.json(
+    return jsonResponse(
       {
         error: "Failed to process AI request.",
         details,
