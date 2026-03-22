@@ -7,22 +7,32 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 type Message = {
-  role: "user" | "ai";
+  role: "user" | "assistant";
   content: string;
 };
 
 const INITIAL_MESSAGES: Message[] = [
   {
-    role: "ai",
+    role: "assistant",
     content:
       "Welcome to AI Lab. Ask anything about cybersecurity and I’ll simulate a helpful response while the live model is still offline.",
   },
   {
-    role: "ai",
+    role: "assistant",
     content:
       "Try topics like phishing detection, SIEM workflows, Linux hardening, incident response, or threat modeling.",
   },
 ];
+
+function toApiMessages(messages: Message[]): Message[] {
+  return messages.map((message) => ({
+    role:
+      message.role === "assistant" || message.role === "user"
+        ? message.role
+        : "assistant",
+    content: message.content,
+  }));
+}
 
 export default function AILabPage() {
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES);
@@ -54,7 +64,10 @@ export default function AILabPage() {
       return;
     }
 
-    appendMessage({ role: "user", content: trimmedInput });
+    const userMessage: Message = { role: "user", content: trimmedInput };
+    const nextMessages = [...messages, userMessage];
+
+    appendMessage(userMessage);
     setInput("");
     setIsTyping(true);
 
@@ -64,27 +77,34 @@ export default function AILabPage() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: trimmedInput }),
+        body: JSON.stringify({
+          message: trimmedInput,
+          messages: toApiMessages(nextMessages),
+        }),
       });
 
+      const data = (await response.json().catch(() => null)) as {
+        text?: string;
+        error?: string;
+      } | null;
+
       if (!response.ok) {
-        throw new Error("Failed to fetch AI response");
+        throw new Error(data?.error || "Failed to fetch AI response");
       }
 
-      const data = (await response.json()) as { text?: string };
-      const aiResponse = data.text?.trim();
+      const aiResponse = data?.text?.trim();
 
       if (!aiResponse) {
         throw new Error("Empty AI response");
       }
 
       appendMessage({
-        role: "ai",
+        role: "assistant",
         content: aiResponse,
       });
     } catch {
       appendMessage({
-        role: "ai",
+        role: "assistant",
         content:
           "I’m having trouble reaching the AI service right now. Please try again in a moment.",
       });
@@ -174,6 +194,7 @@ export default function AILabPage() {
                       <span className="size-2 rounded-full bg-cyan-300 animate-bounce [animation-delay:-0.15s]" />
                       <span className="size-2 rounded-full bg-cyan-300 animate-bounce" />
                     </div>
+                    <p className="mt-2 text-xs text-slate-300">Thinking...</p>
                   </div>
                 </div>
               </div>
@@ -194,6 +215,7 @@ export default function AILabPage() {
                       sendMessage();
                     }
                   }}
+                  disabled={isTyping}
                   placeholder="Ask anything about cybersecurity..."
                   className="h-14 border-0 bg-transparent px-4 text-base text-slate-100 placeholder:text-slate-500 focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
