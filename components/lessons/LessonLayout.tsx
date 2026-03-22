@@ -10,18 +10,18 @@ export function LessonLayout({
   content: React.ReactNode;
 }) {
   return (
-    <div className="relative flex flex-col gap-6 lg:block lg:min-h-[calc(100vh-8rem)]">
+    <div className="relative flex flex-col gap-6 lg:grid lg:grid-cols-[20rem_minmax(0,1fr)] lg:items-start lg:gap-8">
       <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="lg:fixed lg:top-24 lg:left-1/2 lg:z-20 lg:w-80 lg:-translate-x-[calc(50%-10rem)]"
+        className="lg:sticky lg:top-24 lg:self-start"
       >
         {sidebar}
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
-        className="lg:ml-[344px]"
+        className="min-w-0"
       >
         {content}
       </motion.div>
