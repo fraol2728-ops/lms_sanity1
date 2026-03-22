@@ -34,7 +34,7 @@ const PREVIEW_VIDEO = {
   title: "Platform walkthrough",
   description:
     "Drop in your platform demo, lesson teaser, or onboarding walkthrough here.",
-  embedUrl: "https://www.youtube-nocookie.com/embed/jNQXAC9IVRw?rel=0",
+  embedUrl: "https://www.youtube.com/watch?v=a2dr5G_psGk",
 };
 
 function useAutoTyping(
