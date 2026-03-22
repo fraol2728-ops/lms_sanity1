@@ -1,7 +1,8 @@
 import { Compass, MapPin, School, Sparkles } from "lucide-react";
-import type { Metadata } from "next";
 import { AcademyGrid } from "@/components/academy";
 import type { AcademyCourseCardData } from "@/components/academy/types";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { buildMetadata, siteConfig } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
 
 const ACADEMY_COURSES_QUERY = `*[_type == "academyCourse"] | order(title asc) {
@@ -16,14 +17,13 @@ const ACADEMY_COURSES_QUERY = `*[_type == "academyCourse"] | order(title asc) {
   location
 }`;
 
-export const metadata: Metadata = {
-  title: "Academy",
+export const metadata = buildMetadata({
+  title: "Academy Training Addis Ababa",
   description:
-    "Browse Next Cyber Camp's physical academy programs for in-person cybersecurity training.",
-  alternates: {
-    canonical: "/academy",
-  },
-};
+    "Explore Dev Fraol Academy physical programs for in-person cybersecurity and IT training in Addis Ababa, Ethiopia.",
+  path: "/academy",
+  keywords: ["networking course Addis Ababa", "IT training Ethiopia"],
+});
 
 async function getAcademyCourses(): Promise<AcademyCourseCardData[]> {
   const { data } = await sanityFetch({
@@ -35,9 +35,23 @@ async function getAcademyCourses(): Promise<AcademyCourseCardData[]> {
 
 export default async function AcademyPage() {
   const courses = await getAcademyCourses();
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Academy",
+        item: `${siteConfig.url}/academy`,
+      },
+    ],
+  };
 
   return (
     <div className="min-h-screen overflow-hidden bg-[#040816] text-white">
+      <StructuredData data={breadcrumbSchema} />
       <div className="pointer-events-none fixed inset-0">
         <div className="absolute left-[-10%] top-[-10%] h-[420px] w-[420px] rounded-full bg-cyan-500/12 blur-[120px]" />
         <div className="absolute bottom-[-18%] right-[-8%] h-[520px] w-[520px] rounded-full bg-fuchsia-500/12 blur-[140px]" />

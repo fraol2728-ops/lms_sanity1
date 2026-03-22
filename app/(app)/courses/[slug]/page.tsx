@@ -2,6 +2,8 @@ import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CourseContent } from "@/components/courses";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { absoluteUrl, siteConfig } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
 import { COURSE_WITH_MODULES_QUERY } from "@/sanity/lib/queries";
 
@@ -31,15 +33,20 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${course.title ?? "Course"} Course`;
+  const title = `${course.title ?? "Course"} | Fraol Course`;
   const description =
     course.description ??
-    "Explore this cybersecurity course on Next Cyber Camp and build practical security skills.";
+    "Explore this Dev Fraol Academy cybersecurity course and build practical skills in ethical hacking, Linux, networking, and defense.";
   const thumbnailUrl = course.thumbnail?.asset?.url;
 
   return {
     title,
     description,
+    keywords: [
+      "fraol course",
+      course.title ?? "cybersecurity course Ethiopia",
+      course.category?.title ?? "ethical hacking Ethiopia",
+    ],
     alternates: {
       canonical: `/courses/${slug}`,
     },
@@ -47,7 +54,7 @@ export async function generateMetadata({
       title,
       description,
       type: "article",
-      url: `/courses/${slug}`,
+      url: absoluteUrl(`/courses/${slug}`),
       images: thumbnailUrl
         ? [
             {
@@ -75,8 +82,58 @@ export default async function CoursePage({ params }: CoursePageProps) {
     notFound();
   }
 
+  const courseSchema = {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    name: course.title ?? "Dev Fraol Academy course",
+    description:
+      course.description ??
+      "A structured cybersecurity course from Dev Fraol Academy.",
+    provider: {
+      "@type": "Organization",
+      name: siteConfig.name,
+      sameAs: siteConfig.url,
+    },
+    educationalLevel:
+      course.tier === "ultra"
+        ? "Advanced"
+        : course.tier === "pro"
+          ? "Intermediate"
+          : "Beginner",
+    about: [
+      course.category?.title ?? "Cybersecurity",
+      "Ethical Hacking",
+      "Linux",
+      "Networking",
+    ],
+    url: absoluteUrl(`/courses/${slug}`),
+    image: course.thumbnail?.asset?.url ?? undefined,
+  };
+
+  const breadcrumbSchema = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteConfig.url },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Courses",
+        item: `${siteConfig.url}/courses`,
+      },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: course.title ?? "Course",
+        item: absoluteUrl(`/courses/${slug}`),
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-[#09090b] text-white overflow-hidden">
+      <StructuredData data={courseSchema} />
+      <StructuredData data={breadcrumbSchema} />
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[120px] animate-pulse" />
         <div
