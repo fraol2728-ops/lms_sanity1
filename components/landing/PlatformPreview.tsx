@@ -34,7 +34,7 @@ const PREVIEW_VIDEO = {
   title: "Platform walkthrough",
   description:
     "Drop in your platform demo, lesson teaser, or onboarding walkthrough here.",
-  embedUrl: "https://www.youtube.com/watch?v=a2dr5G_psGk",
+  embedUrl: "https://youtu.be/a2dr5G_psGk?si=N6VinUQcsdHwCCUh",
 };
 
 function useAutoTyping(
