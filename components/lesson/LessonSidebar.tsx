@@ -73,7 +73,7 @@ export function LessonSidebar({
   }
 
   return (
-    <aside className="w-full lg:w-80 lg:h-[calc(100vh-6rem)]">
+    <aside className="w-full lg:w-80 lg:h-[calc(100dvh-9rem)] lg:overflow-hidden">
       <div className="mb-3 flex items-center justify-between rounded-xl border border-cyan-500/30 bg-[#061222]/85 p-3 lg:hidden">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-cyan-300/80">
@@ -124,7 +124,7 @@ export function LessonSidebar({
           </p>
         </div>
 
-        <div className="space-y-3 overflow-y-auto p-3 lg:flex-1">
+        <div className="space-y-3 overflow-y-auto p-3 lg:min-h-0 lg:flex-1 lg:overflow-y-hidden lg:pr-2 lg:hover:overflow-y-auto">
           {modules.map((module, moduleIndex) => (
             <div
               key={module._id}
