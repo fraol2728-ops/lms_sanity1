@@ -33,8 +33,8 @@ const TERMINAL_COLUMNS = [
 const PREVIEW_VIDEO = {
   title: "Platform walkthrough",
   description:
-    "Drop in your platform demo, lesson teaser, or onboarding walkthrough here.",
-  embedUrl: "https://www.youtube.com/embed/a2dr5G_psGk?si=N6VinUQcsdHwCCUh",
+    "A guided walkthrough of the learning platform using your provided YouTube demo.",
+  embedUrl: "https://www.youtube-nocookie.com/embed/B6dZWe7eOpA?rel=0",
 };
 
 function useAutoTyping(
@@ -155,7 +155,7 @@ export function PlatformPreview() {
             Platform Experience
           </p>
           <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-             Linux workflow built for cyber ops
+            Linux workflow built for cyber ops
           </h2>
           {/* <p className="mt-4 text-base text-zinc-300 sm:text-lg">
             Replace the old dashboard cards with a more immersive lab feel: two
