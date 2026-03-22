@@ -27,13 +27,13 @@ export function LessonPlayer({
   return (
     <>
       <AchievementTracker courseId={courseId} totalLessons={totalLessons} />
-      <div className="space-y-6">
+      <div className="space-y-6 pb-8">
         <LessonProgress courseId={courseId} totalLessons={totalLessons} />
 
         <motion.div
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-cyan-500/30 bg-[#07101d] p-3 shadow-[0_8px_40px_rgba(34,211,238,0.12)]"
+          className="overflow-hidden rounded-[1.75rem] border border-cyan-400/20 bg-[#07101d]/85 p-3 shadow-[0_20px_60px_rgba(34,211,238,0.12)] backdrop-blur-xl"
         >
           <MuxVideoPlayer
             playbackId={lesson.video?.asset?.playbackId}
@@ -45,16 +45,23 @@ export function LessonPlayer({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 shadow-2xl shadow-black/20"
+          className="rounded-[1.75rem] border border-white/10 bg-white/[0.05] p-6 shadow-[0_24px_60px_rgba(2,6,23,0.28)] backdrop-blur-xl"
         >
-          <h1 className="text-3xl font-bold text-white">
-            {lesson.title ?? "Untitled Lesson"}
-          </h1>
-          {lesson.description && (
-            <p className="mt-3 text-zinc-300 leading-relaxed">
-              {lesson.description}
-            </p>
-          )}
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
+                Current lesson
+              </p>
+              <h1 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
+                {lesson.title ?? "Untitled Lesson"}
+              </h1>
+              {lesson.description && (
+                <p className="mt-4 leading-relaxed text-zinc-300">
+                  {lesson.description}
+                </p>
+              )}
+            </div>
+          </div>
         </motion.section>
 
         {lesson.content && (
@@ -62,11 +69,18 @@ export function LessonPlayer({
             initial={{ opacity: 0, y: 22 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
-            className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6"
+            className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_22px_55px_rgba(2,6,23,0.24)] backdrop-blur-xl"
           >
-            <div className="mb-5 flex items-center gap-2">
-              <BookText className="h-4 w-4 text-cyan-400" />
-              <h2 className="font-semibold text-white">Lesson Notes</h2>
+            <div className="mb-5 flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-200">
+                <BookText className="h-4 w-4" />
+              </span>
+              <div>
+                <h2 className="font-semibold text-white">Lesson Notes</h2>
+                <p className="text-sm text-zinc-400">
+                  Review the key concepts and walkthrough details.
+                </p>
+              </div>
             </div>
             <LessonContent content={lesson.content} />
           </motion.section>
