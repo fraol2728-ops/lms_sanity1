@@ -126,10 +126,10 @@ export default async function Home() {
     <div className="min-h-screen bg-[#050816] text-white">
       <main>
         <Hero courses={allCourses} />
+        <PopularCourses courses={courses} />
         <PlatformPreview />
         <Features />
         <TrainingPaths />
-        <PopularCourses courses={courses} />
         <HowItWorks />
         <ContinueLearning continueCourse={continueCourse} />
         <CTA />
