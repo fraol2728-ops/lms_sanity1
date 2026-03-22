@@ -155,12 +155,12 @@ export function PlatformPreview() {
             Platform Experience
           </p>
           <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-            Train inside a dual-terminal Linux workflow built for cyber ops
+             Linux workflow built for cyber ops
           </h2>
-          <p className="mt-4 text-base text-zinc-300 sm:text-lg">
+          {/* <p className="mt-4 text-base text-zinc-300 sm:text-lg">
             Replace the old dashboard cards with a more immersive lab feel: two
             animated Linux terminals running rotating commands side by side.
-          </p>
+          </p> */}
         </div>
 
         <div className="mt-12 grid gap-6 xl:grid-cols-2">
@@ -187,13 +187,13 @@ export function PlatformPreview() {
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">
             Preview
           </p>
-          <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
+          {/* <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
             Watch the platform in action
           </h2>
           <p className="mt-4 text-base text-zinc-300 sm:text-lg">
             A full-width 16:9 video area sits directly below the terminal demo
             for walkthroughs, onboarding, or course promotion.
-          </p>
+          </p> */}
         </div>
 
         <div className="overflow-hidden rounded-[2rem] border border-cyan-400/20 bg-[#081127]/80 shadow-[0_0_45px_rgba(34,211,238,0.12)]">
@@ -208,7 +208,7 @@ export function PlatformPreview() {
             </div>
             <div className="flex items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-4 py-2 text-sm text-cyan-100">
               <Play className="h-4 w-4" />
-              16:9 Full Width
+              {/* 16:9 Full Width */}
             </div>
           </div>
 
