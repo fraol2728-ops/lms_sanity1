@@ -21,33 +21,30 @@ export default async function LessonPage({ params }: LessonPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white overflow-hidden">
-      {/* Animated gradient mesh background */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-violet-600/15 rounded-full blur-[120px] animate-pulse" />
+    <div className="relative h-screen overflow-hidden bg-[#050816] text-white">
+      <div className="pointer-events-none fixed inset-0">
+        <div className="absolute left-[-10%] top-[-20%] h-[600px] w-[600px] rounded-full bg-violet-600/15 blur-[120px] animate-pulse" />
         <div
-          className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-600/10 rounded-full blur-[100px] animate-pulse"
+          className="absolute bottom-[-10%] right-[-10%] h-[500px] w-[500px] rounded-full bg-fuchsia-600/10 blur-[100px] animate-pulse"
           style={{ animationDelay: "1s" }}
         />
         <div
-          className="absolute top-[40%] right-[20%] w-[400px] h-[400px] bg-cyan-500/10 rounded-full blur-[80px] animate-pulse"
+          className="absolute right-[20%] top-[40%] h-[400px] w-[400px] rounded-full bg-cyan-500/10 blur-[80px] animate-pulse"
           style={{ animationDelay: "2s" }}
         />
       </div>
 
-      {/* Noise texture overlay */}
       <div
-        className="fixed inset-0 pointer-events-none opacity-[0.015]"
+        className="pointer-events-none fixed inset-0 opacity-[0.015]"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
       />
 
-      {/* Navigation */}
-
-      {/* Main Content */}
-      <main className="relative z-10 px-6 lg:px-12 py-8 max-w-7xl mx-auto">
-        <LessonPageContent lesson={lesson} userId={userId} />
+      <main className="relative z-10 h-full px-4 pb-4 pt-24 sm:px-6 lg:px-8 lg:pb-8 lg:pt-28">
+        <div className="mx-auto h-full max-w-[96rem]">
+          <LessonPageContent lesson={lesson} userId={userId} />
+        </div>
       </main>
     </div>
   );

@@ -133,7 +133,7 @@ export function Header() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 border-b transition-all duration-300",
+          "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300",
           isScrolled
             ? "border-cyan-400/20 bg-[#050816]/90 shadow-[0_10px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
             : "border-transparent bg-transparent",
