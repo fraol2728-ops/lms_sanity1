@@ -41,7 +41,7 @@ export function LessonSidebar({
       <motion.div
         initial={{ opacity: 0, x: -18 }}
         animate={{ opacity: 1, x: 0 }}
-        className="sticky top-24 overflow-hidden rounded-xl border border-cyan-500/25 bg-[#07101d]/90"
+        className="overflow-hidden rounded-xl border border-cyan-500/25 bg-[#07101d]/90 shadow-[0_10px_40px_rgba(8,145,178,0.15)] backdrop-blur-sm"
       >
         <div className="border-b border-cyan-500/20 p-4">
           <Link
@@ -55,7 +55,7 @@ export function LessonSidebar({
           </h3>
         </div>
 
-        <div className="max-h-[70vh] overflow-y-auto p-2">
+        <div className="max-h-[calc(100vh-10rem)] overflow-y-auto p-2">
           <Accordion
             type="multiple"
             defaultValue={currentModuleId ? [currentModuleId] : []}
