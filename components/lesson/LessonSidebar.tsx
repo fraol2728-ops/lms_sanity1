@@ -1,14 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  CheckCircle2,
-  ChevronDown,
-  Circle,
-  List,
-  Play,
-  Sparkles,
-} from "lucide-react";
+import { CheckCircle2, ChevronDown, Circle, List, Play } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -94,7 +86,7 @@ export function LessonSidebar({
 
   return (
     <aside className="flex h-full min-h-0 w-full flex-col lg:h-[calc(100vh-8rem)] lg:w-80">
-      <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-[0_20px_45px_rgba(8,15,32,0.35)] backdrop-blur-xl lg:hidden">
+      <div className="mb-3 flex items-center justify-between rounded-2xl border border-white/10 bg-[#0c1422] p-3 lg:hidden">
         <div>
           <p className="text-xs uppercase tracking-[0.24em] text-cyan-300/80">
             Course Lessons
@@ -120,16 +112,13 @@ export function LessonSidebar({
         </Button>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.35, ease: "easeOut" }}
+      <div
         className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-white/[0.06] shadow-[0_30px_70px_rgba(8,15,32,0.45)] backdrop-blur-xl",
+          "flex min-h-0 flex-1 flex-col overflow-hidden rounded-[2rem] border border-white/10 bg-[#0c1422]",
           !mobileOpen && "hidden lg:flex",
         )}
       >
-        <div className="border-b border-white/10 bg-gradient-to-br from-cyan-400/10 via-white/5 to-violet-400/10 p-5">
+        <div className="border-b border-white/10 p-5">
           <Link
             href={`/courses/${courseSlug}`}
             className="text-xs uppercase tracking-[0.22em] text-cyan-300 transition hover:text-cyan-100"
@@ -145,13 +134,10 @@ export function LessonSidebar({
                 {completedIds.length} of {totalLessons} lessons completed
               </p>
             </div>
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-200 shadow-inner shadow-cyan-300/10">
-              <Sparkles className="h-5 w-5" />
-            </span>
           </div>
         </div>
 
-        <div className="glass-scroll min-h-0 flex-1 space-y-3 overflow-y-auto p-3 pr-2 scroll-smooth">
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3 pr-2">
           {modules.map((module, moduleIndex) => {
             const isOpen = openModules.includes(module._id);
             const moduleLessons = module.lessons ?? [];
@@ -162,12 +148,12 @@ export function LessonSidebar({
             return (
               <div
                 key={module._id}
-                className="overflow-hidden rounded-2xl border border-white/10 bg-[#08111f]/70 shadow-[0_18px_45px_rgba(3,7,18,0.32)] transition-colors duration-300 hover:border-cyan-400/30"
+                className="overflow-hidden rounded-2xl border border-white/10 bg-[#08111f]"
               >
                 <button
                   type="button"
                   onClick={() => toggleModule(module._id)}
-                  className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left transition duration-300 hover:bg-white/[0.03]"
+                  className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left hover:bg-white/[0.03]"
                 >
                   <div className="min-w-0">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-300/80">
@@ -182,7 +168,7 @@ export function LessonSidebar({
                   </div>
                   <span
                     className={cn(
-                      "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300 transition duration-300",
+                      "inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-zinc-300",
                       isOpen &&
                         "rotate-180 border-cyan-300/30 bg-cyan-400/10 text-cyan-100",
                     )}
@@ -190,67 +176,54 @@ export function LessonSidebar({
                     <ChevronDown className="h-4 w-4" />
                   </span>
                 </button>
+                {isOpen ? (
+                  <div className="space-y-2 border-t border-white/10 px-3 pb-3 pt-2">
+                    {moduleLessons.map((lesson, lessonIndex) => {
+                      const active = lesson._id === currentLessonId;
+                      const done = completedIds.includes(lesson._id);
 
-                <AnimatePresence initial={false}>
-                  {isOpen ? (
-                    <motion.div
-                      key="content"
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.28, ease: "easeInOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div className="space-y-2 border-t border-white/10 px-3 pb-3 pt-2">
-                        {moduleLessons.map((lesson, lessonIndex) => {
-                          const active = lesson._id === currentLessonId;
-                          const done = completedIds.includes(lesson._id);
-
-                          return (
-                            <Link
-                              key={lesson._id}
-                              href={`/lessons/${lesson.slug?.current}`}
-                              className={cn(
-                                "group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm transition-all duration-300",
-                                active
-                                  ? "border-cyan-300/30 bg-cyan-400/12 text-cyan-50 shadow-[0_10px_30px_rgba(34,211,238,0.16)]"
-                                  : "border-transparent bg-white/[0.03] text-zinc-300 hover:border-white/10 hover:bg-white/[0.06] hover:text-white hover:translate-x-1",
-                              )}
-                            >
-                              <span
-                                className={cn(
-                                  "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-colors duration-300",
-                                  active
-                                    ? "border-cyan-300/40 bg-cyan-400/15 text-cyan-100"
-                                    : "border-white/10 bg-white/[0.04] text-zinc-400 group-hover:text-zinc-200",
-                                )}
-                              >
-                                {done ? (
-                                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                                ) : active ? (
-                                  <Play className="h-4 w-4 text-cyan-300" />
-                                ) : (
-                                  <Circle className="h-4 w-4" />
-                                )}
-                              </span>
-                              <div className="min-w-0 flex-1">
-                                <p className="truncate font-medium">
-                                  {lessonIndex + 1}.{" "}
-                                  {lesson.title ?? "Untitled Lesson"}
-                                </p>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                      </div>
-                    </motion.div>
-                  ) : null}
-                </AnimatePresence>
+                      return (
+                        <Link
+                          key={lesson._id}
+                          href={`/lessons/${lesson.slug?.current}`}
+                          className={cn(
+                            "group flex items-center gap-3 rounded-xl border px-3 py-3 text-sm",
+                            active
+                              ? "border-cyan-300/30 bg-cyan-400/12 text-cyan-50"
+                              : "border-transparent bg-white/[0.03] text-zinc-300 hover:border-white/10 hover:bg-white/[0.06] hover:text-white",
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              "inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+                              active
+                                ? "border-cyan-300/40 bg-cyan-400/15 text-cyan-100"
+                                : "border-white/10 bg-white/[0.04] text-zinc-400 group-hover:text-zinc-200",
+                            )}
+                          >
+                            {done ? (
+                              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                            ) : active ? (
+                              <Play className="h-4 w-4 text-cyan-300" />
+                            ) : (
+                              <Circle className="h-4 w-4" />
+                            )}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate font-medium">
+                              {lessonIndex + 1}. {lesson.title ?? "Untitled Lesson"}
+                            </p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </div>
             );
           })}
         </div>
-      </motion.div>
+      </div>
     </aside>
   );
 }
