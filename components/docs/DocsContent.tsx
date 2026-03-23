@@ -1,21 +1,13 @@
-"use client";
-
-import { motion } from "framer-motion";
 import { BookOpenText, Info, TerminalSquare } from "lucide-react";
 import { docsSections } from "./docs-data";
 
 export function DocsContent() {
   return (
     <div className="space-y-6">
-      <motion.div
-        initial={{ opacity: 0, y: 18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] backdrop-blur"
-      >
+      <div className="rounded-[28px] border border-white/10 bg-white/[0.03] p-6 shadow-[0_0_0_1px_rgba(255,255,255,0.02)] backdrop-blur">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-2xl space-y-3">
-            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium tracking-[0.18em] text-cyan-200 uppercase">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-xs font-medium uppercase tracking-[0.18em] text-cyan-200">
               <BookOpenText className="h-3.5 w-3.5" />
               Developer docs
             </div>
@@ -31,7 +23,7 @@ export function DocsContent() {
 
           <div className="grid gap-3 sm:grid-cols-3 lg:max-w-sm lg:grid-cols-1 xl:grid-cols-3">
             {[
-              ["Sections", "6"],
+              ["Sections", String(docsSections.length)],
               ["Theme", "Dark UI"],
               ["Mode", "UI Only"],
             ].map(([label, value]) => (
@@ -49,17 +41,13 @@ export function DocsContent() {
             ))}
           </div>
         </div>
-      </motion.div>
+      </div>
 
       <div className="space-y-6">
-        {docsSections.map((section, index) => (
-          <motion.section
+        {docsSections.map((section) => (
+          <section
             key={section.id}
             id={section.id}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.4, delay: index * 0.04, ease: "easeOut" }}
             className="scroll-mt-28 rounded-[28px] border border-white/10 bg-white/[0.025] p-6 shadow-[0_20px_80px_-60px_rgba(34,211,238,0.65)] backdrop-blur sm:p-8"
           >
             <div className="space-y-4">
@@ -118,7 +106,7 @@ export function DocsContent() {
                 </div>
               </div>
             </div>
-          </motion.section>
+          </section>
         ))}
       </div>
     </div>
