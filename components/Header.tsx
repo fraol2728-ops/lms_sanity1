@@ -18,6 +18,7 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Home" },
+  { href: "/courses", label: "Courses" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   { href: "/community", label: "Community" },
@@ -33,56 +34,6 @@ const commandPaletteLinks = [
   { href: "/community", label: "Community" },
   { href: "/ai", label: "AI Lab", isNew: true },
   { href: "/notes", label: "Notes" },
-];
-
-const courseMegaMenu = [
-  {
-    category: "Web Security",
-    courses: [
-      {
-        title: "Web Hacking Fundamentals",
-        description: "Understand HTTP attack surface, inputs, and web recon.",
-      },
-      {
-        title: "SQL Injection",
-        description: "Exploit SQL flaws and learn modern mitigation patterns.",
-      },
-      {
-        title: "Authentication Attacks",
-        description: "Break weak auth flows and hardened session handling.",
-      },
-    ],
-  },
-  {
-    category: "Network Security",
-    courses: [
-      {
-        title: "Network Pentesting",
-        description:
-          "Enumerate internal systems and validate exploitable paths.",
-      },
-      {
-        title: "Enumeration Techniques",
-        description:
-          "Map targets quickly with practical service discovery tactics.",
-      },
-    ],
-  },
-  {
-    category: "Linux Exploitation",
-    courses: [
-      {
-        title: "Linux Privilege Escalation",
-        description:
-          "Abuse misconfigurations to gain root-level access safely.",
-      },
-      {
-        title: "Linux Fundamentals",
-        description:
-          "Build shell confidence with systems and permissions basics.",
-      },
-    ],
-  },
 ];
 
 export function Header() {
@@ -158,14 +109,17 @@ export function Header() {
           </Link>
 
           <div className="hidden items-center gap-1 md:flex">
-            <CoursesMegaMenu isScrolled={isScrolled} />
             {navLinks.map((link) => (
               <NavLink
                 key={link.label}
                 href={link.href}
                 label={link.label}
                 isScrolled={isScrolled}
-                isActive={pathname === link.href}
+                isActive={
+                  link.href === "/courses"
+                    ? pathname === "/courses" || pathname.startsWith("/courses/")
+                    : pathname === link.href
+                }
                 isNew={link.isNew}
               />
             ))}
@@ -260,7 +214,7 @@ export function Header() {
                 pathname === "/courses" || pathname.startsWith("/courses/")
               }
             />
-            {navLinks.slice(1).map((link) => (
+            {navLinks.slice(2).map((link) => (
               <MobileNavLink
                 key={link.label}
                 href={link.href}
@@ -374,51 +328,6 @@ function MobileNavLink({
         </span>
       ) : null}
     </Link>
-  );
-}
-
-function CoursesMegaMenu({ isScrolled }: { isScrolled: boolean }) {
-  return (
-    <div className="group relative">
-      <button
-        type="button"
-        className={cn(
-          "inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm transition hover:bg-cyan-400/10 hover:text-cyan-200",
-          isScrolled ? "text-zinc-100" : "text-zinc-100",
-        )}
-      >
-        Courses
-      </button>
-      <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-3 w-[min(92vw,820px)] -translate-x-1/2 opacity-0 transition duration-200 group-hover:pointer-events-auto group-hover:opacity-100">
-        <div className="rounded-2xl border border-cyan-400/20 bg-[#060c22]/95 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.55)] backdrop-blur-xl">
-          <div className="grid gap-4 md:grid-cols-3">
-            {courseMegaMenu.map((section) => (
-              <div key={section.category}>
-                <p className="mb-3 text-xs uppercase tracking-[0.24em] text-cyan-300/80">
-                  {section.category}
-                </p>
-                <div className="space-y-3">
-                  {section.courses.map((course) => (
-                    <Link
-                      key={course.title}
-                      href="/#courses"
-                      className="block rounded-xl border border-cyan-400/15 bg-[#0d1430]/70 p-3 transition hover:border-cyan-300/40 hover:bg-[#111b3f]"
-                    >
-                      <p className="text-sm font-semibold text-white">
-                        {course.title}
-                      </p>
-                      <p className="mt-1 text-xs leading-5 text-zinc-400">
-                        {course.description}
-                      </p>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }
 
