@@ -50,7 +50,7 @@ export function Hero({ courses }: HeroProps) {
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden border-b border-cyan-400/10 px-6 pt-20 text-center lg:px-12"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden border-b border-cyan-400/10 px-6 pt-16 text-center lg:px-12"
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(34,211,238,0.22),transparent_40%),radial-gradient(circle_at_85%_0%,rgba(59,130,246,0.26),transparent_45%),linear-gradient(to_bottom,#040711,#050816)]" />
       <div
