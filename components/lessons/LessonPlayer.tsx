@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { BookText } from "lucide-react";
 import { AchievementTracker } from "@/components/achievements/AchievementTracker";
 import { CompleteButton } from "@/components/lesson/CompleteButton";
@@ -30,23 +29,14 @@ export function LessonPlayer({
       <div className="space-y-6 pb-8">
         <LessonProgress courseId={courseId} totalLessons={totalLessons} />
 
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="overflow-hidden rounded-[1.75rem] border border-cyan-400/20 bg-[#07101d]/85 p-3 shadow-[0_20px_60px_rgba(34,211,238,0.12)] backdrop-blur-xl"
-        >
+        <div className="overflow-hidden rounded-[1.75rem] border border-cyan-400/20 bg-[#07101d] p-3">
           <MuxVideoPlayer
             playbackId={lesson.video?.asset?.playbackId}
             title={lesson.title ?? undefined}
           />
-        </motion.div>
+        </div>
 
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="rounded-[1.75rem] border border-white/10 bg-white/[0.05] p-6 shadow-[0_24px_60px_rgba(2,6,23,0.28)] backdrop-blur-xl"
-        >
+        <section className="rounded-[1.75rem] border border-white/10 bg-[#121a2b] p-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-3xl">
               <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
@@ -62,15 +52,10 @@ export function LessonPlayer({
               )}
             </div>
           </div>
-        </motion.section>
+        </section>
 
         {lesson.content && (
-          <motion.section
-            initial={{ opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            className="rounded-[1.75rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_22px_55px_rgba(2,6,23,0.24)] backdrop-blur-xl"
-          >
+          <section className="rounded-[1.75rem] border border-white/10 bg-[#101827] p-6">
             <div className="mb-5 flex items-center gap-3">
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-400/10 text-cyan-200">
                 <BookText className="h-4 w-4" />
@@ -83,19 +68,15 @@ export function LessonPlayer({
               </div>
             </div>
             <LessonContent content={lesson.content} />
-          </motion.section>
+          </section>
         )}
 
         <LessonResources lesson={lesson} />
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end"
-        >
+        <div className="flex flex-col gap-3 pt-2 sm:flex-row sm:justify-end">
           <CompleteButton courseId={courseId} lessonId={lesson._id} />
           <NextLessonButton nextLesson={nextLesson} />
-        </motion.div>
+        </div>
       </div>
     </>
   );
