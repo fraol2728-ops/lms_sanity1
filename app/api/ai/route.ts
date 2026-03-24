@@ -63,11 +63,11 @@ export async function POST(req: Request) {
       messages?: Array<{ role?: string; content?: string }>;
     };
 
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    const apiKey = process.env.GROQ_API_KEY ?? process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
       return jsonResponse(
-        { error: "Missing OPENROUTER_API_KEY configuration." },
+        { error: "Missing GROQ_API_KEY configuration." },
         { status: 500 },
       );
     }
@@ -99,7 +99,7 @@ export async function POST(req: Request) {
     }
 
     const response = await fetch(
-      "https://openrouter.ai/api/v1/chat/completions",
+      "https://api.groq.com/openai/v1/chat/completions",
       {
         method: "POST",
         headers: {
@@ -107,37 +107,105 @@ export async function POST(req: Request) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "mistralai/mistral-7b-instruct",
+          model: "llama-3.1-8b-instant",
           messages: chatMessages,
+          stream: true,
         }),
       },
     );
 
-    const data = (await response.json().catch(() => null)) as {
-      error?: { message?: string };
-      choices?: Array<{
-        message?: { content?: string | null };
-      }>;
-    } | null;
+    if (!response.ok || !response.body) {
+      const data = (await response.json().catch(() => null)) as {
+        error?: { message?: string };
+      } | null;
 
-    if (!response.ok) {
       const errorMessage =
         data?.error?.message ??
-        `OpenRouter request failed with status ${response.status}.`;
+        `Groq request failed with status ${response.status}.`;
 
       return jsonResponse({ error: errorMessage }, { status: response.status });
     }
 
-    const text = data?.choices?.[0]?.message?.content?.trim() ?? "";
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    const reader = response.body.getReader();
+    let buffer = "";
+    let didStreamAnyText = false;
 
-    if (!text) {
-      return jsonResponse(
-        { error: "OpenRouter returned an empty response." },
-        { status: 502 },
-      );
-    }
+    const stream = new ReadableStream<Uint8Array>({
+      async pull(controller) {
+        try {
+          const { done, value } = await reader.read();
 
-    return jsonResponse({ text });
+          if (done) {
+            if (!didStreamAnyText) {
+              controller.enqueue(
+                encoder.encode(
+                  "I couldn't generate a response this time. Please try again.",
+                ),
+              );
+            }
+            controller.close();
+            return;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const rawLine of lines) {
+            const line = rawLine.trim();
+
+            if (!line || !line.startsWith("data:")) {
+              continue;
+            }
+
+            const payload = line.slice(5).trim();
+
+            if (payload === "[DONE]") {
+              controller.close();
+              return;
+            }
+
+            const parsed = JSON.parse(payload) as {
+              choices?: Array<{
+                delta?: { content?: string | null };
+              }>;
+            };
+
+            const content = parsed.choices?.[0]?.delta?.content ?? "";
+
+            if (!content) {
+              continue;
+            }
+
+            didStreamAnyText = true;
+            controller.enqueue(encoder.encode(content));
+          }
+        } catch (error) {
+          console.error("AI stream parse error:", error);
+          if (!didStreamAnyText) {
+            controller.enqueue(
+              encoder.encode(
+                "I hit a temporary streaming issue. Please try your message again.",
+              ),
+            );
+          }
+          controller.close();
+        }
+      },
+      cancel() {
+        void reader.cancel();
+      },
+    });
+
+    return new Response(stream, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=utf-8",
+        "Cache-Control": "no-cache, no-transform",
+      },
+    });
   } catch (error) {
     console.error("AI route error:", error);
 
