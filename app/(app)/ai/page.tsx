@@ -114,11 +114,11 @@ export default function AILabPage() {
   };
 
   return (
-    <main className="h-screen overflow-hidden bg-[#0a0f1f] text-slate-100">
-      <div className="flex h-screen flex-col bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_28%),linear-gradient(180deg,#0b1020_0%,#070b16_100%)]">
+    <main className="min-h-screen overflow-hidden bg-[#0a0f1f] pt-20 text-slate-100">
+      <div className="flex min-h-[calc(100vh-5rem)] flex-col bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_28%),linear-gradient(180deg,#0b1020_0%,#070b16_100%)]">
         <header className="border-b border-cyan-400/10 bg-slate-950/40 px-6 py-4 backdrop-blur xl:px-8">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4">
-           {/* <div>
+            {/* <div>
                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
                 Cybersecurity LMS
               </p>
