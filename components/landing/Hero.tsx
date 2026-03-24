@@ -68,7 +68,7 @@ export function Hero({ courses }: HeroProps) {
           DevFraol Academy-NextCC
         </div>
 
-        <h1 className="text-balance text-5xl font-semibold leading-[1.05] text-white sm:text-6xl lg:text-7xl">
+        <h1 className="text-balance text-5xl font-light leading-[1.05] text-white sm:text-6xl lg:text-7xl">
           Offensive Security Through Real-World Training
         </h1>
         <p className="max-w-3xl text-base leading-relaxed text-zinc-300/90 sm:text-xl">
