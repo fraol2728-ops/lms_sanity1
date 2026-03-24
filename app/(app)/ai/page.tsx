@@ -57,6 +57,39 @@ export default function AILabPage() {
     });
   };
 
+  const updateLastAssistantMessage = (content: string) => {
+    setMessages((currentMessages) => {
+      if (currentMessages.length === 0) {
+        return [{ role: "assistant", content }];
+      }
+
+      const nextMessages = [...currentMessages];
+      const lastIndex = nextMessages.length - 1;
+      const lastMessage = nextMessages[lastIndex];
+
+      if (lastMessage?.role !== "assistant") {
+        nextMessages.push({ role: "assistant", content });
+      } else {
+        nextMessages[lastIndex] = { ...lastMessage, content };
+      }
+
+      return nextMessages;
+    });
+
+    requestAnimationFrame(() => {
+      const container = scrollRef.current;
+
+      if (!container) {
+        return;
+      }
+
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+    });
+  };
+
   const sendMessage = async () => {
     const trimmedInput = input.trim();
 
@@ -68,6 +101,7 @@ export default function AILabPage() {
     const nextMessages = [...messages, userMessage];
 
     appendMessage(userMessage);
+    appendMessage({ role: "assistant", content: "" });
     setInput("");
     setIsTyping(true);
 
@@ -83,42 +117,90 @@ export default function AILabPage() {
         }),
       });
 
-      const data = (await response.json().catch(() => null)) as {
-        text?: string;
-        error?: string;
-      } | null;
-
       if (!response.ok) {
+        const data = (await response.json().catch(() => null)) as {
+          error?: string;
+        } | null;
         throw new Error(data?.error || "Failed to fetch AI response");
       }
 
-      const aiResponse = data?.text?.trim();
-
-      if (!aiResponse) {
-        throw new Error("Empty AI response");
+      if (!response.body) {
+        throw new Error("Streaming response body is missing.");
       }
 
-      appendMessage({
-        role: "assistant",
-        content: aiResponse,
-      });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let aiResponse = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+
+        if (done) {
+          break;
+        }
+
+        const chunk = decoder.decode(value, { stream: true });
+
+        if (!chunk) {
+          continue;
+        }
+
+        aiResponse += chunk;
+        updateLastAssistantMessage(aiResponse);
+      }
+
+      const finalChunk = decoder.decode();
+
+      if (finalChunk) {
+        aiResponse += finalChunk;
+        updateLastAssistantMessage(aiResponse);
+      }
+
+      if (!aiResponse.trim()) {
+        updateLastAssistantMessage(
+          "I couldn't generate a response this time. Please try again.",
+        );
+      }
     } catch {
-      appendMessage({
-        role: "assistant",
-        content:
-          "I’m having trouble reaching the AI service right now. Please try again in a moment.",
-      });
+      updateLastAssistantMessage(
+        "I’m having trouble reaching the AI service right now. Please try again in a moment.",
+      );
     } finally {
+      setMessages((currentMessages) => {
+        if (currentMessages.length === 0) {
+          return currentMessages;
+        }
+
+        const nextMessages = [...currentMessages];
+        const lastIndex = nextMessages.length - 1;
+        const lastMessage = nextMessages[lastIndex];
+
+        if (lastMessage?.role === "assistant" && !lastMessage.content.trim()) {
+          nextMessages[lastIndex] = {
+            role: "assistant",
+            content:
+              "I couldn't generate a response this time. Please try again.",
+          };
+        }
+
+        return nextMessages;
+      });
       setIsTyping(false);
     }
   };
+
+  const lastMessage = messages[messages.length - 1];
+  const isWaitingForFirstChunk =
+    isTyping &&
+    lastMessage?.role === "assistant" &&
+    !lastMessage.content.trim();
 
   return (
     <main className="h-screen overflow-hidden bg-[#0a0f1f] text-slate-100">
       <div className="flex h-screen flex-col bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.12),transparent_28%),linear-gradient(180deg,#0b1020_0%,#070b16_100%)]">
         <header className="border-b border-cyan-400/10 bg-slate-950/40 px-6 py-4 backdrop-blur xl:px-8">
           <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4">
-           {/* <div>
+            {/* <div>
                <p className="text-xs font-semibold uppercase tracking-[0.28em] text-cyan-300/80">
                 Cybersecurity LMS
               </p>
@@ -175,30 +257,27 @@ export default function AILabPage() {
                           : "rounded-bl-md border border-slate-800 bg-slate-900/95 text-slate-100",
                       )}
                     >
-                      <p className="whitespace-pre-wrap">{message.content}</p>
+                      {isWaitingForFirstChunk &&
+                      index === messages.length - 1 &&
+                      !isUser ? (
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span className="size-2 rounded-full bg-cyan-300 animate-bounce [animation-delay:-0.3s]" />
+                            <span className="size-2 rounded-full bg-cyan-300 animate-bounce [animation-delay:-0.15s]" />
+                            <span className="size-2 rounded-full bg-cyan-300 animate-bounce" />
+                          </div>
+                          <p className="mt-2 text-xs text-slate-300">
+                            Thinking...
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="whitespace-pre-wrap">{message.content}</p>
+                      )}
                     </div>
                   </div>
                 </div>
               );
             })}
-
-            {isTyping && (
-              <div className="flex justify-start">
-                <div className="flex items-end gap-3">
-                  <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-slate-700 bg-slate-900 text-emerald-300">
-                    <Bot className="size-4" />
-                  </div>
-                  <div className="rounded-2xl rounded-bl-md border border-slate-800 bg-slate-900/95 px-4 py-4 shadow-lg">
-                    <div className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-cyan-300 animate-bounce [animation-delay:-0.3s]" />
-                      <span className="size-2 rounded-full bg-cyan-300 animate-bounce [animation-delay:-0.15s]" />
-                      <span className="size-2 rounded-full bg-cyan-300 animate-bounce" />
-                    </div>
-                    <p className="mt-2 text-xs text-slate-300">Thinking...</p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
