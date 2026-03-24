@@ -106,7 +106,7 @@ export default function AILabPage() {
     setIsTyping(true);
 
     try {
-      const response = await fetch("/api/ai", {
+      const response = await fetch("/api/ai/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
