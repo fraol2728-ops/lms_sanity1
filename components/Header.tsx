@@ -89,8 +89,9 @@ export function Header() {
             ? "border-white/10 bg-[#050816]/70 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl"
             : "border-transparent bg-transparent",
         )}
+        
       >
-        <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 ">
           <Link
             href="/"
             className="group inline-flex items-center gap-2.5 sm:gap-3"
@@ -146,7 +147,7 @@ export function Header() {
                   variant="ghost"
                   className={cn(
                     "hover:bg-cyan-400/10 hover:text-cyan-200",
-                    "text-zinc-100",
+                    isScrolled ? "text-zinc-100" : "text-zinc-500",
                   )}
                 >
                   Sign In
@@ -160,7 +161,7 @@ export function Header() {
                   variant="outline"
                   className={cn(
                     "border-cyan-400/30 bg-transparent hover:bg-cyan-400/10 hover:text-cyan-200",
-                    "text-zinc-100",
+                    isScrolled ? "text-zinc-100" : "text-zinc-500",
                   )}
                 >
                   Dashboard
@@ -287,7 +288,7 @@ function NavLink({
           ? "bg-cyan-400/12 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.12)]"
           : isScrolled
             ? "text-zinc-100"
-            : "text-zinc-100",
+            : "text-zinc-500",
       )}
       aria-current={isActive ? "page" : undefined}
     >

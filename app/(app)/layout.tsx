@@ -7,7 +7,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <ClientClerkProvider>
       <Header />
-      <div>{children}</div>
+      <div className="pt-20">{children}</div>
       <SanityLive />
       <TutorWidget />
     </ClientClerkProvider>
