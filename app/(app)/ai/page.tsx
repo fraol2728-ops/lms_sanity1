@@ -2,6 +2,8 @@
 
 import { Bot, SendHorizonal, User } from "lucide-react";
 import { useRef, useState } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -291,7 +293,92 @@ export default function AILabPage() {
                           </p>
                         </div>
                       ) : (
-                        <p className="whitespace-pre-wrap">{message.content}</p>
+                        <div className="prose prose-invert max-w-none text-sm">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              p: ({ node, ...props }) => (
+                                <p className="mb-2 leading-7" {...props} />
+                              ),
+                              ul: ({ node, ...props }) => (
+                                <ul
+                                  className="mb-2 list-inside list-disc space-y-1"
+                                  {...props}
+                                />
+                              ),
+                              li: ({ node, ...props }) => (
+                                <li className="leading-7" {...props} />
+                              ),
+                              ol: ({ node, ...props }) => (
+                                <ol
+                                  className="mb-2 list-inside list-decimal space-y-1"
+                                  {...props}
+                                />
+                              ),
+                              strong: ({ node, ...props }) => (
+                                <strong
+                                  className="font-semibold text-cyan-300"
+                                  {...props}
+                                />
+                              ),
+                              em: ({ node, ...props }) => (
+                                <em className="italic text-slate-300" {...props} />
+                              ),
+                              code: ({ node, inline, ...props }) =>
+                                inline ? (
+                                  <code
+                                    className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-emerald-300"
+                                    {...props}
+                                  />
+                                ) : (
+                                  <code
+                                    className="block overflow-x-auto rounded bg-slate-800 p-3 font-mono text-xs text-emerald-300"
+                                    {...props}
+                                  />
+                                ),
+                              pre: ({ node, ...props }) => (
+                                <pre
+                                  className="mb-2 overflow-x-auto rounded bg-slate-800 p-3"
+                                  {...props}
+                                />
+                              ),
+                              h1: ({ node, ...props }) => (
+                                <h1
+                                  className="mb-3 text-lg font-bold text-cyan-200"
+                                  {...props}
+                                />
+                              ),
+                              h2: ({ node, ...props }) => (
+                                <h2
+                                  className="mb-2 text-base font-bold text-cyan-200"
+                                  {...props}
+                                />
+                              ),
+                              h3: ({ node, ...props }) => (
+                                <h3
+                                  className="mb-2 font-semibold text-cyan-300"
+                                  {...props}
+                                />
+                              ),
+                              blockquote: ({ node, ...props }) => (
+                                <blockquote
+                                  className="border-l-4 border-cyan-400/30 pl-4 italic text-slate-300"
+                                  {...props}
+                                />
+                              ),
+                              a: ({ node, ...props }) => (
+                                <a
+                                  className="text-cyan-400 hover:underline"
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  {...props}
+                                />
+                              ),
+                            }}
+                          >
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
                       )}
                     </div>
                   </div>
