@@ -15,12 +15,12 @@ const INITIAL_MESSAGES: Message[] = [
   {
     role: "assistant",
     content:
-      "Welcome to AI Lab. Ask anything about cybersecurity and I’ll simulate a helpful response while the live model is still offline.",
+      "Welcome to Cyber Camp AI! I'm here to help you with IT, technology, programming, cybersecurity, web development, cloud computing, and more. Ask me anything!",
   },
   {
     role: "assistant",
     content:
-      "Try topics like phishing detection, SIEM workflows, Linux hardening, incident response, or threat modeling.",
+      "Try asking about topics like web development, JavaScript, Python, cybersecurity, cloud platforms (AWS/Azure/GCP), databases, networking, DevOps, or any other IT-related subjects.",
   },
 ];
 
@@ -131,6 +131,7 @@ export default function AILabPage() {
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let aiResponse = "";
+      let buffer = "";
 
       while (true) {
         const { value, done } = await reader.read();
@@ -139,14 +140,33 @@ export default function AILabPage() {
           break;
         }
 
-        const chunk = decoder.decode(value, { stream: true });
-
-        if (!chunk) {
-          continue;
+        buffer += decoder.decode(value, { stream: true });
+        
+        // Process complete messages (separated by newlines)
+        const lines = buffer.split("\n");
+        
+        // Keep the last incomplete line in the buffer
+        buffer = lines[lines.length - 1];
+        
+        // Process all complete lines
+        for (let i = 0; i < lines.length - 1; i++) {
+          const line = lines[i].trim();
+          
+          if (!line || !line.startsWith("data: ")) {
+            continue;
+          }
+          
+          try {
+            const data = JSON.parse(line.slice(6)); // Remove "data: " prefix
+            
+            if (data.type === "text-delta" && data.delta) {
+              aiResponse += data.delta;
+              updateLastAssistantMessage(aiResponse);
+            }
+          } catch {
+            // Ignore JSON parse errors for non-JSON lines
+          }
         }
-
-        aiResponse += chunk;
-        updateLastAssistantMessage(aiResponse);
       }
 
       const finalChunk = decoder.decode();
