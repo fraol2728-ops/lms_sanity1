@@ -1,142 +1,143 @@
 "use client";
 
+import { ArrowLeft, Shield } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
-import { ChatInput } from "@/components/ai/ChatInput";
-import { ChatMessages } from "@/components/ai/ChatMessages";
+import { ChatContainer } from "@/components/ai/chat-container";
+import type { ChatMessageModel } from "@/components/ai/chat-message";
 
-type Message = {
-  id: string;
-  role: "user" | "assistant";
-  content: string;
+type ChatApiPayload = {
+  message?: string;
 };
 
+function parseAssistantText(responseText: string): string {
+  const lines = responseText
+    .split("\n")
+    .map((line) => line.trim())
+    .filter((line) => line.startsWith("data: "));
+
+  let combined = "";
+
+  for (const line of lines) {
+    const payload = line.slice(6);
+
+    if (!payload || payload === "[DONE]") {
+      continue;
+    }
+
+    try {
+      const parsed = JSON.parse(payload) as { type?: string; delta?: string };
+      if (parsed.type === "text-delta" && typeof parsed.delta === "string") {
+        combined += parsed.delta;
+      }
+    } catch {
+      // Ignore malformed SSE chunks.
+    }
+  }
+
+  return combined.trim();
+}
+
 export default function AIPage() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ChatMessageModel[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSuggestionClick = (text: string) => {
-    setInput(text);
-  };
+  const sendMessage = async (messageText?: string) => {
+    const content = (messageText ?? input).trim();
+    if (!content || isLoading) return;
 
-  const handleSubmit = async () => {
-    const trimmedInput = input.trim();
-    if (!trimmedInput || isLoading) return;
-
-    const userMessage: Message = {
+    const userMessage: ChatMessageModel = {
       id: crypto.randomUUID(),
       role: "user",
-      content: trimmedInput,
+      content,
     };
-    const updatedMessages = [...messages, userMessage];
-    setMessages(updatedMessages);
+
+    const nextMessages = [...messages, userMessage];
+    setMessages(nextMessages);
     setInput("");
+    setError(null);
     setIsLoading(true);
 
     try {
+      const payload: ChatApiPayload = {
+        message: content,
+      };
+
       const response = await fetch("/api/ai/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          messages: updatedMessages.map((msg) => ({
-            role: msg.role,
-            content: msg.content,
-          })),
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("API Error:", response.status, errorText);
-        throw new Error("Failed to get AI response");
+        throw new Error("Request failed");
       }
 
-      const reader = response.body?.getReader();
-      if (!reader) throw new Error("No response body");
+      const responseText = await response.text();
+      const assistantText = parseAssistantText(responseText);
 
-      const decoder = new TextDecoder();
-      let fullText = "";
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        const lines = buffer.split("\n");
-        buffer = lines[lines.length - 1];
-
-        for (let i = 0; i < lines.length - 1; i++) {
-          const line = lines[i].trim();
-          if (!line || !line.startsWith("data: ")) continue;
-
-          try {
-            const data = JSON.parse(line.slice(6));
-            if (data.type === "text-delta" && data.delta) {
-              fullText += data.delta;
-            }
-          } catch {
-            // Ignore parse errors
-          }
-        }
+      if (!assistantText) {
+        throw new Error("Empty AI response");
       }
 
-      const finalChunk = decoder.decode();
-      if (finalChunk) {
-        const lines = finalChunk.split("\n");
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (trimmed?.startsWith("data: ")) {
-            try {
-              const data = JSON.parse(trimmed.slice(6));
-              if (data.type === "text-delta" && data.delta) {
-                fullText += data.delta;
-              }
-            } catch {
-              // Ignore parse errors
-            }
-          }
-        }
-      }
-
-      const assistantMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content:
-          fullText.trim() ||
-          "I couldn't generate a response. Please try again.",
-      };
-      setMessages([...updatedMessages, assistantMessage]);
+      setMessages((current) => [
+        ...current,
+        {
+          id: crypto.randomUUID(),
+          role: "assistant",
+          content: assistantText,
+        },
+      ]);
     } catch {
-      const errorMessage: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content: "Something went wrong. Please try again.",
-      };
-      setMessages([...updatedMessages, errorMessage]);
+      setError("request_failed");
     } finally {
       setIsLoading(false);
     }
   };
 
+  const retryLastMessage = () => {
+    const lastUserMessage = [...messages]
+      .reverse()
+      .find((message) => message.role === "user");
+    if (!lastUserMessage || isLoading) return;
+
+    setMessages((current) =>
+      current.filter((message) => message.id !== lastUserMessage.id),
+    );
+    void sendMessage(lastUserMessage.content);
+  };
+
   return (
-    <div className="dark fixed inset-0 h-screen flex flex-col overflow-hidden bg-gray-900 text-white">
-      <ChatMessages
+    <div className="dark flex h-screen flex-col bg-background text-foreground">
+      <header className="border-b border-border/60 bg-background/90 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+        <div className="mx-auto flex w-full max-w-[700px] items-center justify-between">
+          <div className="flex items-center gap-2 text-sm font-semibold">
+            <Shield className="h-4 w-4 text-blue-400" />
+            <span>Cyber AI</span>
+          </div>
+          <Link
+            href="/dashboard"
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back
+          </Link>
+        </div>
+      </header>
+
+      <ChatContainer
         messages={messages}
+        input={input}
         isLoading={isLoading}
-        onSuggestionClick={handleSuggestionClick}
+        error={error}
+        onInputChange={setInput}
+        onSend={() => void sendMessage()}
+        onRetry={retryLastMessage}
       />
-      <div className="border-t border-gray-700 p-4 bg-background shadow-[0_-4px_12px_rgba(0,0,0,0.3)]">
-        <ChatInput
-          value={input}
-          onChange={setInput}
-          onSubmit={handleSubmit}
-          isLoading={isLoading}
-        />
-      </div>
     </div>
   );
 }
