@@ -109,7 +109,20 @@ export function Hero({ courses }: HeroProps) {
           ease: "easeInOut",
         }}
       >
-        <Rocket className="h-10 w-10 text-cyan-300/90" />
+        <Rocket className="h-16 w-16 text-cyan-300/90" />
+      </motion.div>
+
+      <motion.div
+        className="pointer-events-none absolute bottom-16 left-12 hidden lg:block"
+        animate={{ y: [0, 10, 0] }}
+        transition={{
+          duration: 3.6,
+          repeat: Number.POSITIVE_INFINITY,
+          ease: "easeInOut",
+          delay: 0.4,
+        }}
+      >
+        <Rocket className="h-8 w-8 text-cyan-300/75" />
       </motion.div>
 
       <motion.div
