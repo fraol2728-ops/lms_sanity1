@@ -33,7 +33,7 @@ const FREE_APPENDIX = `Free users receive helpful guidance:
 
 export function createTutorAgent(isUltra: boolean) {
   return new ToolLoopAgent({
-    model: google("gemini-2.5-flash-lite"),
+    model: google("gemini-2.5-flash-lite") as any,
     instructions: `${BASE_INSTRUCTIONS}\n\n${isUltra ? ULTRA_APPENDIX : FREE_APPENDIX}`,
     tools: {
       searchContent: searchContentTool,
