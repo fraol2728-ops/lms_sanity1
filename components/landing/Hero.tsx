@@ -109,7 +109,7 @@ export function Hero({ courses }: HeroProps) {
           ease: "easeInOut",
         }}
       >
-        <Rocket className="h-16 w-16 text-cyan-300/90" />
+        <Rocket className="h-20 w-20 text-cyan-300/90" />
       </motion.div>
 
       <motion.div
