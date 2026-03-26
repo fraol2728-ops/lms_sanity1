@@ -1,20 +1,11 @@
-import { createOpenAI } from "@ai-sdk/openai";
+import { google } from "@ai-sdk/google";
 import { ToolLoopAgent } from "ai";
 import { generateQuizTool } from "./tools/generateQuiz";
 import { generateRoadmapTool } from "./tools/generateRoadmap";
 import { searchContentTool } from "./tools/searchContent";
 
-const openrouter = createOpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY,
-  baseURL: "https://openrouter.ai/api/v1",
-  defaultHeaders: {
-    "HTTP-Referer": "http://localhost:3000",
-    "X-Title": "Cyber Camp AI",
-  },
-});
-
-const BASE_INSTRUCTIONS = `You are Sonny's Academy AI tutor.
-Help learners with concise, clear, and practical guidance.
+const BASE_INSTRUCTIONS = `You are Cyber Camp's AI tutor.
+Help learners with concise, clear, and practical guidance on cybersecurity.
 
 Rules:
 - Always prioritize course-catalog truth from tools over assumptions.
@@ -32,7 +23,7 @@ Do not mention hidden internal plan logic.`;
 
 export function createTutorAgent(isUltra: boolean) {
   return new ToolLoopAgent({
-    model: openrouter("gpt-3.5-turbo"),
+    model: google("gemini-1.5-flash"),
     instructions: `${BASE_INSTRUCTIONS}\n\n${isUltra ? ULTRA_APPENDIX : FREE_APPENDIX}`,
     tools: {
       searchContent: searchContentTool,

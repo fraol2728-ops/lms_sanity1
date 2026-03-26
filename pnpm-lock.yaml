@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@ai-sdk/google':
+        specifier: ^3.0.53
+        version: 3.0.53(zod@4.1.13)
       '@ai-sdk/openai':
         specifier: 3.0.0-beta.76
         version: 3.0.0-beta.76(effect@3.18.4)(zod@4.1.13)
@@ -213,6 +216,12 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/google@3.0.53':
+    resolution: {integrity: sha512-uz8tIlkDgQJG9Js2Wh9JHzd4kI9+hYJqf9XXJLx60vyN5mRIqhr49iwR5zGP5Gl8odp2PeR3Gh2k+5bh3Z1HHw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/openai@3.0.0-beta.76':
     resolution: {integrity: sha512-FqqaEQ1VEhdboVBP2FJETdxl8LJZJhC89Gv16uO1d0zSKhDOD1o6oT9pSWAeuDlswbDhPcZyqXxB57tlox0RSw==}
     engines: {node: '>=18'}
@@ -235,8 +244,18 @@ packages:
       effect:
         optional: true
 
+  '@ai-sdk/provider-utils@4.0.21':
+    resolution: {integrity: sha512-MtFUYI1/8mgDvRmaBDjbLJPFFrMG777AvSgyIFQtZHIMzm88R/12vYBBpnk7pfiWLFE1DSZzY4WDYzGbKAcmiw==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/provider@3.0.0-beta.22':
     resolution: {integrity: sha512-Ss0tgCZwzccS6MREhjAI28lkAV5PfJnoBFbv8mas74Cs5OseFKqxg3dEd1lRL8mf4Qapu1xpBLkV4/ldSShSdA==}
+    engines: {node: '>=18'}
+
+  '@ai-sdk/provider@3.0.8':
+    resolution: {integrity: sha512-oGMAgGoQdBXbZqNG0Ze56CHjDZ1IDYOwGYxYjO5KLSlz5HiNQ9udIXsPZ61VWaHGZ5XW/jyjmr6t2xz2jGVwbQ==}
     engines: {node: '>=18'}
 
   '@ai-sdk/react@3.0.0-beta.128':
@@ -3138,6 +3157,9 @@ packages:
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
+
+  '@standard-schema/spec@1.1.0':
+    resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
 
   '@swc/helpers@0.5.15':
     resolution: {integrity: sha512-JQ5TuMi45Owi4/BIMAJBoSQoOJu12oOk/gADqlcUL9JEdHB8vyjUSsxqeNXnmXHjYKMi2WcYtezGEEhqUI/E2g==}
@@ -7507,6 +7529,12 @@ snapshots:
       - arktype
       - effect
 
+  '@ai-sdk/google@3.0.53(zod@4.1.13)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.8
+      '@ai-sdk/provider-utils': 4.0.21(zod@4.1.13)
+      zod: 4.1.13
+
   '@ai-sdk/openai@3.0.0-beta.76(effect@3.18.4)(zod@4.1.13)':
     dependencies:
       '@ai-sdk/provider': 3.0.0-beta.22
@@ -7526,7 +7554,18 @@ snapshots:
     optionalDependencies:
       effect: 3.18.4
 
+  '@ai-sdk/provider-utils@4.0.21(zod@4.1.13)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.8
+      '@standard-schema/spec': 1.1.0
+      eventsource-parser: 3.0.6
+      zod: 4.1.13
+
   '@ai-sdk/provider@3.0.0-beta.22':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/provider@3.0.8':
     dependencies:
       json-schema: 0.4.0
 
@@ -10803,6 +10842,8 @@ snapshots:
   '@stablelib/base64@1.0.1': {}
 
   '@standard-schema/spec@1.0.0': {}
+
+  '@standard-schema/spec@1.1.0': {}
 
   '@swc/helpers@0.5.15':
     dependencies:

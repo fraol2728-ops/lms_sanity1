@@ -1,5 +1,4 @@
 import { createAgentUIStreamResponse, type UIMessage } from "ai";
-import { auth } from "@clerk/nextjs/server";
 import { createTutorAgent } from "@/lib/ai/agent";
 
 export const runtime = "nodejs";
@@ -91,12 +90,6 @@ function jsonResponse(payload: unknown, status = 200): Response {
 }
 
 export async function POST(request: Request) {
-  const { userId, has } = await auth();
-
-  if (!userId) {
-    return jsonResponse({ error: "Unauthorized" }, 401);
-  }
-
   let body: RequestBody;
 
   try {
@@ -111,10 +104,8 @@ export async function POST(request: Request) {
     return jsonResponse({ error: "A valid message is required." }, 400);
   }
 
-  const isUltra = Boolean(has?.({ plan: "ultra" }));
-
   return createAgentUIStreamResponse({
-    agent: createTutorAgent(isUltra),
+    agent: createTutorAgent(false),
     messages,
   });
 }
