@@ -1,6 +1,7 @@
 "use client";
 
-import { Search, ShieldCheck } from "lucide-react";
+import { motion, type Variants } from "framer-motion";
+import { Rocket, Search, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -18,6 +19,43 @@ type HeroCourse = {
 
 type HeroProps = {
   courses: HeroCourse[];
+};
+
+const heroContainer: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.08,
+    },
+  },
+};
+
+const fadeUpSoft: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.55, ease: "easeOut" },
+  },
+};
+
+const fadeIn: Variants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.5, ease: "easeOut" },
+  },
+};
+
+const searchReveal: Variants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
 };
 
 export function Hero({ courses }: HeroProps) {
@@ -62,37 +100,74 @@ export function Hero({ courses }: HeroProps) {
         }}
       />
 
-      <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center justify-center gap-7 py-16 sm:gap-8">
-        <div className="mx-auto inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-cyan-100">
+      <motion.div
+        className="pointer-events-none absolute right-16 top-30 hidden lg:block"
+        animate={{ y: [0, -12, 0] }}
+        transition={{
+          duration: 4,
+          repeat: Number.POSITIVE_INFINITY,
+          ease: "easeInOut",
+        }}
+      >
+        <Rocket className="h-10 w-10 text-cyan-300/90" />
+      </motion.div>
+
+      <motion.div
+        className="relative mx-auto flex w-full max-w-4xl flex-col items-center justify-center gap-7 py-16 sm:gap-8"
+        variants={heroContainer}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div
+          variants={fadeUpSoft}
+          className="mx-auto inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-cyan-100"
+        >
           <ShieldCheck className="h-4 w-4" />
           DevFraol Academy-NextCC
-        </div>
+        </motion.div>
 
-        <h1 className="text-balance text-5xl font-semibold leading-[1.05] text-white sm:text-6xl lg:text-7xl">
+        <motion.h1
+          variants={fadeUpSoft}
+          className="text-balance text-5xl font-semibold leading-[1.05] text-white sm:text-6xl lg:text-7xl"
+        >
           Offensive Security Through Real-World Training
-        </h1>
-        <p className="max-w-3xl text-base leading-relaxed text-zinc-300/90 sm:text-xl">
+        </motion.h1>
+
+        <motion.p
+          variants={fadeIn}
+          className="max-w-3xl text-base leading-relaxed text-zinc-300/90 sm:text-xl"
+        >
           Learn ethical hacking, penetration testing, and cyber defense with
           structured courses.
-        </p>
+        </motion.p>
 
-        <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+        <motion.div
+          variants={fadeIn}
+          className="flex flex-col gap-4 sm:flex-row sm:justify-center"
+        >
           <Link href="/dashboard">
-            <Button className="h-11 w-full bg-cyan-400 px-8 font-semibold text-[#041018] hover:bg-cyan-300 sm:w-auto">
-              Start Learning
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button className="h-11 w-full bg-cyan-400 px-8 font-semibold text-[#041018] hover:bg-cyan-300 sm:w-auto">
+                Start Learning
+              </Button>
+            </motion.div>
           </Link>
           <Link href="/courses">
-            <Button
-              variant="outline"
-              className="h-11 w-full border-cyan-400/40 bg-[#081127]/70 px-8 text-cyan-100 hover:bg-cyan-400/10 sm:w-auto"
-            >
-              Explore Courses
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                variant="outline"
+                className="h-11 w-full border-cyan-400/40 bg-[#081127]/70 px-8 text-cyan-100 hover:bg-cyan-400/10 sm:w-auto"
+              >
+                Explore Courses
+              </Button>
+            </motion.div>
           </Link>
-        </div>
+        </motion.div>
 
-        <div className="group w-full rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_0_0_rgba(56,189,248,0)] backdrop-blur-xl transition-all duration-300 hover:border-cyan-300/35 hover:shadow-[0_0_40px_rgba(34,211,238,0.2)] sm:p-5">
+        <motion.div
+          variants={searchReveal}
+          className="group w-full rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_0_0_rgba(56,189,248,0)] backdrop-blur-xl transition-all duration-300 hover:border-cyan-300/35 hover:shadow-[0_0_40px_rgba(34,211,238,0.2)] sm:p-5"
+        >
           <div className="flex flex-col gap-3 sm:flex-row">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-cyan-200/70" />
@@ -106,7 +181,7 @@ export function Hero({ courses }: HeroProps) {
                 }}
                 list="hero-course-suggestions"
                 placeholder="Search courses (e.g. penetration testing, SOC analyst, ethical hacking)"
-                className="h-12 rounded-xl border-white/10 bg-[#050a18]/80 pl-12 text-base text-cyan-50 placeholder:text-cyan-100/60 transition-all duration-300 focus-visible:border-cyan-300/45 focus-visible:ring-cyan-300/20"
+                className="h-12 rounded-xl border-white/10 bg-[#050a18]/80 pl-12 text-base text-cyan-50 placeholder:text-cyan-100/60 transition-all duration-300 focus-visible:border-cyan-300/45 focus-visible:ring-2 focus-visible:ring-cyan-300/20"
               />
               <datalist id="hero-course-suggestions">
                 {autoCompleteOptions.map((title) => (
@@ -115,15 +190,17 @@ export function Hero({ courses }: HeroProps) {
               </datalist>
             </div>
 
-            <Button
-              onClick={() => handleSearch()}
-              className="h-12 rounded-xl bg-cyan-400 px-8 font-semibold text-[#041018] transition-all duration-300 hover:bg-cyan-300"
-            >
-              Search Courses
-            </Button>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Button
+                onClick={() => handleSearch()}
+                className="h-12 rounded-xl bg-cyan-400 px-8 font-semibold text-[#041018] transition-all duration-300 hover:bg-cyan-300"
+              >
+                Search Courses
+              </Button>
+            </motion.div>
           </div>
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </section>
   );
 }
