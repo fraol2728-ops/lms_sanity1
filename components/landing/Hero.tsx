@@ -141,7 +141,7 @@ export function Hero({ courses }: HeroProps) {
 
         <motion.h1
           variants={fadeUpSoft}
-          className="text-balance text-5xl font-semibold leading-[1.05] text-white sm:text-6xl lg:text-7xl"
+          className="text-balance text-5xl font-light leading-[1.05] text-white sm:text-6xl lg:text-7xl"
         >
           Offensive Security Through Real-World Training
         </motion.h1>
