@@ -9,6 +9,7 @@ import {
   PlatformPreview,
   TrainingPaths,
 } from "@/components/landing";
+import { RoadmapSection } from "@/components/roadmap/roadmap-section";
 import { ProgramShowcaseList } from "@/components/sections/program-showcase-list";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildMetadata, siteConfig } from "@/lib/seo";
@@ -180,6 +181,7 @@ export default async function Home() {
       <StructuredData data={breadcrumbSchema} />
       <main aria-label="Dev Fraol Academy homepage">
         <Hero courses={allCourses} />
+        <RoadmapSection courses={allCourses} />
         <ProgramShowcaseList
           courses={allCourses.length ? allCourses : courses}
         />
