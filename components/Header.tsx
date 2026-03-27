@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +90,6 @@ export function Header() {
             ? "border-white/10 bg-[#050816]/70 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl"
             : "border-transparent bg-transparent",
         )}
-        
       >
         <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 ">
           <Link
@@ -118,7 +118,8 @@ export function Header() {
                 isScrolled={isScrolled}
                 isActive={
                   link.href === "/courses"
-                    ? pathname === "/courses" || pathname.startsWith("/courses/")
+                    ? pathname === "/courses" ||
+                      pathname.startsWith("/courses/")
                     : pathname === link.href
                 }
                 isNew={link.isNew}
@@ -127,6 +128,7 @@ export function Header() {
           </div>
 
           <div className="hidden items-center gap-2 md:flex">
+            <ThemeToggle className="mr-1" />
             <button
               type="button"
               onClick={() => setCommandOpen(true)}
@@ -225,7 +227,13 @@ export function Header() {
               />
             ))}
 
-            <div className="my-2 h-px bg-cyan-400/10" />
+            <div className="my-2 h-px bg-border/70" />
+
+            <div className="px-3 py-2">
+              <ThemeToggle className="w-full justify-center" />
+            </div>
+
+            <div className="my-2 h-px bg-border/70" />
 
             <SignedOut>
               <SignInButton mode="modal">
