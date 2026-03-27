@@ -1,5 +1,3 @@
-import { StructuredData } from "@/components/seo/StructuredData";
-import { buildMetadata, siteConfig } from "@/lib/seo";
 import { auth } from "@clerk/nextjs/server";
 import {
   ContinueLearning,
@@ -9,9 +7,11 @@ import {
   Hero,
   HowItWorks,
   PlatformPreview,
-  PopularCourses,
   TrainingPaths,
 } from "@/components/landing";
+import { ProgramShowcaseList } from "@/components/sections/program-showcase-list";
+import { StructuredData } from "@/components/seo/StructuredData";
+import { buildMetadata, siteConfig } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
   ALL_COURSES_QUERY,
@@ -180,7 +180,9 @@ export default async function Home() {
       <StructuredData data={breadcrumbSchema} />
       <main aria-label="Dev Fraol Academy homepage">
         <Hero courses={allCourses} />
-        <PopularCourses courses={courses} />
+        <ProgramShowcaseList
+          courses={allCourses.length ? allCourses : courses}
+        />
         <PlatformPreview />
         <Features />
         <TrainingPaths />
