@@ -81,7 +81,7 @@ export function CourseList({
               key={course.slug!.current!}
               href={`/courses/${course.slug!.current!}`}
               title={course.title}
-              instructor={course.category?.title ?? "Next Cyber Camp Instructor"}
+              instructor={course.category?.title ?? "Next XyberSec Instructor"}
               difficulty={
                 course.tier === "ultra"
                   ? "Advanced"

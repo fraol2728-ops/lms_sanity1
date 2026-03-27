@@ -39,7 +39,7 @@ export function CourseCard({
   thumbnail,
 }: CourseCardProps) {
   const resolvedTitle = title ?? "Untitled Course";
-  const resolvedInstructor = instructor ?? "Next Cyber Camp Instructor";
+  const resolvedInstructor = instructor ?? "Next XyberSec Instructor";
   const resolvedDifficulty =
     difficulty ?? (tier === "ultra" ? "Advanced" : "Beginner");
   const resolvedThumbnail = thumbnailUrl ?? thumbnail?.asset?.url ?? null;

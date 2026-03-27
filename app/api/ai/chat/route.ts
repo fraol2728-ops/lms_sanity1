@@ -114,7 +114,7 @@ export async function POST(request: Request) {
   try {
     const result = await generateText({
       model: google("gemini-2.5-flash-lite"),
-      system: `You are Cyber Camp's AI Assistant.
+      system: `You are XyberSec's AI Assistant.
 Help learners with comprehensive guidance on IT, technology, programming, cybersecurity, development, and multiple tech domains.
 
 Your Role:

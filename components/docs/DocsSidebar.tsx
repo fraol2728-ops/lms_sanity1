@@ -59,7 +59,7 @@ export function DocsSidebar() {
         </h2>
         <p className="mt-2 text-sm leading-6 text-zinc-400">
           Browse the core workflows that shape the learner experience inside
-          Next Cyber Camp.
+          Next XyberSec.
         </p>
       </div>
 

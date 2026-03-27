@@ -4,7 +4,7 @@ import { LeaderboardPageClient } from "@/components/leaderboard/LeaderboardPageC
 export const metadata: Metadata = {
   title: "Leaderboard",
   description:
-    "Track cybersecurity training points, compare rankings, and see your standing in the Next Cyber Camp leaderboard.",
+    "Track cybersecurity training points, compare rankings, and see your standing in the Next XyberSec leaderboard.",
   alternates: {
     canonical: "/leaderboard",
   },

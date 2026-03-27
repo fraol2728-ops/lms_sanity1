@@ -56,7 +56,7 @@ export function DashboardSidebar() {
       >
         <div className="mb-8">
           <p className="text-xs uppercase tracking-[0.25em] text-cyan-400/80">
-            Next Cyber Camp
+            Next XyberSec
           </p>
           <h2 className="mt-2 text-lg font-semibold text-white">
             Command Center

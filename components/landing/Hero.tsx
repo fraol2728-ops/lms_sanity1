@@ -136,7 +136,7 @@ export function Hero({ courses }: HeroProps) {
           className="mx-auto inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-cyan-100"
         >
           <ShieldCheck className="h-4 w-4" />
-          DevFraol Academy-NextCC
+          XyberSec-Academy
         </motion.div>
 
         <motion.h1
@@ -158,10 +158,10 @@ export function Hero({ courses }: HeroProps) {
           variants={fadeIn}
           className="flex flex-col gap-4 sm:flex-row sm:justify-center"
         >
-          <Link href="/dashboard">
+          <Link href="/ai">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button className="h-11 w-full bg-cyan-400 px-8 font-semibold text-[#041018] hover:bg-cyan-300 sm:w-auto">
-                Start Learning
+                Chat With AI
               </Button>
             </motion.div>
           </Link>

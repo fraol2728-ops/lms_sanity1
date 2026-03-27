@@ -20,7 +20,7 @@ export function DocsContent() {
               Developer docs
             </div>
             <h1 className="text-4xl font-semibold tracking-tight text-white sm:text-5xl">
-              Next Cyber Camp documentation
+              Next XyberSec documentation
             </h1>
             <p className="max-w-3xl text-base leading-7 text-zinc-300 sm:text-lg">
               Build learner confidence with a polished, documentation-first

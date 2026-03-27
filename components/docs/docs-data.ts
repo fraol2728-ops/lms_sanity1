@@ -5,7 +5,7 @@ export const docsSections = [
     eyebrow: "Overview",
     title: "Boot up your cyber training workspace",
     description:
-      "Next Cyber Camp gives learners a focused, developer-style control panel for onboarding, exploration, and daily practice. The docs experience is designed to help teams ship structured cybersecurity learning journeys without overwhelming new recruits.",
+      "Next XyberSec gives learners a focused, developer-style control panel for onboarding, exploration, and daily practice. The docs experience is designed to help teams ship structured cybersecurity learning journeys without overwhelming new recruits.",
     bullets: [
       "Launch guided learner onboarding in minutes.",
       "Organize security lessons, labs, and milestones by path.",

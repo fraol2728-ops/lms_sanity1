@@ -5,7 +5,7 @@ import { generateRoadmapTool } from "./tools/generateRoadmap";
 import { searchContentTool } from "./tools/searchContent";
 
 
-const BASE_INSTRUCTIONS = `You are Cyber Camp's AI Assistant.
+const BASE_INSTRUCTIONS = `You are XyberSec's AI Assistant.
 Help learners with comprehensive guidance on IT, technology, programming, cybersecurity, development, and multiple tech domains.
 
 Your Role:
