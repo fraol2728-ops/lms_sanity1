@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildMetadata, siteConfig } from "@/lib/seo";
-import "./globals.css";
+import { ThemeProvider } from "@/providers/theme-provider";
+import "../styles/globals.css";
 
 const defaultTitle = `${siteConfig.name} | Cybersecurity LMS in Ethiopia`;
 
@@ -63,10 +64,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        <StructuredData data={organizationSchema} />
-        {children}
+        <ThemeProvider>
+          <StructuredData data={organizationSchema} />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
