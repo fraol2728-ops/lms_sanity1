@@ -13,7 +13,6 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -128,7 +127,6 @@ export function Header() {
           </div>
 
           <div className="hidden items-center gap-2 md:flex">
-            <ThemeToggle className="mr-1" />
             <button
               type="button"
               onClick={() => setCommandOpen(true)}
@@ -226,12 +224,6 @@ export function Header() {
                 isNew={link.isNew}
               />
             ))}
-
-            <div className="my-2 h-px bg-border/70" />
-
-            <div className="px-3 py-2">
-              <ThemeToggle className="w-full justify-center" />
-            </div>
 
             <div className="my-2 h-px bg-border/70" />
 
