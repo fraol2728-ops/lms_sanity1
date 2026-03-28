@@ -126,7 +126,7 @@ export function Hero({ courses }: HeroProps) {
       </motion.div>
 
       <motion.div
-        className="relative mx-auto flex w-full max-w-4xl flex-col items-center justify-center gap-7 py-16 sm:gap-8"
+        className="relative mx-auto flex w-full max-w-5xl flex-col items-center justify-center gap-7 py-16 sm:gap-8"
         variants={heroContainer}
         initial="hidden"
         animate="visible"
