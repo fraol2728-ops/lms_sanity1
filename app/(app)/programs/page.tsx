@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
-  type CatalogCourse,
-  CoursesGrid,
-} from "@/components/courses/CoursesGrid";
+  FAQSection,
+  type ProgramCourse,
+  RoadmapSection,
+} from "@/components/programs";
 import { StructuredData } from "@/components/seo/StructuredData";
+import { Badge } from "@/components/ui/badge";
 import { buildMetadata, siteConfig } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
@@ -36,7 +38,7 @@ interface CategoryResult {
 
 const inferDifficulty = (
   tier: string | null | undefined,
-): CatalogCourse["difficulty"] => {
+): ProgramCourse["difficulty"] => {
   if (tier === "ultra") return "Advanced";
   if (tier === "pro") return "Intermediate";
   return "Beginner";
@@ -54,12 +56,9 @@ export default async function ProgramsPage() {
 
   const categories = categoriesData
     .filter((category) => Boolean(category.title))
-    .map((category) => ({
-      id: category._id,
-      title: category.title ?? "General",
-    }));
+    .map((category) => category.title ?? "General");
 
-  const courses: CatalogCourse[] = coursesData
+  const courses: ProgramCourse[] = coursesData
     .filter((course) => Boolean(course.slug?.current))
     .map((course) => {
       const lessonCount = course.lessonCount ?? 0;
@@ -69,14 +68,11 @@ export default async function ProgramsPage() {
         id: course._id,
         slug: course.slug?.current ?? "",
         title: course.title ?? "Untitled Program",
-        instructor: course.category?.title
-          ? `${course.category.title} Team`
-          : "Xybersec Instructor",
         difficulty: inferDifficulty(course.tier),
         category: course.category?.title ?? "General",
         lessonCount,
         durationLabel: `${estimatedHours} ${estimatedHours === 1 ? "Hour" : "Hours"}`,
-        thumbnailUrl: course.thumbnail?.asset?.url,
+        description: course.description ?? undefined,
       };
     });
 
@@ -133,18 +129,10 @@ export default async function ProgramsPage() {
     mainEntity: [
       {
         "@type": "Question",
-        name: "Is this course available in Ethiopia?",
+        name: "Is this free?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Yes. Xybersec programs are available for learners across Ethiopia, including Addis Ababa and other regions through online access.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Is Xybersec free?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Xybersec includes free cybersecurity course content in Ethiopia, with beginner-friendly lessons that help you start ethical hacking and cyber defense training.",
+          text: "Yes. Xybersec includes free starter content, and you can unlock deeper path modules as you progress.",
         },
       },
       {
@@ -152,7 +140,15 @@ export default async function ProgramsPage() {
         name: "Do I need experience?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "No previous experience is required. Beginner roadmaps guide Ethiopian learners from fundamentals to advanced penetration testing and blue team skills.",
+          text: "No prior experience is required. The academy starts from fundamentals and guides you into advanced tracks.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Can I learn cybersecurity in Ethiopia?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Absolutely. Xybersec is built for Ethiopian learners with online-first access and structured local relevance.",
         },
       },
       {
@@ -160,194 +156,113 @@ export default async function ProgramsPage() {
         name: "Is ethical hacking legal?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Ethical hacking is legal when performed with permission and within applicable laws. Xybersec teaches responsible, authorized security testing practices.",
+          text: "Ethical hacking is legal only with explicit authorization and within applicable laws. Always test systems you are permitted to assess.",
         },
       },
     ],
   };
 
   return (
-    <div className="min-h-screen bg-[#09090b] text-white">
+    <div className="min-h-screen bg-[#0a0a0f] text-white">
       <StructuredData data={itemListSchema} />
       <StructuredData data={breadcrumbSchema} />
       <StructuredData data={organizationSchema} />
       <StructuredData data={faqSchema} />
-      <main className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-10">
-        <section className="mb-10 rounded-3xl border border-violet-500/20 bg-gradient-to-b from-violet-600/20 via-fuchsia-500/10 to-cyan-500/5 p-10 text-center shadow-xl shadow-violet-950/30">
-          <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Learn Cybersecurity in Ethiopia 🇪🇹
-          </h1>
-          <p className="mx-auto mt-4 max-w-3xl text-zinc-200/90">
-            Start your journey in ethical hacking, penetration testing, and
-            cyber defense with structured roadmaps designed for Ethiopian
-            learners.
-          </p>
-          <p className="mx-auto mt-5 max-w-4xl text-sm leading-7 text-zinc-300 sm:text-base">
-            Xybersec is a cybersecurity learning platform designed for students
-            in Ethiopia who want to learn ethical hacking, penetration testing,
-            and cyber defense skills from beginner to advanced.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3 text-sm">
-            <Link
-              href="/"
-              className="rounded-full border border-cyan-400/40 bg-cyan-400/10 px-4 py-2 text-cyan-100 transition hover:bg-cyan-400/20"
-            >
-              Go to Homepage
-            </Link>
-            <Link
-              href="#roadmaps"
-              className="rounded-full border border-violet-400/40 bg-violet-400/10 px-4 py-2 text-violet-100 transition hover:bg-violet-400/20"
-            >
-              Browse Roadmaps
-            </Link>
+
+      <main className="mx-auto max-w-7xl space-y-10 px-4 py-12 sm:px-6 lg:px-10">
+        <section className="relative overflow-hidden rounded-3xl border border-cyan-400/30 bg-gradient-to-br from-[#15152a] via-[#100f1e] to-[#0a0a0f] p-8 shadow-[0_0_80px_-35px_rgba(34,211,238,0.6)] sm:p-12">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(56,189,248,0.16),_transparent_45%),linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:auto,28px_28px,28px_28px] opacity-55" />
+          <div className="relative z-10 max-w-3xl">
+            <p className="font-mono text-xs uppercase tracking-[0.26em] text-cyan-200/90">
+              Xybersec Academy
+            </p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-5xl">
+              Cybersecurity Career Paths
+            </h1>
+            <p className="mt-4 text-base leading-7 text-zinc-300 sm:text-lg">
+              Follow structured roadmaps to become a Red Teamer, Blue Teamer, or
+              Security Specialist.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Link
+                href="#roadmaps"
+                className="rounded-xl border border-cyan-300/50 bg-cyan-400/10 px-5 py-2.5 font-mono text-sm font-medium text-cyan-100 transition hover:bg-cyan-400/20"
+              >
+                Start Your Journey
+              </Link>
+              <Link
+                href="/academy"
+                className="rounded-xl border border-white/15 bg-white/5 px-5 py-2.5 font-mono text-sm text-zinc-200 transition hover:bg-white/10"
+              >
+                Enter Academy
+              </Link>
+            </div>
           </div>
         </section>
 
-        <section
-          id="roadmaps"
-          className="mb-10 rounded-3xl border border-zinc-800 bg-zinc-900/40 p-6 sm:p-8"
-        >
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Cybersecurity Roadmaps for Ethiopia
+        <RoadmapSection courses={courses} />
+
+        <section className="rounded-3xl border border-white/10 bg-[#10101a] p-6 sm:p-8">
+          <h2 className="font-mono text-2xl font-semibold sm:text-3xl">
+            Why Xybersec?
           </h2>
-          <p className="mt-3 max-w-4xl text-zinc-300">
-            Choose a path and learn hacking in Addis Ababa or from anywhere in
-            Ethiopia with practical, step-by-step course progression.
+          <p className="mt-2 text-zinc-300">
+            Practical, local, and path-based cybersecurity training designed for
+            real career progression.
           </p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <article className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5">
-              <h3 className="text-lg font-semibold text-violet-200">
-                Red Teaming in Ethiopia
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-2xl">🇪🇹</p>
+              <h3 className="mt-3 font-semibold text-cyan-200">
+                Built for Ethiopian learners
               </h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-300">
-                Learn offensive security, exploitation, and hacking techniques
-                used by professionals to simulate real-world attacks.
+              <p className="mt-2 text-sm text-zinc-300">
+                Localized learning context and community-driven support.
               </p>
             </article>
-            <article className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5">
-              <h3 className="text-lg font-semibold text-cyan-200">
-                Blue Team Operations Ethiopia
+            <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-2xl">🗺️</p>
+              <h3 className="mt-3 font-semibold text-cyan-200">
+                Structured learning paths
               </h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-300">
-                Build cyber defense skills, monitoring workflows, and incident
-                response techniques for organizations in Ethiopia.
+              <p className="mt-2 text-sm text-zinc-300">
+                No guessing. Follow clear phases from fundamentals to mastery.
               </p>
             </article>
-            <article className="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-5">
-              <h3 className="text-lg font-semibold text-fuchsia-200">
-                Penetration Testing Ethiopia
+            <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-2xl">🧪</p>
+              <h3 className="mt-3 font-semibold text-cyan-200">
+                Hands-on cybersecurity skills
               </h3>
-              <p className="mt-2 text-sm leading-6 text-zinc-300">
-                Practice penetration testing from scoping to reporting using
-                guided labs and ethical hacking methodologies.
+              <p className="mt-2 text-sm text-zinc-300">
+                Build applied skills with practical lessons and technical
+                workflows.
+              </p>
+            </article>
+            <article className="rounded-2xl border border-white/10 bg-black/20 p-5">
+              <p className="text-2xl">📈</p>
+              <h3 className="mt-3 font-semibold text-cyan-200">
+                Beginner → Advanced progression
+              </h3>
+              <p className="mt-2 text-sm text-zinc-300">
+                Advance at your pace through role-focused tracks and milestones.
               </p>
             </article>
           </div>
-        </section>
-
-        <CoursesGrid
-          courses={courses}
-          categories={categories}
-          hrefBase="/programs"
-          emptyMessage="No programs match your search or selected filter."
-        />
-
-        <section className="mt-12 space-y-6">
-          <article className="rounded-3xl border border-zinc-800 bg-zinc-900/30 p-6 sm:p-8">
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Cybersecurity Courses in Ethiopia
-            </h2>
-            <p className="mt-4 text-zinc-300">
-              If you are searching for a cybersecurity course in Ethiopia,
-              Xybersec gives you structured lessons that blend theory and
-              practical labs. Our programs cover core topics including ethical
-              hacking Ethiopia learners need to understand modern attacks and
-              defenses.
-            </p>
-            <p className="mt-3 text-zinc-300">
-              You can progress from beginner networking and Linux fundamentals
-              into advanced penetration testing and red team strategies. Every
-              pathway is designed to help students in Ethiopia build real skills
-              for internships, job readiness, and long-term cybersecurity
-              careers.
-            </p>
-          </article>
-
-          <article className="rounded-3xl border border-zinc-800 bg-zinc-900/30 p-6 sm:p-8">
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              Free Ethical Hacking Training in Addis Ababa
-            </h2>
-            <p className="mt-4 text-zinc-300">
-              Looking for free cybersecurity course Ethiopia resources? Xybersec
-              provides accessible learning materials for students who want to
-              start with ethical hacking fundamentals before moving to advanced
-              modules.
-            </p>
-            <p className="mt-3 text-zinc-300">
-              Whether you want to learn hacking Addis Ababa communities discuss
-              or study remotely from other cities, our roadmaps make it easier
-              to stay consistent. You can focus on vulnerability assessment, web
-              security, and practical defense concepts at your own pace.
-            </p>
-          </article>
-
-          <article className="rounded-3xl border border-zinc-800 bg-zinc-900/30 p-6 sm:p-8">
-            <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-              How to Start Cybersecurity in Ethiopia
-            </h2>
-            <p className="mt-4 text-zinc-300">
-              Start by choosing one track and following it end-to-end. A
-              beginner should build foundations in networking, operating
-              systems, and security basics, then move into ethical hacking
-              tools, penetration testing workflow, and reporting best practices.
-            </p>
-            <p className="mt-3 text-zinc-300">
-              Join the Xybersec learning path, complete projects, and revisit
-              lessons often. Consistent practice is the fastest way to turn a
-              cybersecurity course in Ethiopia into practical capability you can
-              apply in real environments.
-            </p>
-          </article>
-        </section>
-
-        <section className="mt-12 rounded-3xl border border-violet-500/20 bg-gradient-to-b from-violet-600/10 via-zinc-900/40 to-zinc-900/40 p-6 sm:p-8">
-          <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-            Frequently Asked Questions
-          </h2>
-          <div className="mt-6 space-y-5">
-            <article>
-              <h3 className="text-lg font-medium">
-                Is this course available in Ethiopia?
-              </h3>
-              <p className="mt-1 text-zinc-300">
-                Yes. Xybersec is available across Ethiopia and supports learners
-                in Addis Ababa and beyond.
-              </p>
-            </article>
-            <article>
-              <h3 className="text-lg font-medium">Is Xybersec free?</h3>
-              <p className="mt-1 text-zinc-300">
-                Xybersec includes free cybersecurity course Ethiopia content for
-                beginners, with optional advanced paths.
-              </p>
-            </article>
-            <article>
-              <h3 className="text-lg font-medium">Do I need experience?</h3>
-              <p className="mt-1 text-zinc-300">
-                No experience is needed. Start with beginner lessons and
-                progress into ethical hacking and penetration testing step by
-                step.
-              </p>
-            </article>
-            <article>
-              <h3 className="text-lg font-medium">Is ethical hacking legal?</h3>
-              <p className="mt-1 text-zinc-300">
-                Yes, when done with proper authorization and legal permission.
-                Xybersec teaches responsible ethical hacking practices.
-              </p>
-            </article>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {categories.slice(0, 8).map((category) => (
+              <Badge
+                key={category}
+                variant="secondary"
+                className="rounded-full border border-white/15 bg-white/5 px-3 py-1 font-mono text-zinc-200"
+              >
+                {category}
+              </Badge>
+            ))}
           </div>
         </section>
+
+        <FAQSection />
       </main>
     </div>
   );
