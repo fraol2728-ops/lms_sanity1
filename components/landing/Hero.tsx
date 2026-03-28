@@ -143,7 +143,7 @@ export function Hero({ courses }: HeroProps) {
           variants={fadeUpSoft}
           className="text-balance text-5xl font-light leading-[1.05] text-white sm:text-6xl lg:text-7xl"
         >
-          Offensive <span ClassName="font-bold">Security</span> Through Real-World Training
+          Offensive <span className="font-bold">Security</span> Through Real-World Training
         </motion.h1>
 
         <motion.p
