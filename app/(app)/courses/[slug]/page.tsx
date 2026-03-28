@@ -33,17 +33,17 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${course.title ?? "Course"} | Fraol Course`;
+  const title = `${course.title ?? "Course"} | Xybersec Course`;
   const description =
     course.description ??
-    "Explore this Dev Fraol Academy cybersecurity course and build practical skills in ethical hacking, Linux, networking, and defense.";
+    "Explore this Xybersec cybersecurity course and build practical skills in ethical hacking, Linux, networking, and defense.";
   const thumbnailUrl = course.thumbnail?.asset?.url;
 
   return {
     title,
     description,
     keywords: [
-      "fraol course",
+      "xybersec course",
       course.title ?? "cybersecurity course Ethiopia",
       course.category?.title ?? "ethical hacking Ethiopia",
     ],
@@ -85,10 +85,10 @@ export default async function CoursePage({ params }: CoursePageProps) {
   const courseSchema = {
     "@context": "https://schema.org",
     "@type": "Course",
-    name: course.title ?? "Dev Fraol Academy course",
+    name: course.title ?? "Xybersec course",
     description:
       course.description ??
-      "A structured cybersecurity course from Dev Fraol Academy.",
+      "A structured cybersecurity course from Xybersec.",
     provider: {
       "@type": "Organization",
       name: siteConfig.name,

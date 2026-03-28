@@ -1,40 +1,51 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { StructuredData } from "@/components/seo/StructuredData";
-import { buildMetadata, siteConfig } from "@/lib/seo";
 import { ThemeProvider } from "@/providers/theme-provider";
 import "../styles/globals.css";
 
-const defaultTitle = `${siteConfig.name} | Cybersecurity LMS in Ethiopia`;
+const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.url),
+  metadataBase: new URL("https://xybersec.com"),
   title: {
-    default: defaultTitle,
-    template: `%s | ${siteConfig.name}`,
+    default: "Xybersec | Cybersecurity Learning Platform",
+    template: "%s | Xybersec",
   },
-  applicationName: siteConfig.name,
-  description: siteConfig.description,
-  keywords: siteConfig.keywords,
-  authors: [{ name: siteConfig.creator }],
-  creator: siteConfig.creator,
-  publisher: siteConfig.name,
-  category: "education",
-  ...buildMetadata({
-    title: defaultTitle,
-    description: siteConfig.description,
-    path: "/",
-    keywords: siteConfig.keywords,
-  }),
+  description:
+    "Learn cybersecurity with structured roadmaps: Red Team, Blue Team, Web Pentesting, Malware Development, Reverse Engineering.",
+  keywords: [
+    "cybersecurity",
+    "ethical hacking",
+    "penetration testing",
+    "red team",
+    "blue team",
+    "malware development",
+    "reverse engineering",
+  ],
+  openGraph: {
+    title: "Xybersec",
+    description: "Cybersecurity learning platform",
+    url: "https://xybersec.com",
+    siteName: "Xybersec",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Xybersec",
+    description: "Cybersecurity learning platform",
+    images: ["/logo.png"],
+  },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
   },
   icons: {
     icon: [
@@ -49,13 +60,10 @@ export const metadata: Metadata = {
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: siteConfig.name,
-  alternateName: ["Fraol Academy", "DevFraol Academy"],
-  description: siteConfig.description,
-  url: siteConfig.url,
-  founder: siteConfig.creator,
-  areaServed: ["Ethiopia", "Addis Ababa"],
-  knowsAbout: siteConfig.keywords,
+  name: "Xybersec",
+  url: "https://xybersec.com",
+  logo: "https://xybersec.com/logo.png",
+  sameAs: [],
 };
 
 export default function RootLayout({
@@ -65,7 +73,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased">
+      <body className={`${inter.className} antialiased`}>
         <ThemeProvider>
           <StructuredData data={organizationSchema} />
           {children}

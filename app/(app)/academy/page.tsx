@@ -20,7 +20,7 @@ const ACADEMY_COURSES_QUERY = `*[_type == "academyCourse"] | order(title asc) {
 export const metadata = buildMetadata({
   title: "Academy Training Addis Ababa",
   description:
-    "Explore Dev Fraol Academy physical programs for in-person cybersecurity and IT training in Addis Ababa, Ethiopia.",
+    "Explore Xybersec physical programs for in-person cybersecurity and IT training in Addis Ababa, Ethiopia.",
   path: "/academy",
   keywords: ["networking course Addis Ababa", "IT training Ethiopia"],
 });
