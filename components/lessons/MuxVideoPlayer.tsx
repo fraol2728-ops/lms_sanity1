@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { VideoOff } from "lucide-react";
+import { useEffect, useState } from "react";
 import { getMuxSignedTokens } from "@/lib/actions/mux";
+import { cn } from "@/lib/utils";
 
 interface MuxVideoPlayerProps {
   playbackId: string | null | undefined;
@@ -57,10 +58,13 @@ export function MuxVideoPlayer({
   if (!playbackId) {
     return (
       <div
-        className={`aspect-video bg-zinc-900 rounded-xl flex items-center justify-center ${className}`}
+        className={cn(
+          "aspect-video rounded-none bg-black flex items-center justify-center",
+          className,
+        )}
       >
         <div className="text-center">
-          <VideoOff className="w-12 h-12 text-zinc-600 mx-auto mb-3" />
+          <VideoOff className="mx-auto mb-3 h-12 w-12 text-zinc-600" />
           <p className="text-zinc-500">No video available</p>
         </div>
       </div>
@@ -70,10 +74,13 @@ export function MuxVideoPlayer({
   if (isLoading) {
     return (
       <div
-        className={`aspect-video bg-zinc-900 rounded-xl flex items-center justify-center ${className}`}
+        className={cn(
+          "aspect-video rounded-none bg-black flex items-center justify-center",
+          className,
+        )}
       >
         <div className="text-center">
-          <VideoOff className="w-12 h-12 text-zinc-600 mx-auto mb-3 animate-pulse" />
+          <VideoOff className="mx-auto mb-3 h-12 w-12 animate-pulse text-zinc-600" />
           <p className="text-zinc-500">Loading video...</p>
         </div>
       </div>
@@ -85,9 +92,16 @@ export function MuxVideoPlayer({
       <video
         controls
         preload="metadata"
-        className="w-full aspect-video rounded-xl overflow-hidden bg-black"
+        className="aspect-video w-full bg-black"
         src={`https://stream.mux.com/${playbackId}.m3u8${tokens?.playback ? `?token=${tokens.playback}` : ""}`}
       >
+        <track
+          default
+          kind="captions"
+          label="English"
+          src="data:text/vtt,WEBVTT"
+          srcLang="en"
+        />
         {title ?? "Lesson video"}
       </video>
     </div>

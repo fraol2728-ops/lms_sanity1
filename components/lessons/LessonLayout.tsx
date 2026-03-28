@@ -8,12 +8,12 @@ export function LessonLayout({
   content: React.ReactNode;
 }) {
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 lg:flex-row lg:gap-6 xl:gap-8">
-      <aside className="min-h-0 lg:sticky lg:top-28 lg:h-[calc(100vh-8rem)] lg:w-80 lg:shrink-0">
+    <div className="grid h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[minmax(280px,340px)_1fr] lg:gap-6">
+      <aside className="min-h-0 lg:sticky lg:top-28 lg:h-[calc(100vh-8rem)]">
         {sidebar}
       </aside>
 
-      <section className="min-h-0 flex-1 overflow-y-auto rounded-[2rem] border border-white/10 bg-[#0a1220] p-3 sm:p-4 lg:h-[calc(100vh-8rem)] lg:p-6">
+      <section className="min-h-0 overflow-y-auto rounded-3xl border border-cyan-400/20 bg-[#070d18] p-3 sm:p-4 lg:h-[calc(100vh-8rem)] lg:p-6">
         {content}
       </section>
     </div>
