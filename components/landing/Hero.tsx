@@ -109,7 +109,7 @@ export function Hero({ courses }: HeroProps) {
           ease: "easeInOut",
         }}
       >
-        <Rocket className="h-40 w-40 text-cyan-300/90" />
+        <Rocket className="h-20 w-20 text-cyan-300/90" />
       </motion.div>
 
       <motion.div
@@ -143,7 +143,7 @@ export function Hero({ courses }: HeroProps) {
           variants={fadeUpSoft}
           className="text-balance text-5xl font-light leading-[1.05] text-white sm:text-6xl lg:text-7xl"
         >
-          Offensive Security Through Real-World Training
+          Offensive <span ClassName="font-bold">Security</span> Through Real-World Training
         </motion.h1>
 
         <motion.p
