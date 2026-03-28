@@ -3,7 +3,7 @@ import { buildMetadata } from "@/lib/seo";
 export const metadata = buildMetadata({
   title: "Networking Training Ethiopia",
   description:
-    "Learn networking in Ethiopia with Dev Fraol Academy through structured online lessons that connect network fundamentals to cybersecurity, Linux, and ethical hacking practice.",
+    "Learn networking in Ethiopia with Xybersec through structured online lessons that connect network fundamentals to cybersecurity, Linux, and ethical hacking practice.",
   path: "/networking-training-ethiopia",
   keywords: [
     "networking training Ethiopia",
@@ -21,7 +21,7 @@ export default function NetworkingTrainingEthiopiaPage() {
             Networking Training in Ethiopia
           </h1>
           <p className="max-w-3xl text-zinc-300">
-            Dev Fraol Academy offers networking-focused training for Ethiopian
+            Xybersec offers networking-focused training for Ethiopian
             learners who want to understand routing, protocols, troubleshooting,
             and how networks connect directly to cybersecurity operations.
           </p>

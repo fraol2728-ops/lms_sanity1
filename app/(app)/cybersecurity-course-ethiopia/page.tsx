@@ -4,7 +4,7 @@ import { StructuredData } from "@/components/seo/StructuredData";
 export const metadata = buildMetadata({
   title: "Cybersecurity Course Ethiopia",
   description:
-    "Join Dev Fraol Academy for a cybersecurity course in Ethiopia covering ethical hacking, Linux, networking, blue team fundamentals, and practical career-ready labs.",
+    "Join Xybersec for a cybersecurity course in Ethiopia covering ethical hacking, Linux, networking, blue team fundamentals, and practical career-ready labs.",
   path: "/cybersecurity-course-ethiopia",
   keywords: [
     "cybersecurity course Ethiopia",
@@ -49,7 +49,7 @@ export default function CybersecurityCourseEthiopiaPage() {
             Cybersecurity Course in Ethiopia
           </h1>
           <p className="max-w-3xl text-zinc-300">
-            Dev Fraol Academy helps learners in Ethiopia build real
+            Xybersec helps learners in Ethiopia build real
             cybersecurity skills with structured online training, guided
             practice, and career-focused learning paths created by{" "}
             {siteConfig.creator}.
@@ -57,7 +57,7 @@ export default function CybersecurityCourseEthiopiaPage() {
         </header>
         <section className="space-y-3">
           <h2 className="text-2xl font-semibold">
-            Why learners choose Dev Fraol Academy
+            Why learners choose Xybersec
           </h2>
           <p className="text-zinc-300">
             Our curriculum combines cybersecurity foundations with practical

@@ -10,18 +10,21 @@ import {
   DASHBOARD_COURSES_QUERY,
 } from "@/sanity/lib/queries";
 import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
+import type { Metadata } from "next";
 
-export const metadata = buildMetadata({
-  title: "Cybersecurity Programs Ethiopia",
-  description:
-    "Browse Dev Fraol Academy programs for ethical hacking, cybersecurity, Linux, and networking training in Ethiopia and online.",
-  path: "/programs",
-  keywords: [
-    "fraol program",
-    "cybersecurity program Ethiopia",
-    "online tech programs Ethiopia",
-  ],
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
+    title: "Programs",
+    description:
+      "Explore Xybersec cybersecurity programs covering ethical hacking, penetration testing, blue team operations, and practical security skills.",
+    path: "/programs",
+    keywords: [
+      "cybersecurity programs",
+      "penetration testing training",
+      "ethical hacking program",
+    ],
+  });
+}
 
 interface CategoryResult {
   _id: string;
@@ -65,7 +68,7 @@ export default async function ProgramsPage() {
         title: course.title ?? "Untitled Program",
         instructor: course.category?.title
           ? `${course.category.title} Team`
-          : "Dev Fraol Academy Instructor",
+          : "Xybersec Instructor",
         difficulty: inferDifficulty(course.tier),
         category: course.category?.title ?? "General",
         lessonCount,
@@ -77,7 +80,7 @@ export default async function ProgramsPage() {
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: "Dev Fraol Academy programs",
+    name: "Xybersec programs",
     itemListElement: courses.map((course, index) => ({
       "@type": "Course",
       position: index + 1,

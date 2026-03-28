@@ -13,6 +13,7 @@ import { RoadmapSection } from "@/components/roadmap/roadmap-section";
 import { ProgramShowcaseList } from "@/components/sections/program-showcase-list";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildMetadata, siteConfig } from "@/lib/seo";
+import type { Metadata } from "next";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
   ALL_COURSES_QUERY,
@@ -84,19 +85,20 @@ function getContinueCourse(
   };
 }
 
-export const metadata = buildMetadata({
-  title: "Fraol Academy | Cybersecurity Course Ethiopia",
-  description:
-    "Dev Fraol Academy by Fraol Belachew delivers cybersecurity courses in Ethiopia covering ethical hacking, Linux, networking, and practical online tech training.",
-  path: "/",
-  keywords: [
-    "fraol academy",
-    "devfraol academy",
-    "fraol belachew",
-    "cybersecurity course Ethiopia",
-    "ethical hacking Ethiopia",
-  ],
-});
+export async function generateMetadata(): Promise<Metadata> {
+  return buildMetadata({
+    title: "Cybersecurity Learning Platform",
+    description:
+      "Learn cybersecurity through structured Xybersec roadmaps, hands-on labs, and guided tracks for red team, blue team, and web pentesting.",
+    path: "/",
+    keywords: [
+      "cybersecurity platform",
+      "red team roadmap",
+      "blue team roadmap",
+      "web pentesting",
+    ],
+  });
+}
 
 export default async function Home() {
   const { userId } = await auth();
@@ -145,15 +147,15 @@ export default async function Home() {
     mainEntity: [
       {
         "@type": "Question",
-        name: "What is Dev Fraol Academy?",
+        name: "What is Xybersec?",
         acceptedAnswer: {
           "@type": "Answer",
-          text: "Dev Fraol Academy is an Ethiopian cybersecurity learning platform created by Fraol Belachew for ethical hacking, Linux, networking, and practical cyber security training.",
+          text: "Xybersec is a cybersecurity learning platform for mastering offensive and defensive skills through structured roadmaps and practical labs.",
         },
       },
       {
         "@type": "Question",
-        name: "Does Dev Fraol Academy offer online tech courses in Ethiopia?",
+        name: "Does Xybersec offer online cybersecurity training?",
         acceptedAnswer: {
           "@type": "Answer",
           text: "Yes. The platform offers online tech and cybersecurity courses tailored for learners in Ethiopia, including hands-on content and guided learning paths.",
@@ -179,7 +181,7 @@ export default async function Home() {
     <div className="min-h-screen bg-[#050816] text-white">
       <StructuredData data={faqSchema} />
       <StructuredData data={breadcrumbSchema} />
-      <main aria-label="Dev Fraol Academy homepage">
+      <main aria-label="Xybersec homepage">
         <Hero courses={allCourses} />
         <RoadmapSection courses={allCourses} />
         <ProgramShowcaseList

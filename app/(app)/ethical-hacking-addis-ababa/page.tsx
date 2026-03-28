@@ -4,12 +4,12 @@ import { StructuredData } from "@/components/seo/StructuredData";
 export const metadata = buildMetadata({
   title: "Ethical Hacking Addis Ababa",
   description:
-    "Explore ethical hacking training in Addis Ababa with Dev Fraol Academy, including recon, web testing, Linux skills, and structured cybersecurity practice for Ethiopian learners.",
+    "Explore ethical hacking training in Addis Ababa with Xybersec, including recon, web testing, Linux skills, and structured cybersecurity practice for Ethiopian learners.",
   path: "/ethical-hacking-addis-ababa",
   keywords: [
     "ethical hacking Ethiopia",
     "ethical hacking Addis Ababa",
-    "fraol hacking course",
+    "xybersec ethical hacking",
   ],
 });
 
@@ -22,13 +22,13 @@ export default function EthicalHackingAddisAbabaPage() {
         "@type": "ListItem",
         position: 1,
         name: "Home",
-        item: "https://devfraolacademy.com/",
+        item: "https://xybersec.com/",
       },
       {
         "@type": "ListItem",
         position: 2,
         name: "Ethical Hacking Addis Ababa",
-        item: "https://devfraolacademy.com/ethical-hacking-addis-ababa",
+        item: "https://xybersec.com/ethical-hacking-addis-ababa",
       },
     ],
   };
@@ -43,7 +43,7 @@ export default function EthicalHackingAddisAbabaPage() {
           </h1>
           <p className="max-w-3xl text-zinc-300">
             If you are looking for ethical hacking training in Addis Ababa, Dev
-            Fraol Academy provides a focused path into reconnaissance, web
+            Xybersec provides a focused path into reconnaissance, web
             security, Linux usage, and practical offensive security workflows.
           </p>
         </header>

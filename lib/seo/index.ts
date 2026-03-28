@@ -1,28 +1,25 @@
 import type { Metadata } from "next";
 
 export const siteConfig = {
-  name: "Dev Fraol Academy",
-  shortName: "Dev Fraol Academy",
-  creator: "Fraol Belachew",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://devfraolacademy.com",
+  name: "Xybersec",
+  shortName: "Xybersec",
+  creator: "Xybersec",
+  url: process.env.NEXT_PUBLIC_APP_URL || "https://xybersec.com",
   locale: "en_US",
   description:
-    "Dev Fraol Academy is an Ethiopian cybersecurity LMS founded by Fraol Belachew, offering ethical hacking, Linux, networking, and cyber security training online and in Addis Ababa.",
+    "Learn cybersecurity with structured roadmaps: Red Team, Blue Team, Web Pentesting, Malware Development, Reverse Engineering.",
   keywords: [
-    "fraol academy",
-    "devfraol academy",
-    "fraol belachew",
-    "fraol hacking course",
-    "fraol course",
-    "cybersecurity course Ethiopia",
-    "ethical hacking Ethiopia",
-    "networking course Addis Ababa",
-    "learn Linux Ethiopia",
-    "cyber security training Ethiopia",
-    "IT training Ethiopia",
-    "online tech courses Ethiopia",
+    "cybersecurity",
+    "ethical hacking",
+    "penetration testing",
+    "red team",
+    "blue team",
+    "web pentesting",
+    "malware development",
+    "reverse engineering",
+    "cybersecurity learning platform",
   ],
-  socialImage: "/icon.svg",
+  socialImage: "/logo.png",
 };
 
 export function absoluteUrl(path = "/") {

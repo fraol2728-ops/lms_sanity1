@@ -6,28 +6,33 @@ const COURSE_SLUGS_QUERY = `*[_type == "course" && defined(slug.current)]{ "slug
 const ACADEMY_SLUGS_QUERY = `*[_type == "academyCourse" && defined(slug.current)]{ "slug": slug.current, _updatedAt }`;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date();
+
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: absoluteUrl("/"), lastModified: new Date(), priority: 1 },
-    { url: absoluteUrl("/courses"), lastModified: new Date(), priority: 0.95 },
-    { url: absoluteUrl("/academy"), lastModified: new Date(), priority: 0.9 },
-    { url: absoluteUrl("/paths"), lastModified: new Date(), priority: 0.85 },
-    { url: absoluteUrl("/docs"), lastModified: new Date(), priority: 0.8 },
-    { url: absoluteUrl("/ai"), lastModified: new Date(), priority: 0.8 },
-    { url: absoluteUrl("/pricing"), lastModified: new Date(), priority: 0.75 },
-    { url: absoluteUrl("/community"), lastModified: new Date(), priority: 0.7 },
+    { url: absoluteUrl("/"), lastModified: now, priority: 1 },
+    { url: absoluteUrl("/programs"), lastModified: now, priority: 0.96 },
+    { url: absoluteUrl("/paths"), lastModified: now, priority: 0.94 },
+    { url: absoluteUrl("/docs"), lastModified: now, priority: 0.9 },
+    { url: absoluteUrl("/courses"), lastModified: now, priority: 0.9 },
+    { url: absoluteUrl("/academy"), lastModified: now, priority: 0.88 },
+    { url: absoluteUrl("/community"), lastModified: now, priority: 0.82 },
+    { url: absoluteUrl("/ai"), lastModified: now, priority: 0.8 },
+    { url: absoluteUrl("/pricing"), lastModified: now, priority: 0.75 },
+    { url: absoluteUrl("/leaderboard"), lastModified: now, priority: 0.7 },
+    { url: absoluteUrl("/notes"), lastModified: now, priority: 0.65 },
     {
       url: absoluteUrl("/cybersecurity-course-ethiopia"),
-      lastModified: new Date(),
+      lastModified: now,
       priority: 0.88,
     },
     {
       url: absoluteUrl("/ethical-hacking-addis-ababa"),
-      lastModified: new Date(),
+      lastModified: now,
       priority: 0.88,
     },
     {
       url: absoluteUrl("/networking-training-ethiopia"),
-      lastModified: new Date(),
+      lastModified: now,
       priority: 0.88,
     },
   ];
@@ -42,19 +47,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       }>,
     ]);
 
-    return [
-      ...staticRoutes,
-      ...(courses ?? []).map((course) => ({
+    const courseRoutes = (courses ?? []).flatMap((course) => [
+      {
         url: absoluteUrl(`/courses/${course.slug}`),
         lastModified: new Date(course._updatedAt),
         priority: 0.84,
-      })),
-      ...(academyCourses ?? []).map((course) => ({
-        url: absoluteUrl(`/academy/${course.slug}`),
+      },
+      {
+        url: absoluteUrl(`/programs/${course.slug}`),
         lastModified: new Date(course._updatedAt),
-        priority: 0.82,
-      })),
-    ];
+        priority: 0.84,
+      },
+    ]);
+
+    const academyRoutes = (academyCourses ?? []).map((course) => ({
+      url: absoluteUrl(`/academy/${course.slug}`),
+      lastModified: new Date(course._updatedAt),
+      priority: 0.82,
+    }));
+
+    return [...staticRoutes, ...courseRoutes, ...academyRoutes];
   } catch {
     return staticRoutes;
   }

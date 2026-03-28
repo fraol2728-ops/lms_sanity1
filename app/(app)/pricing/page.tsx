@@ -7,9 +7,9 @@ import { getTierColorClasses, TIER_FEATURES } from "@/lib/constants";
 export const metadata = buildMetadata({
   title: "Pricing",
   description:
-    "Compare Dev Fraol Academy plans for cybersecurity training in Ethiopia, including online tech courses, AI support, and guided learning paths.",
+    "Compare Xybersec plans for cybersecurity training in Ethiopia, including online tech courses, AI support, and guided learning paths.",
   path: "/pricing",
-  keywords: ["fraol academy pricing", "fraol course"],
+  keywords: ["xybersec pricing", "xybersec course"],
 });
 
 export default function PricingPage() {
