@@ -3,21 +3,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ModulesSection } from "@/components/programs/ModulesSection";
 import { ProgramHero } from "@/components/programs/ProgramHero";
-import { RoadmapSection } from "@/components/programs/RoadmapSection";
 import { Sidebar } from "@/components/programs/Sidebar";
 import { absoluteUrl } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
 import { COURSE_WITH_MODULES_QUERY } from "@/sanity/lib/queries";
 
-const ROADMAP_QUERY = `*[_type == "course"] | order(_createdAt desc) {
-  _id,
-  title,
-  description,
-  tier,
-  "slug": slug.current,
-  category->{title},
-  "moduleCount": count(modules)
-}`;
 
 interface ProgramPageProps {
   params: Promise<{ slug: string }>;
@@ -48,15 +38,6 @@ type ProgramCourse = {
   thumbnail?: { asset?: { url?: string | null } | null } | null;
 };
 
-type RoadmapRawCourse = {
-  _id: string;
-  title: string;
-  description?: string | null;
-  tier?: string | null;
-  slug?: string | null;
-  category?: { title?: string | null } | null;
-  moduleCount?: number | null;
-};
 
 async function getCourse(slug: string, userId?: string | null) {
   const { data } = await sanityFetch({
@@ -67,10 +48,6 @@ async function getCourse(slug: string, userId?: string | null) {
   return data as ProgramCourse | null;
 }
 
-async function getRoadmapCourses() {
-  const { data } = await sanityFetch({ query: ROADMAP_QUERY });
-  return (data ?? []) as RoadmapRawCourse[];
-}
 
 function tierToDifficulty(tier?: string | null) {
   if (tier === "ultra") return "Advanced";
@@ -118,10 +95,7 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
   const { slug } = await params;
   const { userId } = await auth();
 
-  const [course, roadmapCourses] = await Promise.all([
-    getCourse(slug, userId),
-    getRoadmapCourses(),
-  ]);
+  const course = await getCourse(slug, userId);
 
   if (!course) {
     notFound();
@@ -164,18 +138,6 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
     ? `/lessons/${firstIncompleteLessonSlug}`
     : startHref;
 
-  const roadmap = roadmapCourses
-    .filter((item) => item.slug)
-    .map((item) => ({
-      id: item._id,
-      title: item.title,
-      slug: item.slug ?? "",
-      description: item.description ?? null,
-      moduleCount: item.moduleCount ?? 0,
-      difficulty: tierToDifficulty(item.tier),
-      categoryTitle: item.category?.title ?? null,
-    }));
-
   const difficulty = tierToDifficulty(course.tier);
   const durationLabel = `~${Math.max(1, lessonCount * 15)} min`;
 
@@ -197,7 +159,6 @@ export default async function ProgramPage({ params }: ProgramPageProps) {
           continueHref={continueHref}
         />
 
-        <RoadmapSection courses={roadmap} />
 
         <div
           id="layout-grid"

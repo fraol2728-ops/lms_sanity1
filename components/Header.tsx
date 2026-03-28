@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/courses", label: "Courses" },
+  { href: "/programs", label: "Programs" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   { href: "/community", label: "Community" },
@@ -28,7 +28,7 @@ const navLinks = [
 const commandPaletteLinks = [
   { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/courses", label: "Courses" },
+  { href: "/dashboard/courses", label: "My Courses" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
   { href: "/community", label: "Community" },
@@ -116,9 +116,9 @@ export function Header() {
                 label={link.label}
                 isScrolled={isScrolled}
                 isActive={
-                  link.href === "/courses"
-                    ? pathname === "/courses" ||
-                      pathname.startsWith("/courses/")
+                  link.href === "/programs"
+                    ? pathname === "/programs" ||
+                      pathname.startsWith("/programs/")
                     : pathname === link.href
                 }
                 isNew={link.isNew}
@@ -209,10 +209,10 @@ export function Header() {
 
             <MobileNavLink href="/" label="Home" isActive={pathname === "/"} />
             <MobileNavLink
-              href="/courses"
-              label="Courses"
+              href="/programs"
+              label="Programs"
               isActive={
-                pathname === "/courses" || pathname.startsWith("/courses/")
+                pathname === "/programs" || pathname.startsWith("/programs/")
               }
             />
             {navLinks.slice(2).map((link) => (

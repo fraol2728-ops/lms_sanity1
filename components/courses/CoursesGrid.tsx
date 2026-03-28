@@ -30,9 +30,16 @@ interface CategoryOption {
 interface CoursesGridProps {
   courses: CatalogCourse[];
   categories: CategoryOption[];
+  hrefBase?: string;
+  emptyMessage?: string;
 }
 
-export function CoursesGrid({ courses, categories }: CoursesGridProps) {
+export function CoursesGrid({
+  courses,
+  categories,
+  hrefBase = "/courses",
+  emptyMessage = "No courses match your search or selected filter.",
+}: CoursesGridProps) {
   const [query, setQuery] = useState("");
   const [selectedFilter, setSelectedFilter] = useState<CourseFilter>("All");
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
@@ -109,7 +116,7 @@ export function CoursesGrid({ courses, categories }: CoursesGridProps) {
             transition={{ duration: 0.35, ease: "easeOut" }}
           >
             <CourseCard
-              href={`/courses/${course.slug}`}
+              href={`${hrefBase}/${course.slug}`}
               title={course.title}
               instructor={course.instructor}
               difficulty={course.difficulty}
@@ -123,7 +130,7 @@ export function CoursesGrid({ courses, categories }: CoursesGridProps) {
 
       {filteredCourses.length === 0 && (
         <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-8 text-center text-zinc-400">
-          No courses match your search or selected filter.
+          {emptyMessage}
         </div>
       )}
     </section>
