@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import {
+  type CareerPath,
   FAQSection,
   type ProgramCourse,
   RoadmapSection,
@@ -11,9 +12,8 @@ import { buildMetadata, siteConfig } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
   COURSES_CATEGORIES_QUERY,
-  DASHBOARD_COURSES_QUERY,
+  PROGRAMS_CAREER_PATHS_QUERY,
 } from "@/sanity/lib/queries";
-import type { DASHBOARD_COURSES_QUERYResult } from "@/sanity.types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
@@ -36,6 +36,20 @@ interface CategoryResult {
   title: string | null;
 }
 
+interface CareerPathResult {
+  _id: string;
+  title: string | null;
+  slug: { current: string | null } | null;
+  description: string | null;
+  tier: string | null;
+  thumbnail: { asset: { url: string | null } | null } | null;
+  lessonCount: number | null;
+  modules: Array<{
+    _id: string;
+    title: string | null;
+    lessonsCount: number | null;
+  }> | null;
+}
 const inferDifficulty = (
   tier: string | null | undefined,
 ): ProgramCourse["difficulty"] => {
@@ -45,36 +59,50 @@ const inferDifficulty = (
 };
 
 export default async function ProgramsPage() {
-  const [{ data: coursesData }, { data: categoriesData }] = (await Promise.all([
+  const [{ data: pathsData }, { data: categoriesData }] = (await Promise.all([
     sanityFetch({
-      query: DASHBOARD_COURSES_QUERY,
-    }) as Promise<{ data: DASHBOARD_COURSES_QUERYResult }>,
+      query: PROGRAMS_CAREER_PATHS_QUERY,
+    }) as Promise<{ data: CareerPathResult[] }>,
     sanityFetch({
       query: COURSES_CATEGORIES_QUERY,
     }) as Promise<{ data: CategoryResult[] }>,
-  ])) as [{ data: DASHBOARD_COURSES_QUERYResult }, { data: CategoryResult[] }];
+  ])) as [{ data: CareerPathResult[] }, { data: CategoryResult[] }];
 
   const categories = categoriesData
     .filter((category) => Boolean(category.title))
     .map((category) => category.title ?? "General");
 
-  const courses: ProgramCourse[] = coursesData
-    .filter((course) => Boolean(course.slug?.current))
-    .map((course) => {
-      const lessonCount = course.lessonCount ?? 0;
-      const estimatedHours = Math.max(1, Math.ceil(lessonCount / 4));
+  const careerPaths: CareerPath[] = pathsData
+    .filter((path) => Boolean(path.slug?.current))
+    .map((path) => ({
+      id: path._id,
+      slug: path.slug?.current ?? "path",
+      title: path.title ?? "Untitled Program",
+      description: path.description ?? "Roadmap details coming soon.",
+      difficulty: inferDifficulty(path.tier),
+      thumbnailUrl: path.thumbnail?.asset?.url ?? undefined,
+      lessonCount: path.lessonCount ?? 0,
+      phases: (path.modules ?? []).map((phase) => ({
+        id: phase._id,
+        title: phase.title ?? "Untitled Phase",
+        lessonsCount: phase.lessonsCount ?? 0,
+      })),
+    }));
 
-      return {
-        id: course._id,
-        slug: course.slug?.current ?? "",
-        title: course.title ?? "Untitled Program",
-        difficulty: inferDifficulty(course.tier),
-        category: course.category?.title ?? "General",
-        lessonCount,
-        durationLabel: `${estimatedHours} ${estimatedHours === 1 ? "Hour" : "Hours"}`,
-        description: course.description ?? undefined,
-      };
-    });
+  const courses: ProgramCourse[] = careerPaths.map((path) => {
+    const estimatedHours = Math.max(1, Math.ceil(path.lessonCount / 4));
+
+    return {
+      id: path.id,
+      slug: path.slug,
+      title: path.title,
+      difficulty: path.difficulty,
+      category: "Career Path",
+      lessonCount: path.lessonCount,
+      durationLabel: `${estimatedHours} ${estimatedHours === 1 ? "Hour" : "Hours"}`,
+      description: path.description,
+    };
+  });
 
   const itemListSchema = {
     "@context": "https://schema.org",
@@ -200,7 +228,7 @@ export default async function ProgramsPage() {
           </div>
         </section>
 
-        <RoadmapSection courses={courses} />
+        <RoadmapSection paths={careerPaths} />
 
         <section className="rounded-3xl border border-white/10 bg-[#10101a] p-6 sm:p-8">
           <h2 className="font-mono text-2xl font-semibold sm:text-3xl">
