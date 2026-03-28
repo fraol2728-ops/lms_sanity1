@@ -1,40 +1,40 @@
-import type React from "react";
 import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import type { TypedObject } from "@portabletext/types";
-import { urlFor } from "@/sanity/lib/image";
 import Image from "next/image";
+import type React from "react";
+import { urlFor } from "@/sanity/lib/image";
 
 const components: PortableTextComponents = {
   block: {
     h1: ({ children }) => (
-      <h1 className="text-3xl font-bold mt-8 mb-4 text-white">{children}</h1>
+      <h1 className="mb-4 mt-8 text-3xl font-bold text-white">{children}</h1>
     ),
     h2: ({ children }) => (
-      <h2 className="text-2xl font-bold mt-6 mb-3 text-white">{children}</h2>
+      <h2 className="mb-3 mt-6 text-2xl font-bold text-white">{children}</h2>
     ),
     h3: ({ children }) => (
-      <h3 className="text-xl font-semibold mt-5 mb-2 text-white">{children}</h3>
+      <h3 className="mb-2 mt-5 text-xl font-semibold text-white">{children}</h3>
     ),
     h4: ({ children }) => (
-      <h4 className="text-lg font-semibold mt-4 mb-2 text-white">{children}</h4>
+      <h4 className="mb-2 mt-4 text-lg font-semibold text-white">{children}</h4>
     ),
     normal: ({ children }) => (
-      <p className="text-zinc-300 leading-relaxed mb-4">{children}</p>
+      <p className="mb-4 leading-relaxed text-zinc-300">{children}</p>
     ),
     blockquote: ({ children }) => (
-      <blockquote className="border-l-4 border-violet-500 pl-4 my-4 italic text-zinc-400">
+      <blockquote className="my-4 border-l-4 border-cyan-500 pl-4 italic text-zinc-400">
         {children}
       </blockquote>
     ),
   },
   list: {
     bullet: ({ children }) => (
-      <ul className="list-disc list-inside space-y-2 mb-4 text-zinc-300">
+      <ul className="mb-4 list-inside list-disc space-y-2 text-zinc-300">
         {children}
       </ul>
     ),
     number: ({ children }) => (
-      <ol className="list-decimal list-inside space-y-2 mb-4 text-zinc-300">
+      <ol className="mb-4 list-inside list-decimal space-y-2 text-zinc-300">
         {children}
       </ol>
     ),
@@ -49,23 +49,33 @@ const components: PortableTextComponents = {
     ),
     em: ({ children }) => <em className="italic">{children}</em>,
     code: ({ children }) => (
-      <code className="bg-zinc-800 px-1.5 py-0.5 rounded text-sm text-violet-300 font-mono">
+      <code className="rounded-md border border-cyan-400/20 bg-black px-1.5 py-0.5 font-mono text-sm text-cyan-300">
         {children}
       </code>
     ),
-    link: ({ children, value }: { children?: React.ReactNode; value?: { href?: string } }) => (
+    link: ({
+      children,
+      value,
+    }: {
+      children?: React.ReactNode;
+      value?: { href?: string };
+    }) => (
       <a
         href={value?.href}
         target="_blank"
         rel="noopener noreferrer"
-        className="text-violet-400 hover:text-violet-300 underline underline-offset-2 transition-colors"
+        className="underline-offset-2 transition-colors hover:text-cyan-200 hover:underline text-cyan-300"
       >
         {children}
       </a>
     ),
   },
   types: {
-    image: ({ value }: { value?: { asset?: unknown; alt?: string; caption?: string } }) => {
+    image: ({
+      value,
+    }: {
+      value?: { asset?: unknown; alt?: string; caption?: string };
+    }) => {
       if (!value?.asset) {
         return null;
       }
@@ -74,7 +84,7 @@ const components: PortableTextComponents = {
 
       return (
         <figure className="my-6">
-          <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-zinc-900">
+          <div className="relative aspect-video w-full overflow-hidden rounded-lg bg-zinc-900">
             <Image
               src={imageUrl}
               alt={value.alt || "Lesson image"}
@@ -83,11 +93,32 @@ const components: PortableTextComponents = {
             />
           </div>
           {value.caption && (
-            <figcaption className="text-sm text-zinc-400 mt-2 text-center italic">
+            <figcaption className="mt-2 text-center text-sm italic text-zinc-400">
               {value.caption}
             </figcaption>
           )}
         </figure>
+      );
+    },
+    code: ({
+      value,
+    }: {
+      value?: { code?: string; language?: string; filename?: string };
+    }) => {
+      if (!value?.code) {
+        return null;
+      }
+
+      return (
+        <div className="my-5 overflow-hidden rounded-xl border border-cyan-500/25 bg-black shadow-[0_0_24px_rgba(34,211,238,0.08)]">
+          <div className="flex items-center justify-between border-b border-white/10 bg-zinc-950/95 px-4 py-2 font-mono text-xs text-zinc-400">
+            <span>{value.filename ?? "terminal"}</span>
+            <span className="text-cyan-300">{value.language ?? "bash"}</span>
+          </div>
+          <pre className="overflow-x-auto p-4 text-sm leading-relaxed text-emerald-300">
+            <code className="font-mono">{value.code}</code>
+          </pre>
+        </div>
       );
     },
   },
@@ -103,7 +134,7 @@ export function LessonContent({ content }: LessonContentProps) {
   }
 
   return (
-    <div className="prose prose-invert max-w-none">
+    <div className="max-w-none">
       <PortableText value={content} components={components} />
     </div>
   );
