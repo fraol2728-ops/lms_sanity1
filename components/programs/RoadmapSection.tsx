@@ -1,7 +1,8 @@
 "use client";
 
+import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { PathCard } from "./PathCard";
 import type { CareerPath, ProgramCourse } from "./types";
 
@@ -239,7 +240,6 @@ interface RoadmapSectionProps {
 
 export function RoadmapSection({ courses }: RoadmapSectionProps) {
   const [selectedPathId, setSelectedPathId] = useState(CAREER_PATHS[0].id);
-  const [isDragging, setIsDragging] = useState(false);
 
   const selectedPath = useMemo(
     () =>
@@ -247,42 +247,6 @@ export function RoadmapSection({ courses }: RoadmapSectionProps) {
       CAREER_PATHS[0],
     [selectedPathId],
   );
-
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const dragStateRef = useRef({
-    active: false,
-    startX: 0,
-    startScrollLeft: 0,
-  });
-
-  const beginDrag = (clientX: number) => {
-    const container = scrollContainerRef.current;
-
-    if (!container) {
-      return;
-    }
-
-    dragStateRef.current.active = true;
-    dragStateRef.current.startX = clientX;
-    dragStateRef.current.startScrollLeft = container.scrollLeft;
-    setIsDragging(true);
-  };
-
-  const continueDrag = (clientX: number) => {
-    const container = scrollContainerRef.current;
-
-    if (!container || !dragStateRef.current.active) {
-      return;
-    }
-
-    const distance = clientX - dragStateRef.current.startX;
-    container.scrollLeft = dragStateRef.current.startScrollLeft - distance;
-  };
-
-  const endDrag = () => {
-    dragStateRef.current.active = false;
-    setIsDragging(false);
-  };
 
   return (
     <section id="roadmaps" className="space-y-6">
@@ -296,40 +260,22 @@ export function RoadmapSection({ courses }: RoadmapSectionProps) {
         </p>
       </div>
 
-      <div className="relative">
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-10 bg-gradient-to-r from-[#0a0a0f] to-transparent" />
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-10 bg-gradient-to-l from-[#0a0a0f] to-transparent" />
-
-        <div
-          ref={scrollContainerRef}
-          className={`flex snap-x snap-mandatory gap-4 overflow-x-auto px-1 pb-3 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden ${
-            isDragging ? "cursor-grabbing" : "cursor-grab"
-          }`}
-          onMouseDown={(event) => beginDrag(event.clientX)}
-          onMouseMove={(event) => {
-            if (!dragStateRef.current.active) {
-              return;
-            }
-
-            event.preventDefault();
-            continueDrag(event.clientX);
-          }}
-          onMouseUp={endDrag}
-          onMouseLeave={endDrag}
-          onTouchStart={(event) => beginDrag(event.touches[0].clientX)}
-          onTouchMove={(event) => continueDrag(event.touches[0].clientX)}
-          onTouchEnd={endDrag}
-          onTouchCancel={endDrag}
-        >
-          {CAREER_PATHS.map((path) => (
+      <div className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:thin]">
+        {CAREER_PATHS.map((path, index) => (
+          <motion.div
+            key={path.id}
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-40px" }}
+            transition={{ delay: index * 0.06, duration: 0.3 }}
+          >
             <PathCard
-              key={path.id}
               path={path}
               isSelected={selectedPath.id === path.id}
               onSelect={setSelectedPathId}
             />
-          ))}
-        </div>
+          </motion.div>
+        ))}
       </div>
 
       <PathDetails path={selectedPath} courses={courses} />
