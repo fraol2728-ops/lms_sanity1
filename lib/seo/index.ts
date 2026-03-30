@@ -25,14 +25,17 @@ function normalizeSiteUrl(url?: string) {
 }
 
 export const siteConfig = {
-  name: "DevFraol",
-  shortName: "DevFraol",
+  name: "Xybersec Academy by DevFraol",
+  shortName: "Xybersec Academy",
   creator: "DevFraol",
   url: normalizeSiteUrl(process.env.NEXT_PUBLIC_APP_URL),
   locale: "en_US",
   description:
-    "Learn cybersecurity and technology with structured paths, hands-on labs, and practical roadmaps.",
+    "Xybersec Academy by DevFraol helps learners master cybersecurity and technology with structured paths, hands-on labs, and practical roadmaps.",
   keywords: [
+    "xybersec",
+    "xybersec academy",
+    "xyber sec",
     "cybersecurity",
     "ethical hacking",
     "penetration testing",

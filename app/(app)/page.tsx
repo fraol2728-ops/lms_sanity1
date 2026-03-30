@@ -88,11 +88,13 @@ function getContinueCourse(
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
-    title: "Cybersecurity Learning Platform",
+    title: "Xybersec Academy Cybersecurity Learning Platform",
     description:
-      "Learn cybersecurity through structured Xybersec roadmaps, hands-on labs, and guided tracks for red team, blue team, and web pentesting.",
+      "Xybersec Academy by DevFraol teaches cybersecurity through structured Xybersec roadmaps, hands-on labs, and guided tracks for red team, blue team, and web pentesting.",
     path: "/",
     keywords: [
+      "xybersec academy",
+      "xybersec",
       "cybersecurity platform",
       "red team roadmap",
       "blue team roadmap",
