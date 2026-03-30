@@ -60,10 +60,6 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
   const isPointerDownRef = useRef(false);
   const startXRef = useRef(0);
   const startScrollLeftRef = useRef(0);
-  const lastPointerXRef = useRef(0);
-  const lastPointerTimeRef = useRef(0);
-  const velocityRef = useRef(0);
-  const inertiaFrameRef = useRef<number | null>(null);
   const centerSyncFrameRef = useRef<number | null>(null);
   const hasDraggedRef = useRef(false);
   const isAutoSnappingRef = useRef(false);
@@ -85,13 +81,6 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     () => safePaths.find((path) => path.id === activePathId) ?? safePaths[0],
     [activePathId, safePaths],
   );
-
-  const stopInertia = useCallback(() => {
-    if (inertiaFrameRef.current !== null) {
-      window.cancelAnimationFrame(inertiaFrameRef.current);
-      inertiaFrameRef.current = null;
-    }
-  }, []);
 
   const enforceLoopBounds = useCallback(() => {
     const container = scrollerRef.current;
@@ -262,7 +251,6 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         window.clearTimeout(throttleTimeoutRef.current);
         throttleTimeoutRef.current = null;
       }
-      stopInertia();
       if (centerSyncFrameRef.current !== null) {
         window.cancelAnimationFrame(centerSyncFrameRef.current);
       }
@@ -270,7 +258,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         window.cancelAnimationFrame(lightingFrameRef.current);
       }
     };
-  }, [safePaths.length, scheduleCenterSync, snapToNearestCard, stopInertia]);
+  }, [safePaths.length, scheduleCenterSync, snapToNearestCard]);
 
   const centerCard = useCallback(
     (pathId: string, behavior: ScrollBehavior = "smooth") => {
@@ -292,41 +280,19 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     [safePaths, scheduleCenterSync],
   );
 
-  const runInertia = useCallback(() => {
-    const container = scrollerRef.current;
-    if (!container) return;
-
-    velocityRef.current *= 0.95;
-
-    if (Math.abs(velocityRef.current) < 0.15) {
-      stopInertia();
-      velocityRef.current = 0;
-      snapToNearestCard();
-      return;
-    }
-
-    container.scrollLeft -= velocityRef.current;
-    scheduleCenterSync();
-    inertiaFrameRef.current = window.requestAnimationFrame(runInertia);
-  }, [scheduleCenterSync, snapToNearestCard, stopInertia]);
-
   const onPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       const container = scrollerRef.current;
       if (!container) return;
 
-      stopInertia();
       isPointerDownRef.current = true;
       hasDraggedRef.current = false;
       startXRef.current = event.clientX;
-      lastPointerXRef.current = event.clientX;
-      lastPointerTimeRef.current = performance.now();
-      velocityRef.current = 0;
       startScrollLeftRef.current = container.scrollLeft;
 
       container.setPointerCapture(event.pointerId);
     },
-    [stopInertia],
+    [],
   );
 
   const onPointerMove = useCallback(
@@ -340,13 +306,6 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       if (Math.abs(delta) > 4) {
         hasDraggedRef.current = true;
       }
-
-      const now = performance.now();
-      const frameDelta = event.clientX - lastPointerXRef.current;
-      const elapsed = Math.max(1, now - lastPointerTimeRef.current);
-      velocityRef.current = (frameDelta / elapsed) * 16;
-      lastPointerXRef.current = event.clientX;
-      lastPointerTimeRef.current = now;
 
       container.scrollLeft = startScrollLeftRef.current - delta;
       scheduleCenterSync();
@@ -363,33 +322,33 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       isPointerDownRef.current = false;
       container.releasePointerCapture(event.pointerId);
 
-      if (Math.abs(velocityRef.current) > 0.2) {
-        inertiaFrameRef.current = window.requestAnimationFrame(runInertia);
-      } else {
-        snapToNearestCard();
-      }
+      snapToNearestCard();
 
       window.setTimeout(() => {
         hasDraggedRef.current = false;
       }, 0);
     },
-    [runInertia, snapToNearestCard],
+    [snapToNearestCard],
   );
 
   const scrollByStep = useCallback(
     (direction: "left" | "right") => {
-      const container = scrollerRef.current;
-      if (!container || !cardStepRef.current) return;
-      stopInertia();
+      if (!safePaths.length) return;
+
+      const currentIndex = safePaths.findIndex(
+        (path) => path.id === activePathId,
+      );
       const directionStep = direction === "left" ? -1 : 1;
-      const nextLeft =
-        container.scrollLeft + directionStep * cardStepRef.current;
-      container.scrollTo({ left: nextLeft, behavior: "smooth" });
-      window.setTimeout(() => {
-        snapToNearestCard();
-      }, 260);
+      const fallbackIndex = 0;
+      const normalizedCurrentIndex =
+        currentIndex >= 0 ? currentIndex : fallbackIndex;
+      const nextIndex =
+        (normalizedCurrentIndex + directionStep + safePaths.length) %
+        safePaths.length;
+
+      centerCard(safePaths[nextIndex].id);
     },
-    [snapToNearestCard, stopInertia],
+    [activePathId, centerCard, safePaths],
   );
 
   const onScroll = useCallback(
