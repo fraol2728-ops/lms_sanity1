@@ -1,13 +1,27 @@
 import type { Metadata } from "next";
 
 function normalizeSiteUrl(url?: string) {
+  const fallbackUrl = "https://devfraol.com.et";
+
   if (!url) {
-    return "https://devfraol.com.et";
+    return fallbackUrl;
   }
 
   const normalized = url.startsWith("http") ? url : `https://${url}`;
+  const sanitized = normalized.replace(/\/+$/, "");
 
-  return normalized.replace(/\/+$/, "");
+  try {
+    const parsed = new URL(sanitized);
+    const legacyHosts = new Set(["xybersec.com", "www.xybersec.com"]);
+
+    if (legacyHosts.has(parsed.hostname)) {
+      return fallbackUrl;
+    }
+  } catch {
+    return fallbackUrl;
+  }
+
+  return sanitized;
 }
 
 export const siteConfig = {
