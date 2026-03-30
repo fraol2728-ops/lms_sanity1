@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { StructuredData } from "@/components/seo/StructuredData";
-import { ThemeProvider } from "@/providers/theme-provider";
 import "../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
@@ -72,12 +71,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en">
       <body className={`${inter.className} antialiased`}>
-        <ThemeProvider>
-          <StructuredData data={organizationSchema} />
-          {children}
-        </ThemeProvider>
+        <StructuredData data={organizationSchema} />
+        {children}
       </body>
     </html>
   );
