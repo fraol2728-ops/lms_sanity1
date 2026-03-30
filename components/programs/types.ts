@@ -12,6 +12,7 @@ export interface ProgramCourse {
 export interface PathPhase {
   id: string;
   title: string;
+  description?: string;
   lessonsCount: number;
 }
 

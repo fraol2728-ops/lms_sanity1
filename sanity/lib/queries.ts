@@ -126,6 +126,7 @@ export const PROGRAMS_CAREER_PATHS_QUERY = defineQuery(`*[
   modules[]-> {
     _id,
     title,
+    description,
     "lessonsCount": count(lessons[])
   },
   "lessonCount": count(modules[]->lessons[])
