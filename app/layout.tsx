@@ -56,6 +56,7 @@ const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
   name: siteConfig.name,
+  alternateName: ["Xybersec", "Xybersec Academy", "DevFraol Academy"],
   url: siteConfig.url,
   logo: `${siteConfig.url}/logo.png`,
   sameAs: [],
