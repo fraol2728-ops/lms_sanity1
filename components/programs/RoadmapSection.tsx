@@ -189,7 +189,6 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         const containerRect = container.getBoundingClientRect();
         const containerCenter = containerRect.left + containerRect.width / 2;
         const maxDistance = containerRect.width * (isMobile ? 0.95 : 0.8);
-        const maxBlur = isMobile ? 3 : 6;
         const cards = Array.from(
           container.querySelectorAll<HTMLElement>("[data-path-id]"),
         );
@@ -201,15 +200,13 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
             1,
             Math.abs(cardCenter - containerCenter) / maxDistance,
           );
-          const blurPx = Number((ratio * maxBlur).toFixed(2));
           const scale = Number(
-            (1 - ratio * (isMobile ? 0.04 : 0.08)).toFixed(3),
+            (1 - ratio * (isMobile ? 0.03 : 0.06)).toFixed(3),
           );
           const opacity = Number(
-            (1 - ratio * (isMobile ? 0.25 : 0.35)).toFixed(3),
+            (1 - ratio * (isMobile ? 0.2 : 0.3)).toFixed(3),
           );
 
-          card.style.setProperty("--card-blur", `${blurPx}px`);
           card.style.setProperty("--card-scale", `${scale}`);
           card.style.setProperty("--card-opacity", `${opacity}`);
         }
@@ -290,8 +287,9 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
 
       container.scrollTo({ left: leftTarget, behavior });
       setActivePathId(pathId);
+      scheduleCenterSync();
     },
-    [safePaths],
+    [safePaths, scheduleCenterSync],
   );
 
   const runInertia = useCallback(() => {
@@ -381,24 +379,17 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
   const scrollByStep = useCallback(
     (direction: "left" | "right") => {
       const container = scrollerRef.current;
-      if (!container || !safePaths.length) return;
+      if (!container || !cardStepRef.current) return;
       stopInertia();
-
       const directionStep = direction === "left" ? -1 : 1;
-      const baseSetOffset = singleSetWidthRef.current;
-      const currentRawIndex =
-        (container.scrollLeft - baseSetOffset) / cardStepRef.current;
-      const targetIndex = Math.round(currentRawIndex) + directionStep;
-      const normalizedIndex =
-        ((targetIndex % safePaths.length) + safePaths.length) %
-        safePaths.length;
-      const targetPath = safePaths[normalizedIndex];
-
-      if (targetPath) {
-        centerCard(targetPath.id);
-      }
+      const nextLeft =
+        container.scrollLeft + directionStep * cardStepRef.current;
+      container.scrollTo({ left: nextLeft, behavior: "smooth" });
+      window.setTimeout(() => {
+        snapToNearestCard();
+      }, 260);
     },
-    [centerCard, safePaths, stopInertia],
+    [snapToNearestCard, stopInertia],
   );
 
   const onScroll = useCallback(
@@ -489,7 +480,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         <div
           ref={scrollerRef}
           role="presentation"
-          className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-140px)] pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-180px)] pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           onScroll={onScroll}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -517,7 +508,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       <PathDetails path={activePath} />
       <div>
         <Link
-          href={`/academy/${activePath.slug}`}
+          href={`/programs/${activePath.slug}`}
           className="inline-flex items-center rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2.5 font-mono text-sm font-medium text-cyan-100 transition hover:border-cyan-200/70 hover:bg-cyan-400/20"
         >
           Start Path →
