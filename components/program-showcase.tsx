@@ -53,31 +53,40 @@ export function ProgramShowcase({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.6 }}
-      className="border-b border-border py-16 md:py-24"
+      className="border-b border-slate-700/60 bg-[#0f172a] py-14 md:py-20"
     >
       <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 md:grid-cols-2 lg:px-12">
-        <div className={cn("space-y-6", reverse && "md:order-2")}>
-          <h2 className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+        <div
+          className={cn(
+            "space-y-6 rounded-2xl border border-slate-700/70 bg-[#111827] p-6 shadow-[0_18px_45px_rgba(6,182,212,0.12)] md:p-8",
+            reverse && "md:order-2",
+          )}
+        >
+          <h2 className="text-3xl font-bold tracking-tight text-[#e5e7eb] md:text-4xl">
             {title}
           </h2>
-          <p className="max-w-xl text-base leading-relaxed text-muted-foreground md:text-lg">
+          <p className="max-w-xl text-base leading-relaxed text-[#9ca3af] md:text-lg">
             {description}
           </p>
           <div className="flex flex-wrap gap-3">
             <Badge
               variant="secondary"
-              className="border border-border bg-muted/50 px-3 py-1"
+              className="border border-slate-600/80 bg-slate-800/70 px-3 py-1 text-[#9ca3af]"
             >
               {level}
             </Badge>
             <Badge
               variant="secondary"
-              className="border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-cyan-200"
+              className="border border-cyan-400/30 bg-cyan-500/15 px-3 py-1 text-cyan-200"
             >
               {category}
             </Badge>
           </div>
-          <Button asChild size="lg" className="group">
+          <Button
+            asChild
+            size="lg"
+            className="group border border-cyan-300/30 bg-gradient-to-r from-cyan-500/80 to-sky-500/80 text-[#e5e7eb] hover:from-cyan-400 hover:to-sky-400"
+          >
             <Link
               href={
                 program.slug?.current ? `/courses/${program.slug.current}` : "#"
@@ -92,17 +101,20 @@ export function ProgramShowcase({
         </div>
 
         <div className={cn("relative", reverse && "md:order-1")}>
-          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-border/70 bg-muted/20 shadow-[0_0_30px_rgba(34,211,238,0.15)]">
+          <div className="relative aspect-[16/10] overflow-hidden rounded-2xl border border-slate-700/80 bg-[#111827] shadow-[0_16px_40px_rgba(15,23,42,0.65)]">
             {imageUrl ? (
-              <Image
-                src={imageUrl}
-                alt={title}
-                fill
-                sizes="(max-width: 768px) 100vw, 50vw"
-                className="object-cover"
-              />
+              <>
+                <Image
+                  src={imageUrl}
+                  alt={title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a]/90 via-[#0f172a]/35 to-transparent" />
+              </>
             ) : (
-              <div className="h-full w-full bg-gradient-to-br from-cyan-500/20 via-transparent to-violet-500/20" />
+              <div className="h-full w-full bg-gradient-to-br from-cyan-500/25 via-slate-800/60 to-[#0f172a]" />
             )}
           </div>
         </div>
