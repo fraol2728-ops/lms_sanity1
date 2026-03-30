@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
@@ -7,50 +8,64 @@ import type { CareerPath } from "./types";
 
 interface PathCardProps {
   path: CareerPath;
-  isSelected: boolean;
+  isActive: boolean;
   onSelect: (id: string) => void;
-  styleState: {
-    scale: number;
-    opacity: number;
-    blur: number;
-  };
+  reducedMotionScale?: boolean;
 }
 
 export function PathCard({
   path,
-  isSelected,
+  isActive,
   onSelect,
-  styleState,
+  reducedMotionScale = false,
 }: PathCardProps) {
-  return (
+  const activeScale = reducedMotionScale ? 1.02 : 1.05;
+  const inactiveScale = reducedMotionScale ? 0.96 : 0.92;
 
-        isSelected
-          ? "border-cyan-400/70 shadow-[0_0_0_1px_rgba(34,211,238,0.2)]"
-          : "hover:border-cyan-300/40",
+  return (
+    <motion.article
+      data-path-id={path.id}
+      animate={{
+        scale: isActive ? activeScale : inactiveScale,
+        opacity: isActive ? 1 : 0.6,
+      }}
+      transition={{ duration: 0.28, ease: "easeOut" }}
+      className={cn(
+        "group relative h-[160px] w-[250px] shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-[#11111c]",
+        isActive
+          ? "border-cyan-300/70 shadow-[0_0_0_1px_rgba(34,211,238,0.24),0_0_30px_rgba(56,189,248,0.18)]"
+          : "shadow-[0_10px_25px_rgba(0,0,0,0.35)]",
       )}
     >
       <button
         type="button"
         onClick={() => onSelect(path.id)}
-        className="flex w-full flex-col text-left"
-        aria-label={`Open ${path.title} path details`}
+        className="relative h-full w-full text-left"
+        aria-label={`Center ${path.title} path card`}
+      >
+        {path.thumbnailUrl ? (
+          <Image
+            src={path.thumbnailUrl}
+            alt={path.title}
+            fill
+            className="object-cover"
+            sizes="250px"
+          />
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-black" />
+        )}
 
-          </span>
-          <span className="text-xs text-zinc-400">
-            {path.phases.length} phases
-          </span>
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent" />
 
-
-            {path.description}
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-between px-3 py-2.5">
+          <p className="line-clamp-1 font-mono text-sm font-medium text-white">
+            {path.title}
           </p>
-
-          <span className="inline-flex items-center gap-1.5 font-mono text-sm text-cyan-300 transition-colors group-hover:text-cyan-200">
-            Explore path
-            <ArrowRight className="size-4" />
+          <span className="rounded-full border border-white/20 bg-black/35 p-1 text-zinc-100">
+            <ArrowRight className="size-3.5" />
           </span>
         </div>
       </button>
-    </article>
+    </motion.article>
   );
 }

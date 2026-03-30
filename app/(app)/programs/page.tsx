@@ -47,6 +47,7 @@ interface CareerPathResult {
   modules: Array<{
     _id: string;
     title: string | null;
+    description: string | null;
     lessonsCount: number | null;
   }> | null;
 }
@@ -85,6 +86,7 @@ export default async function ProgramsPage() {
       phases: (path.modules ?? []).map((phase) => ({
         id: phase._id,
         title: phase.title ?? "Untitled Phase",
+        description: phase.description ?? undefined,
         lessonsCount: phase.lessonsCount ?? 0,
       })),
     }));
