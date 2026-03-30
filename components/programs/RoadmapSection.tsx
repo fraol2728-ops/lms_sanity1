@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import {
   memo,
   type PointerEvent as ReactPointerEvent,
+  type UIEvent as ReactUIEvent,
   useCallback,
   useEffect,
   useMemo,
@@ -31,18 +32,37 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     () => paths.filter((path) => Boolean(path.id)),
     [paths],
   );
+  const loopedPaths = useMemo(
+    () =>
+      Array.from({ length: 3 }, (_, setIndex) =>
+        safePaths.map((path, originalIndex) => ({
+          originalId: path.id,
+          originalIndex,
+          loopSetIndex: setIndex,
+          key: `${path.id}-${setIndex}`,
+          path,
+        })),
+      ).flat(),
+    [safePaths],
+  );
   const [activePathId, setActivePathId] = useState<string>(
     safePaths[0]?.id ?? "",
   );
   const [isMobile, setIsMobile] = useState(false);
   const [parallaxX, setParallaxX] = useState(0);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const cardStepRef = useRef(304);
+  const cardStepRef = useRef(0);
+  const singleSetWidthRef = useRef(0);
   const isPointerDownRef = useRef(false);
   const startXRef = useRef(0);
   const startScrollLeftRef = useRef(0);
+  const lastPointerXRef = useRef(0);
+  const lastPointerTimeRef = useRef(0);
+  const velocityRef = useRef(0);
+  const inertiaFrameRef = useRef<number | null>(null);
+  const centerSyncFrameRef = useRef<number | null>(null);
   const hasDraggedRef = useRef(false);
-  const tickingRef = useRef(false);
+  const isAutoSnappingRef = useRef(false);
   const throttleTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
@@ -58,9 +78,37 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     [activePathId, safePaths],
   );
 
-  const detectActiveCard = useCallback(() => {
+  const stopInertia = useCallback(() => {
+    if (inertiaFrameRef.current !== null) {
+      window.cancelAnimationFrame(inertiaFrameRef.current);
+      inertiaFrameRef.current = null;
+    }
+  }, []);
+
+  const enforceLoopBounds = useCallback(() => {
     const container = scrollerRef.current;
-    if (!container) return;
+    if (!container || !safePaths.length) return;
+
+    const singleSetWidth = singleSetWidthRef.current;
+    if (!singleSetWidth) return;
+
+    const left = container.scrollLeft;
+    const minLeft = singleSetWidth * 0.5;
+    const maxLeft = singleSetWidth * 2.5;
+
+    if (left <= minLeft) {
+      container.scrollLeft = left + singleSetWidth;
+      return;
+    }
+
+    if (left >= maxLeft) {
+      container.scrollLeft = left - singleSetWidth;
+    }
+  }, [safePaths.length]);
+
+  const resolveCenteredCard = useCallback(() => {
+    const container = scrollerRef.current;
+    if (!container) return null;
 
     const containerRect = container.getBoundingClientRect();
     const containerCenter = containerRect.left + containerRect.width / 2;
@@ -68,9 +116,9 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       container.querySelectorAll<HTMLElement>("[data-path-id]"),
     );
 
-    if (!cards.length) return;
+    if (!cards.length) return null;
 
-    let nearestId = cards[0].dataset.pathId ?? "";
+    let nearest: HTMLElement | null = cards[0];
     let nearestDistance = Number.POSITIVE_INFINITY;
 
     for (const card of cards) {
@@ -80,38 +128,64 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
 
       if (distance < nearestDistance) {
         nearestDistance = distance;
-        nearestId = card.dataset.pathId ?? "";
+        nearest = card;
       }
     }
 
+    return nearest;
+  }, []);
+
+  const snapToNearestCard = useCallback(
+    (behavior: ScrollBehavior = "smooth") => {
+      const container = scrollerRef.current;
+      if (!container) return;
+
+      const nearestCard = resolveCenteredCard();
+      if (!nearestCard) return;
+
+      const cardLeft = nearestCard.offsetLeft;
+      const cardWidth = nearestCard.offsetWidth;
+      const leftTarget = cardLeft - container.clientWidth / 2 + cardWidth / 2;
+
+      isAutoSnappingRef.current = true;
+      container.scrollTo({ left: leftTarget, behavior });
+
+      window.setTimeout(
+        () => {
+          isAutoSnappingRef.current = false;
+        },
+        behavior === "smooth" ? 260 : 0,
+      );
+    },
+    [resolveCenteredCard],
+  );
+
+  const detectActiveCard = useCallback(() => {
+    const nearestCard = resolveCenteredCard();
+    if (!nearestCard) return;
+    const nearestId = nearestCard.dataset.pathId ?? "";
     if (nearestId && nearestId !== activePathId) {
       setActivePathId(nearestId);
     }
-  }, [activePathId]);
+  }, [activePathId, resolveCenteredCard]);
 
-  const scheduleActiveDetection = useCallback(
-    (scrollLeft?: number) => {
-      if (tickingRef.current) return;
+  const scheduleCenterSync = useCallback(() => {
+    if (centerSyncFrameRef.current !== null) return;
 
-      tickingRef.current = true;
-      window.requestAnimationFrame(() => {
+    centerSyncFrameRef.current = window.requestAnimationFrame(() => {
+      const container = scrollerRef.current;
+      if (container) {
+        enforceLoopBounds();
         detectActiveCard();
-        if (typeof scrollLeft === "number") {
-          setParallaxX(-scrollLeft * 0.2);
-        }
-        tickingRef.current = false;
-      });
-    },
-    [detectActiveCard],
-  );
-
-  useEffect(() => {
-    scheduleActiveDetection();
-  }, [scheduleActiveDetection]);
+        setParallaxX(-container.scrollLeft * 0.2);
+      }
+      centerSyncFrameRef.current = null;
+    });
+  }, [detectActiveCard, enforceLoopBounds]);
 
   useEffect(() => {
     const container = scrollerRef.current;
-    if (!container) return;
+    if (!container || !safePaths.length) return;
 
     const firstCard = container.querySelector<HTMLElement>("[data-path-id]");
     if (firstCard) {
@@ -119,18 +193,11 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         window.getComputedStyle(container).columnGap || "0",
       );
       cardStepRef.current = firstCard.offsetWidth + gap;
+      singleSetWidthRef.current = cardStepRef.current * safePaths.length;
+      container.scrollLeft = singleSetWidthRef.current;
+      snapToNearestCard("auto");
     }
-
-    const onScroll = () => {
-      if (throttleTimeoutRef.current !== null) return;
-
-      throttleTimeoutRef.current = window.setTimeout(() => {
-        throttleTimeoutRef.current = null;
-        scheduleActiveDetection(container.scrollLeft);
-      }, 16);
-    };
-
-    container.addEventListener("scroll", onScroll, { passive: true });
+    scheduleCenterSync();
 
     const mq = window.matchMedia("(max-width: 767px)");
     const handleMediaChange = () => setIsMobile(mq.matches);
@@ -138,43 +205,72 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     mq.addEventListener("change", handleMediaChange);
 
     return () => {
-      container.removeEventListener("scroll", onScroll);
       mq.removeEventListener("change", handleMediaChange);
       if (throttleTimeoutRef.current !== null) {
         window.clearTimeout(throttleTimeoutRef.current);
         throttleTimeoutRef.current = null;
       }
+      stopInertia();
+      if (centerSyncFrameRef.current !== null) {
+        window.cancelAnimationFrame(centerSyncFrameRef.current);
+      }
     };
-  }, [scheduleActiveDetection]);
+  }, [safePaths.length, scheduleCenterSync, snapToNearestCard, stopInertia]);
 
-  const centerCard = useCallback((pathId: string) => {
+  const centerCard = useCallback(
+    (pathId: string, behavior: ScrollBehavior = "smooth") => {
+      const container = scrollerRef.current;
+      if (!container || !safePaths.length) return;
+
+      const pathIndex = safePaths.findIndex((path) => path.id === pathId);
+      if (pathIndex < 0) return;
+      const targetIndex = safePaths.length + pathIndex;
+      const leftTarget =
+        targetIndex * cardStepRef.current +
+        cardStepRef.current / 2 -
+        container.clientWidth / 2;
+
+      container.scrollTo({ left: leftTarget, behavior });
+      setActivePathId(pathId);
+    },
+    [safePaths],
+  );
+
+  const runInertia = useCallback(() => {
     const container = scrollerRef.current;
-    const card = container?.querySelector<HTMLElement>(
-      `[data-path-id="${pathId}"]`,
-    );
+    if (!container) return;
 
-    if (!container || !card) return;
+    velocityRef.current *= 0.95;
 
-    const leftTarget =
-      card.offsetLeft - container.clientWidth / 2 + card.clientWidth / 2;
+    if (Math.abs(velocityRef.current) < 0.15) {
+      stopInertia();
+      velocityRef.current = 0;
+      snapToNearestCard();
+      return;
+    }
 
-    container.scrollTo({ left: Math.max(0, leftTarget), behavior: "smooth" });
-    setActivePathId(pathId);
-  }, []);
+    container.scrollLeft -= velocityRef.current;
+    scheduleCenterSync();
+    inertiaFrameRef.current = window.requestAnimationFrame(runInertia);
+  }, [scheduleCenterSync, snapToNearestCard, stopInertia]);
 
   const onPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       const container = scrollerRef.current;
       if (!container) return;
 
+      stopInertia();
       isPointerDownRef.current = true;
       hasDraggedRef.current = false;
       startXRef.current = event.clientX;
+      lastPointerXRef.current = event.clientX;
+      lastPointerTimeRef.current = performance.now();
+      velocityRef.current = 0;
       startScrollLeftRef.current = container.scrollLeft;
 
       container.setPointerCapture(event.pointerId);
     },
-    [],
+    [stopInertia],
   );
 
   const onPointerMove = useCallback(
@@ -189,9 +285,17 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         hasDraggedRef.current = true;
       }
 
+      const now = performance.now();
+      const frameDelta = event.clientX - lastPointerXRef.current;
+      const elapsed = Math.max(1, now - lastPointerTimeRef.current);
+      velocityRef.current = (frameDelta / elapsed) * 16;
+      lastPointerXRef.current = event.clientX;
+      lastPointerTimeRef.current = now;
+
       container.scrollLeft = startScrollLeftRef.current - delta;
+      scheduleCenterSync();
     },
-    [],
+    [scheduleCenterSync],
   );
 
   const onPointerUp = useCallback(
@@ -203,22 +307,52 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       isPointerDownRef.current = false;
       container.releasePointerCapture(event.pointerId);
 
+      if (Math.abs(velocityRef.current) > 0.2) {
+        inertiaFrameRef.current = window.requestAnimationFrame(runInertia);
+      } else {
+        snapToNearestCard();
+      }
+
       window.setTimeout(() => {
         hasDraggedRef.current = false;
       }, 0);
     },
-    [],
+    [runInertia, snapToNearestCard],
   );
 
-  const scrollByStep = useCallback((direction: "left" | "right") => {
-    const container = scrollerRef.current;
-    if (!container) return;
+  const scrollByStep = useCallback(
+    (direction: "left" | "right") => {
+      const container = scrollerRef.current;
+      if (!container || !safePaths.length) return;
+      stopInertia();
 
-    container.scrollBy({
-      left: direction === "left" ? -cardStepRef.current : cardStepRef.current,
-      behavior: "smooth",
-    });
-  }, []);
+      const directionStep = direction === "left" ? -1 : 1;
+      const baseSetOffset = singleSetWidthRef.current;
+      const currentRawIndex =
+        (container.scrollLeft - baseSetOffset) / cardStepRef.current;
+      const targetIndex = Math.round(currentRawIndex) + directionStep;
+      const normalizedIndex =
+        ((targetIndex % safePaths.length) + safePaths.length) %
+        safePaths.length;
+      const targetPath = safePaths[normalizedIndex];
+
+      if (targetPath) {
+        centerCard(targetPath.id);
+      }
+    },
+    [centerCard, safePaths, stopInertia],
+  );
+
+  const onScroll = useCallback(
+    (_event: ReactUIEvent<HTMLDivElement>) => {
+      if (throttleTimeoutRef.current !== null) return;
+      throttleTimeoutRef.current = window.setTimeout(() => {
+        throttleTimeoutRef.current = null;
+        scheduleCenterSync();
+      }, 16);
+    },
+    [scheduleCenterSync],
+  );
 
   if (!activePath) return null;
 
@@ -264,16 +398,17 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         <div
           ref={scrollerRef}
           className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-140px)] pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          onScroll={onScroll}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
         >
-          {safePaths.map((path) => (
-            <div key={path.id} className="snap-center">
+          {loopedPaths.map((entry) => (
+            <div key={entry.key} className="snap-center">
               <PathCard
-                path={path}
-                isActive={path.id === activePath.id}
+                path={entry.path}
+                isActive={entry.originalId === activePath.id}
                 reducedMotionScale={isMobile}
                 onSelect={(id) => {
                   if (hasDraggedRef.current) return;
