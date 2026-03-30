@@ -1,25 +1,37 @@
 import type { Metadata } from "next";
 
+function normalizeSiteUrl(url?: string) {
+  if (!url) {
+    return "https://devfraol.com.et";
+  }
+
+  const normalized = url.startsWith("http") ? url : `https://${url}`;
+
+  return normalized.replace(/\/+$/, "");
+}
+
 export const siteConfig = {
-  name: "Xybersec",
-  shortName: "Xybersec",
-  creator: "Xybersec",
-  url: process.env.NEXT_PUBLIC_APP_URL || "https://xybersec.com",
+  name: "DevFraol",
+  shortName: "DevFraol",
+  creator: "DevFraol",
+  url: normalizeSiteUrl(process.env.NEXT_PUBLIC_APP_URL),
   locale: "en_US",
   description:
-    "Learn cybersecurity with structured roadmaps: Red Team, Blue Team, Web Pentesting, Malware Development, Reverse Engineering.",
+    "Learn cybersecurity and technology with structured paths, hands-on labs, and practical roadmaps.",
   keywords: [
     "cybersecurity",
     "ethical hacking",
     "penetration testing",
     "red team",
     "blue team",
+    "network security",
+    "security training ethiopia",
     "web pentesting",
-    "malware development",
-    "reverse engineering",
-    "cybersecurity learning platform",
+    "devfraol",
+    "devfraol academy",
+    "online learning platform",
   ],
-  socialImage: "/logo.png",
+  socialImage: "/og.png",
 };
 
 export function absoluteUrl(path = "/") {
