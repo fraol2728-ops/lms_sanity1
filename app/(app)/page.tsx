@@ -7,6 +7,7 @@ import {
   Hero,
   HowItWorks,
   PlatformPreview,
+  PopularCourses,
   TrainingPaths,
 } from "@/components/landing";
 import { RoadmapSection } from "@/components/roadmap/roadmap-section";
@@ -184,6 +185,7 @@ export default async function Home() {
       <main aria-label="Xybersec homepage">
         <Hero courses={allCourses} />
         <RoadmapSection courses={allCourses} />
+        <PopularCourses courses={courses} />
         <ProgramShowcaseList
           courses={allCourses.length ? allCourses : courses}
         />
