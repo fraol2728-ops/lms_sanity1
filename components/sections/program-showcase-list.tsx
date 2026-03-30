@@ -14,14 +14,18 @@ export function ProgramShowcaseList({ courses }: ProgramShowcaseListProps) {
   ).slice(0, 4);
 
   return (
-    <section id="programs" className="py-6 md:py-10">
-      <div className="mx-auto max-w-7xl px-6 pb-6 lg:px-12">
-        <p className="text-sm uppercase tracking-[0.28em] text-cyan-300/80">
+    <section id="programs" className="bg-[#0f172a] py-10 md:py-14">
+      <div className="mx-auto max-w-7xl px-6 pb-10 lg:px-12">
+        <p className="text-sm uppercase tracking-[0.28em] text-cyan-300/85">
           Program Showcase
         </p>
-        <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground md:text-4xl">
+        <h2 className="mt-4 max-w-3xl text-3xl font-bold tracking-tight text-[#e5e7eb] md:text-4xl">
           Master cybersecurity with guided, hands-on tracks
         </h2>
+        <p className="mt-4 max-w-2xl text-base text-[#9ca3af] md:text-lg">
+          Explore role-based learning paths designed to build practical
+          expertise through clear progression and real-world projects.
+        </p>
       </div>
 
       {featuredPrograms.map((program, i) => (
