@@ -108,6 +108,28 @@ export const STATS_QUERY = defineQuery(`{
   "lessonCount": count(*[_type == "lesson"])
 }`);
 
+export const PROGRAMS_CAREER_PATHS_QUERY = defineQuery(`*[
+  _type == "course"
+  && defined(slug.current)
+] | order(_createdAt desc) {
+  _id,
+  title,
+  slug,
+  description,
+  tier,
+  thumbnail {
+    asset-> {
+      _id,
+      url
+    }
+  },
+  modules[]-> {
+    _id,
+    title,
+    "lessonsCount": count(lessons[])
+  },
+  "lessonCount": count(modules[]->lessons[])
+}`);
 export const DASHBOARD_COURSES_QUERY = defineQuery(`*[
   _type == "course"
 ] | order(_createdAt desc) {

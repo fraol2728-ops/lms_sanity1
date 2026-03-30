@@ -12,16 +12,16 @@ export interface ProgramCourse {
 export interface PathPhase {
   id: string;
   title: string;
-  objective: string;
+  lessonsCount: number;
 }
 
 export interface CareerPath {
   id: string;
+  slug: string;
   title: string;
   description: string;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
-  icon: string;
-  accent: string;
-  categoryKeywords: string[];
+  thumbnailUrl?: string;
+  lessonCount: number;
   phases: PathPhase[];
 }
