@@ -1,8 +1,16 @@
 "use client";
 
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import dynamic from "next/dynamic";
+import {
+  memo,
+  type PointerEvent as ReactPointerEvent,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { PathCard } from "./PathCard";
 import type { CareerPath } from "./types";
 
@@ -18,18 +26,24 @@ interface RoadmapSectionProps {
   paths: CareerPath[];
 }
 
-const CARD_STEP = 274;
-
 function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
-  const safePaths = useMemo(() => paths.filter((path) => Boolean(path.id)), [paths]);
-  const [activePathId, setActivePathId] = useState<string>(safePaths[0]?.id ?? "");
-  const [isHovering, setIsHovering] = useState(false);
+  const safePaths = useMemo(
+    () => paths.filter((path) => Boolean(path.id)),
+    [paths],
+  );
+  const [activePathId, setActivePathId] = useState<string>(
+    safePaths[0]?.id ?? "",
+  );
+  const [isMobile, setIsMobile] = useState(false);
+  const [parallaxX, setParallaxX] = useState(0);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const cardStepRef = useRef(304);
   const isPointerDownRef = useRef(false);
   const startXRef = useRef(0);
   const startScrollLeftRef = useRef(0);
   const hasDraggedRef = useRef(false);
   const tickingRef = useRef(false);
+  const throttleTimeoutRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!safePaths.length) return;
@@ -75,57 +89,69 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     }
   }, [activePathId]);
 
-  const scheduleActiveDetection = useCallback(() => {
-    if (tickingRef.current) return;
+  const scheduleActiveDetection = useCallback(
+    (scrollLeft?: number) => {
+      if (tickingRef.current) return;
 
-    tickingRef.current = true;
-    window.requestAnimationFrame(() => {
-      detectActiveCard();
-      tickingRef.current = false;
-    });
-  }, [detectActiveCard]);
+      tickingRef.current = true;
+      window.requestAnimationFrame(() => {
+        detectActiveCard();
+        if (typeof scrollLeft === "number") {
+          setParallaxX(-scrollLeft * 0.2);
+        }
+        tickingRef.current = false;
+      });
+    },
+    [detectActiveCard],
+  );
 
   useEffect(() => {
     scheduleActiveDetection();
-  }, [scheduleActiveDetection, safePaths]);
-
-  useEffect(() => {
-    const container = scrollerRef.current;
-    if (!container) return;
-
-    const onScroll = () => scheduleActiveDetection();
-
-    container.addEventListener("scroll", onScroll, { passive: true });
-
-    return () => container.removeEventListener("scroll", onScroll);
   }, [scheduleActiveDetection]);
 
   useEffect(() => {
     const container = scrollerRef.current;
-
     if (!container) return;
-    const isSmallViewport = window.matchMedia("(max-width: 767px)").matches;
 
-    if (isSmallViewport) return;
+    const firstCard = container.querySelector<HTMLElement>("[data-path-id]");
+    if (firstCard) {
+      const gap = Number.parseFloat(
+        window.getComputedStyle(container).columnGap || "0",
+      );
+      cardStepRef.current = firstCard.offsetWidth + gap;
+    }
 
-    const id = window.setInterval(() => {
-      if (isHovering || isPointerDownRef.current) return;
+    const onScroll = () => {
+      if (throttleTimeoutRef.current !== null) return;
 
-      const maxLeft = container.scrollWidth - container.clientWidth;
-      if (container.scrollLeft >= maxLeft - 2) {
-        container.scrollTo({ left: 0, behavior: "smooth" });
-        return;
+      throttleTimeoutRef.current = window.setTimeout(() => {
+        throttleTimeoutRef.current = null;
+        scheduleActiveDetection(container.scrollLeft);
+      }, 16);
+    };
+
+    container.addEventListener("scroll", onScroll, { passive: true });
+
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handleMediaChange = () => setIsMobile(mq.matches);
+    handleMediaChange();
+    mq.addEventListener("change", handleMediaChange);
+
+    return () => {
+      container.removeEventListener("scroll", onScroll);
+      mq.removeEventListener("change", handleMediaChange);
+      if (throttleTimeoutRef.current !== null) {
+        window.clearTimeout(throttleTimeoutRef.current);
+        throttleTimeoutRef.current = null;
       }
-
-      container.scrollLeft += 0.35;
-    }, 22);
-
-    return () => window.clearInterval(id);
-  }, [isHovering]);
+    };
+  }, [scheduleActiveDetection]);
 
   const centerCard = useCallback((pathId: string) => {
     const container = scrollerRef.current;
-    const card = container?.querySelector<HTMLElement>(`[data-path-id="${pathId}"]`);
+    const card = container?.querySelector<HTMLElement>(
+      `[data-path-id="${pathId}"]`,
+    );
 
     if (!container || !card) return;
 
@@ -136,51 +162,60 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     setActivePathId(pathId);
   }, []);
 
-  const onPointerDown = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    const container = scrollerRef.current;
-    if (!container) return;
+  const onPointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const container = scrollerRef.current;
+      if (!container) return;
 
-    isPointerDownRef.current = true;
-    hasDraggedRef.current = false;
-    startXRef.current = event.clientX;
-    startScrollLeftRef.current = container.scrollLeft;
-
-    container.setPointerCapture(event.pointerId);
-  }, []);
-
-  const onPointerMove = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    const container = scrollerRef.current;
-
-    if (!container || !isPointerDownRef.current) return;
-
-    const delta = event.clientX - startXRef.current;
-
-    if (Math.abs(delta) > 4) {
-      hasDraggedRef.current = true;
-    }
-
-    container.scrollLeft = startScrollLeftRef.current - delta;
-  }, []);
-
-  const onPointerUp = useCallback((event: ReactPointerEvent<HTMLDivElement>) => {
-    const container = scrollerRef.current;
-
-    if (!container) return;
-
-    isPointerDownRef.current = false;
-    container.releasePointerCapture(event.pointerId);
-
-    window.setTimeout(() => {
+      isPointerDownRef.current = true;
       hasDraggedRef.current = false;
-    }, 0);
-  }, []);
+      startXRef.current = event.clientX;
+      startScrollLeftRef.current = container.scrollLeft;
+
+      container.setPointerCapture(event.pointerId);
+    },
+    [],
+  );
+
+  const onPointerMove = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const container = scrollerRef.current;
+
+      if (!container || !isPointerDownRef.current) return;
+
+      const delta = event.clientX - startXRef.current;
+
+      if (Math.abs(delta) > 4) {
+        hasDraggedRef.current = true;
+      }
+
+      container.scrollLeft = startScrollLeftRef.current - delta;
+    },
+    [],
+  );
+
+  const onPointerUp = useCallback(
+    (event: ReactPointerEvent<HTMLDivElement>) => {
+      const container = scrollerRef.current;
+
+      if (!container) return;
+
+      isPointerDownRef.current = false;
+      container.releasePointerCapture(event.pointerId);
+
+      window.setTimeout(() => {
+        hasDraggedRef.current = false;
+      }, 0);
+    },
+    [],
+  );
 
   const scrollByStep = useCallback((direction: "left" | "right") => {
     const container = scrollerRef.current;
     if (!container) return;
 
     container.scrollBy({
-      left: direction === "left" ? -CARD_STEP : CARD_STEP,
+      left: direction === "left" ? -cardStepRef.current : cardStepRef.current,
       behavior: "smooth",
     });
   }, []);
@@ -195,8 +230,8 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
             Choose your cybersecurity career path
           </h2>
           <p className="mt-2 max-w-4xl text-zinc-300">
-            Swipe or drag to explore. The centered card becomes active and updates
-            the phases below.
+            Swipe or drag to explore. The centered card becomes active and
+            updates the phases below.
           </p>
         </div>
 
@@ -220,14 +255,15 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         </div>
       </div>
 
-      <div
-        className="relative"
-        onMouseEnter={() => setIsHovering(true)}
-        onMouseLeave={() => setIsHovering(false)}
-      >
+      <div className="relative overflow-hidden rounded-3xl">
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_40%,rgba(14,116,144,0.22),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(14,165,233,0.2),transparent_42%),linear-gradient(115deg,#09090f_0%,#111827_45%,#060b14_100%)] transition-transform duration-300"
+          style={{ transform: `translate3d(${parallaxX}px, 0, 0)` }}
+          aria-hidden="true"
+        />
         <div
           ref={scrollerRef}
-          className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-125px)] pb-4 pt-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-140px)] pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
@@ -238,7 +274,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
               <PathCard
                 path={path}
                 isActive={path.id === activePath.id}
-                reducedMotionScale={false}
+                reducedMotionScale={isMobile}
                 onSelect={(id) => {
                   if (hasDraggedRef.current) return;
                   centerCard(id);
