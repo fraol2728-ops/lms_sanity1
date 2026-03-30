@@ -1,35 +1,30 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { StructuredData } from "@/components/seo/StructuredData";
+import { siteConfig } from "@/lib/seo";
 import "../styles/globals.css";
 
 const inter = Inter({ subsets: ["latin"], display: "swap" });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://xybersec.com"),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Xybersec | Cybersecurity Learning Platform",
-    template: "%s | Xybersec",
+    default: `${siteConfig.name} | Cybersecurity Learning Platform`,
+    template: `%s | ${siteConfig.name}`,
   },
-  description:
-    "Learn cybersecurity with structured roadmaps: Red Team, Blue Team, Web Pentesting, Malware Development, Reverse Engineering.",
-  keywords: [
-    "cybersecurity",
-    "ethical hacking",
-    "penetration testing",
-    "red team",
-    "blue team",
-    "malware development",
-    "reverse engineering",
-  ],
+  description: siteConfig.description,
+  keywords: siteConfig.keywords,
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "Xybersec",
-    description: "Cybersecurity learning platform",
-    url: "https://xybersec.com",
-    siteName: "Xybersec",
+    title: siteConfig.name,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
     images: [
       {
-        url: "/logo.png",
+        url: siteConfig.socialImage,
         width: 1200,
         height: 630,
       },
@@ -38,9 +33,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Xybersec",
-    description: "Cybersecurity learning platform",
-    images: ["/logo.png"],
+    title: siteConfig.name,
+    description: siteConfig.description,
+    images: [siteConfig.socialImage],
+    creator: `@${siteConfig.creator}`,
   },
   robots: {
     index: true,
@@ -59,9 +55,9 @@ export const metadata: Metadata = {
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  name: "Xybersec",
-  url: "https://xybersec.com",
-  logo: "https://xybersec.com/logo.png",
+  name: siteConfig.name,
+  url: siteConfig.url,
+  logo: `${siteConfig.url}/logo.png`,
   sameAs: [],
 };
 
