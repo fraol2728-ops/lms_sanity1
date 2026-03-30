@@ -2,8 +2,10 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import {
   memo,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type UIEvent as ReactUIEvent,
   useCallback,
@@ -51,6 +53,8 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
   const [isMobile, setIsMobile] = useState(false);
   const [parallaxX, setParallaxX] = useState(0);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const carouselShellRef = useRef<HTMLDivElement>(null);
+  const lightingRef = useRef<HTMLDivElement>(null);
   const cardStepRef = useRef(0);
   const singleSetWidthRef = useRef(0);
   const isPointerDownRef = useRef(false);
@@ -64,6 +68,10 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
   const hasDraggedRef = useRef(false);
   const isAutoSnappingRef = useRef(false);
   const throttleTimeoutRef = useRef<number | null>(null);
+  const lightingFrameRef = useRef<number | null>(null);
+  const pendingLightXRef = useRef(0);
+  const pendingLightYRef = useRef(0);
+  const pendingLightOpacityRef = useRef(0.16);
 
   useEffect(() => {
     if (!safePaths.length) return;
@@ -178,10 +186,57 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         enforceLoopBounds();
         detectActiveCard();
         setParallaxX(-container.scrollLeft * 0.2);
+        const containerRect = container.getBoundingClientRect();
+        const containerCenter = containerRect.left + containerRect.width / 2;
+        const maxDistance = containerRect.width * (isMobile ? 0.95 : 0.8);
+        const maxBlur = isMobile ? 3 : 6;
+        const cards = Array.from(
+          container.querySelectorAll<HTMLElement>("[data-path-id]"),
+        );
+
+        for (const card of cards) {
+          const rect = card.getBoundingClientRect();
+          const cardCenter = rect.left + rect.width / 2;
+          const ratio = Math.min(
+            1,
+            Math.abs(cardCenter - containerCenter) / maxDistance,
+          );
+          const blurPx = Number((ratio * maxBlur).toFixed(2));
+          const scale = Number(
+            (1 - ratio * (isMobile ? 0.04 : 0.08)).toFixed(3),
+          );
+          const opacity = Number(
+            (1 - ratio * (isMobile ? 0.25 : 0.35)).toFixed(3),
+          );
+
+          card.style.setProperty("--card-blur", `${blurPx}px`);
+          card.style.setProperty("--card-scale", `${scale}`);
+          card.style.setProperty("--card-opacity", `${opacity}`);
+        }
       }
       centerSyncFrameRef.current = null;
     });
-  }, [detectActiveCard, enforceLoopBounds]);
+  }, [detectActiveCard, enforceLoopBounds, isMobile]);
+
+  const flushLightingPosition = useCallback(() => {
+    const layer = lightingRef.current;
+    if (!layer) return;
+
+    layer.style.setProperty("--light-x", `${pendingLightXRef.current}px`);
+    layer.style.setProperty("--light-y", `${pendingLightYRef.current}px`);
+    layer.style.setProperty(
+      "--light-opacity",
+      pendingLightOpacityRef.current.toString(),
+    );
+    lightingFrameRef.current = null;
+  }, []);
+
+  const scheduleLighting = useCallback(() => {
+    if (lightingFrameRef.current !== null) return;
+    lightingFrameRef.current = window.requestAnimationFrame(
+      flushLightingPosition,
+    );
+  }, [flushLightingPosition]);
 
   useEffect(() => {
     const container = scrollerRef.current;
@@ -213,6 +268,9 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       stopInertia();
       if (centerSyncFrameRef.current !== null) {
         window.cancelAnimationFrame(centerSyncFrameRef.current);
+      }
+      if (lightingFrameRef.current !== null) {
+        window.cancelAnimationFrame(lightingFrameRef.current);
       }
     };
   }, [safePaths.length, scheduleCenterSync, snapToNearestCard, stopInertia]);
@@ -354,6 +412,25 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     [scheduleCenterSync],
   );
 
+  const onShellMouseMove = useCallback(
+    (event: ReactMouseEvent<HTMLDivElement>) => {
+      if (isMobile) return;
+      const shell = carouselShellRef.current;
+      if (!shell) return;
+      const rect = shell.getBoundingClientRect();
+      pendingLightXRef.current = event.clientX - rect.left;
+      pendingLightYRef.current = event.clientY - rect.top;
+      pendingLightOpacityRef.current = 0.18;
+      scheduleLighting();
+    },
+    [isMobile, scheduleLighting],
+  );
+
+  const onShellMouseLeave = useCallback(() => {
+    pendingLightOpacityRef.current = 0;
+    scheduleLighting();
+  }, [scheduleLighting]);
+
   if (!activePath) return null;
 
   return (
@@ -389,20 +466,37 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         </div>
       </div>
 
-      <div className="relative overflow-hidden rounded-3xl">
+      <div
+        ref={carouselShellRef}
+        className="relative overflow-hidden rounded-3xl"
+      >
         <div
           className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_40%,rgba(14,116,144,0.22),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(14,165,233,0.2),transparent_42%),linear-gradient(115deg,#09090f_0%,#111827_45%,#060b14_100%)] transition-transform duration-300"
           style={{ transform: `translate3d(${parallaxX}px, 0, 0)` }}
           aria-hidden="true"
         />
         <div
+          ref={lightingRef}
+          className="pointer-events-none absolute inset-0 z-10 hidden transition-opacity duration-200 md:block"
+          style={{
+            opacity: "var(--light-opacity, 0)",
+            background:
+              "radial-gradient(300px circle at var(--light-x, 50%) var(--light-y, 50%), rgba(56,189,248,0.2), transparent 68%)",
+          }}
+          aria-hidden="true"
+        />
+        {/* biome-ignore lint/a11y/noStaticElementInteractions: draggable carousel surface */}
+        <div
           ref={scrollerRef}
+          role="presentation"
           className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-140px)] pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           onScroll={onScroll}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
           onPointerCancel={onPointerUp}
+          onMouseMove={onShellMouseMove}
+          onMouseLeave={onShellMouseLeave}
         >
           {loopedPaths.map((entry) => (
             <div key={entry.key} className="snap-center">
@@ -421,6 +515,14 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       </div>
 
       <PathDetails path={activePath} />
+      <div>
+        <Link
+          href={`/academy/${activePath.slug}`}
+          className="inline-flex items-center rounded-xl border border-cyan-300/40 bg-cyan-400/10 px-4 py-2.5 font-mono text-sm font-medium text-cyan-100 transition hover:border-cyan-200/70 hover:bg-cyan-400/20"
+        >
+          Start Path →
+        </Link>
+      </div>
     </section>
   );
 }
