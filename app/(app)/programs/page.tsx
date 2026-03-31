@@ -6,14 +6,17 @@ import {
   type ProgramCourse,
   RoadmapSection,
 } from "@/components/programs";
+import { ProgramShowcaseList } from "@/components/sections/program-showcase-list";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { Badge } from "@/components/ui/badge";
 import { buildMetadata, siteConfig } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
+  ALL_COURSES_QUERY,
   COURSES_CATEGORIES_QUERY,
   PROGRAMS_CAREER_PATHS_QUERY,
 } from "@/sanity/lib/queries";
+import type { ALL_COURSES_QUERYResult } from "@/sanity.types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
@@ -60,14 +63,22 @@ const inferDifficulty = (
 };
 
 export default async function ProgramsPage() {
-  const [{ data: pathsData }, { data: categoriesData }] = (await Promise.all([
-    sanityFetch({
-      query: PROGRAMS_CAREER_PATHS_QUERY,
-    }) as Promise<{ data: CareerPathResult[] }>,
-    sanityFetch({
-      query: COURSES_CATEGORIES_QUERY,
-    }) as Promise<{ data: CategoryResult[] }>,
-  ])) as [{ data: CareerPathResult[] }, { data: CategoryResult[] }];
+  const [{ data: pathsData }, { data: categoriesData }, { data: allCourses }] =
+    (await Promise.all([
+      sanityFetch({
+        query: PROGRAMS_CAREER_PATHS_QUERY,
+      }) as Promise<{ data: CareerPathResult[] }>,
+      sanityFetch({
+        query: COURSES_CATEGORIES_QUERY,
+      }) as Promise<{ data: CategoryResult[] }>,
+      sanityFetch({
+        query: ALL_COURSES_QUERY,
+      }) as Promise<{ data: ALL_COURSES_QUERYResult }>,
+    ])) as [
+      { data: CareerPathResult[] },
+      { data: CategoryResult[] },
+      { data: ALL_COURSES_QUERYResult },
+    ];
 
   const categories = categoriesData
     .filter((category) => Boolean(category.title))
@@ -231,6 +242,7 @@ export default async function ProgramsPage() {
         </section>
 
         <RoadmapSection paths={careerPaths} />
+        <ProgramShowcaseList courses={allCourses ?? []} />
 
         <section className="rounded-3xl border border-white/10 bg-[#10101a] p-6 sm:p-8">
           <h2 className="font-mono text-2xl font-semibold sm:text-3xl">

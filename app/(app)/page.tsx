@@ -11,7 +11,6 @@ import {
   TrainingPaths,
 } from "@/components/landing";
 import { RoadmapSection } from "@/components/roadmap/roadmap-section";
-import { ProgramShowcaseList } from "@/components/sections/program-showcase-list";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildMetadata, siteConfig } from "@/lib/seo";
 import type { Metadata } from "next";
@@ -188,9 +187,6 @@ export default async function Home() {
         <Hero courses={allCourses} />
         <RoadmapSection courses={allCourses} />
         <PopularCourses courses={courses} />
-        <ProgramShowcaseList
-          courses={allCourses.length ? allCourses : courses}
-        />
         <PlatformPreview />
         <Features />
         <TrainingPaths />
