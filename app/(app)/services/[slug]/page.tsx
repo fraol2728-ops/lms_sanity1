@@ -1,6 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import {
   ArrowRight,
+  Check,
   Database,
   Gauge,
   Search,
@@ -105,7 +106,6 @@ interface PricingPlan {
   features: string[];
   bestFor: string[];
   cta: string;
-  theme: string;
   popular?: boolean;
 }
 
@@ -165,7 +165,6 @@ const pricingPlans: PricingPlan[] = [
     ],
     bestFor: ["Personal brands", "Freelancers", "Single services"],
     cta: "Perfect for getting online quickly with a clean look.",
-    theme: "border-emerald-300/25",
   },
   {
     name: "Starter Website",
@@ -183,7 +182,6 @@ const pricingPlans: PricingPlan[] = [
     ],
     bestFor: ["Small businesses", "Startups", "Local services"],
     cta: "A solid starting point for your business online.",
-    theme: "border-emerald-300/25",
   },
   {
     name: "Standard Business Website",
@@ -203,7 +201,6 @@ const pricingPlans: PricingPlan[] = [
     ],
     bestFor: ["Growing businesses", "Companies", "Brands"],
     cta: "A strong online presence that makes your business look professional.",
-    theme: "border-yellow-300/30",
     popular: true,
   },
   {
@@ -225,7 +222,6 @@ const pricingPlans: PricingPlan[] = [
     ],
     bestFor: ["Expanding businesses", "Active brands"],
     cta: "More control, more features, and long-term growth.",
-    theme: "border-yellow-300/30",
   },
   {
     name: "E-Commerce Starter",
@@ -243,7 +239,6 @@ const pricingPlans: PricingPlan[] = [
     ],
     bestFor: ["Small online shops", "Instagram sellers"],
     cta: "Turn your products into an online business.",
-    theme: "border-sky-300/30",
   },
   {
     name: "E-Commerce Pro",
@@ -262,7 +257,6 @@ const pricingPlans: PricingPlan[] = [
     ],
     bestFor: ["Serious e-commerce brands"],
     cta: "Everything you need to run and scale your online store.",
-    theme: "border-sky-300/30",
   },
   {
     name: "Custom Web App / System",
@@ -286,7 +280,6 @@ const pricingPlans: PricingPlan[] = [
       "Custom business tools",
     ],
     cta: "A complete digital system built exactly for your needs.",
-    theme: "border-rose-300/35",
   },
 ];
 
@@ -297,6 +290,75 @@ const processSteps = [
   "Development",
   "Launch",
 ];
+
+function PricingCard({ plan }: { plan: PricingPlan }) {
+  const displayedFeatures = plan.features.slice(0, 5);
+
+  return (
+    <Card
+      className={`relative rounded-2xl border border-white/10 bg-gradient-to-b from-white/10 to-white/5 p-6 backdrop-blur-md shadow-[0_0_30px_rgba(0,255,255,0.08)] transition-all duration-300 hover:scale-[1.03] hover:shadow-[0_0_40px_rgba(0,255,255,0.2)] md:p-8 ${
+        plan.popular
+          ? "scale-105 border-2 border-cyan-400/40 shadow-[0_0_60px_rgba(0,255,255,0.3)]"
+          : ""
+      }`}
+    >
+      {plan.popular ? (
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-cyan-400 px-3 py-1 text-xs font-semibold text-black">
+          Most Popular
+        </div>
+      ) : null}
+
+      <div className="space-y-5">
+        <div className="space-y-2">
+          <h3 className="text-lg font-medium text-white">{plan.name}</h3>
+          <p className="text-3xl font-bold text-white md:text-4xl">
+            <span className="text-cyan-400">{plan.price}</span>
+          </p>
+          <p className="text-sm leading-6 text-slate-300">{plan.summary}</p>
+        </div>
+
+        <div className="border-t border-white/10" />
+
+        <ul className="space-y-2">
+          {displayedFeatures.map((feature, index) => (
+            <li
+              key={feature}
+              className={`flex items-start gap-2 text-sm ${
+                index < 2 ? "text-white" : "text-gray-300"
+              }`}
+            >
+              <Check className="mt-0.5 h-4 w-4 shrink-0 text-cyan-300" />
+              <span>{feature}</span>
+            </li>
+          ))}
+        </ul>
+
+        <div className="my-4 border-t border-white/10" />
+
+        <div className="space-y-2">
+          <p className="text-sm text-cyan-100">
+            Best for: {plan.bestFor.join(", ")}
+          </p>
+          <p className="text-sm text-slate-300">{plan.cta}</p>
+        </div>
+
+        <Button
+          asChild
+          className={`mt-4 w-full rounded-lg transition-all duration-300 ${
+            plan.popular
+              ? "bg-gradient-to-r from-cyan-500 to-blue-500 font-semibold text-black hover:scale-105 hover:from-cyan-400 hover:to-blue-400"
+              : "bg-white/10 text-white hover:bg-white/20"
+          }`}
+        >
+          <Link href="/contact">
+            Choose Plan
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </Button>
+      </div>
+    </Card>
+  );
+}
 
 function WebDevelopmentServicePage() {
   return (
@@ -355,8 +417,12 @@ function WebDevelopmentServicePage() {
           </div>
         </section>
 
-        <section id="packages" className="space-y-7 scroll-mt-24">
-          <div className="text-center">
+        <section
+          id="packages"
+          className="relative space-y-7 scroll-mt-24 overflow-hidden"
+        >
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-transparent to-blue-500/10 blur-3xl" />
+          <div className="relative text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-cyan-200/80">
               Pricing Packages
             </p>
@@ -364,61 +430,9 @@ function WebDevelopmentServicePage() {
               Choose the right package for your growth stage
             </h2>
           </div>
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="relative grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {pricingPlans.map((plan) => (
-              <Card
-                key={plan.name}
-                className={`relative rounded-2xl bg-white/5 p-6 backdrop-blur transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-[0_0_30px_rgba(45,212,191,0.14)] ${plan.theme} ${
-                  plan.popular
-                    ? "md:scale-[1.03] border-transparent bg-gradient-to-br from-yellow-300/10 via-white/5 to-cyan-300/10 ring-1 ring-yellow-300/40"
-                    : ""
-                }`}
-              >
-                {plan.popular ? (
-                  <div className="absolute -top-3 left-6 rounded-full border border-yellow-200/50 bg-yellow-300/20 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-yellow-100">
-                    Most Popular
-                  </div>
-                ) : null}
-                <div className="space-y-3">
-                  <h3 className="text-xl font-semibold text-white">
-                    {plan.name}
-                  </h3>
-                  <p className="text-2xl font-bold text-cyan-100">
-                    {plan.price}
-                  </p>
-                  <p className="text-sm leading-6 text-slate-300">
-                    {plan.summary}
-                  </p>
-                </div>
-                <div className="mt-6">
-                  <p className="text-sm font-semibold text-white">
-                    What you get
-                  </p>
-                  <ul className="mt-3 space-y-2">
-                    {plan.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex gap-2 text-sm leading-6 text-slate-200"
-                      >
-                        <span className="text-cyan-200">✔</span>
-                        <span>{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="mt-6 space-y-3 border-t border-white/10 pt-5">
-                  <p className="text-sm text-cyan-100">
-                    🎯 Best for: {plan.bestFor.join(", ")}
-                  </p>
-                  <p className="text-sm text-slate-300">👉 {plan.cta}</p>
-                </div>
-                <Button asChild className="mt-6 w-full">
-                  <Link href="/contact">
-                    Choose Plan
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </Card>
+              <PricingCard key={plan.name} plan={plan} />
             ))}
           </div>
         </section>
