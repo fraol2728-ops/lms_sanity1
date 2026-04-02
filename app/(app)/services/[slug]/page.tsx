@@ -107,6 +107,7 @@ interface PricingPlan {
   bestFor: string[];
   cta: string;
   popular?: boolean;
+  slug?: string;
 }
 
 const webFeatures: ServiceFeature[] = [
@@ -151,6 +152,7 @@ const webFeatures: ServiceFeature[] = [
 const pricingPlans: PricingPlan[] = [
   {
     name: "Basic Landing Page",
+    slug: "basic-landing-page",
     price: "10,000 ETB",
     summary:
       "A simple and effective one-page website to introduce your business.",
@@ -168,6 +170,7 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "Starter Website",
+    slug: "starter",
     price: "15,000 ETB",
     summary: "A small multi-page website to clearly present your business.",
     features: [
@@ -185,6 +188,7 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "Standard Business Website",
+    slug: "standard",
     price: "25,000 ETB",
     summary:
       "A professional website designed to build trust and attract customers.",
@@ -205,6 +209,7 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "Business Pro Website",
+    slug: "business-pro",
     price: "35,000 ETB",
     summary:
       "A powerful website with more control, flexibility, and advanced features.",
@@ -225,6 +230,7 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "E-Commerce Starter",
+    slug: "ecommerce-starter",
     price: "45,000 ETB",
     summary: "Start selling your products online with a simple store.",
     features: [
@@ -242,6 +248,7 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "E-Commerce Pro",
+    slug: "ecommerce-pro",
     price: "65,000 ETB",
     summary: "A complete online store with advanced business features.",
     features: [
@@ -260,6 +267,7 @@ const pricingPlans: PricingPlan[] = [
   },
   {
     name: "Custom Web App / System",
+    slug: "custom-web-app",
     price: "Starting from 85,000 ETB",
     summary:
       "A fully custom platform built specifically for your business idea.",
@@ -293,6 +301,8 @@ const processSteps = [
 
 function PricingCard({ plan }: { plan: PricingPlan }) {
   const displayedFeatures = plan.features.slice(0, 5);
+  const planSlug =
+    plan.slug ?? plan.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 
   return (
     <Card
@@ -350,7 +360,7 @@ function PricingCard({ plan }: { plan: PricingPlan }) {
               : "bg-white/10 text-white hover:bg-white/20"
           }`}
         >
-          <Link href="/contact">
+          <Link href={`/get-in-touch?plan=${planSlug}`}>
             Choose Plan
             <ArrowRight className="h-4 w-4" />
           </Link>
