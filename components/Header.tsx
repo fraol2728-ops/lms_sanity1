@@ -6,10 +6,10 @@ import {
   Command,
   Menu,
   Search,
-  Shield,
   TerminalSquare,
   X,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -84,10 +84,10 @@ export function Header() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 border-b transition-all duration-300",
+          "fixed inset-x-0 top-0 z-50 border-b border-cyan-300/20 bg-[#050816]/55 shadow-[0_12px_45px_rgba(34,211,238,0.14)] backdrop-blur-2xl transition-all duration-300",
           isScrolled
-            ? "border-white/10 bg-[#050816]/70 shadow-[0_10px_40px_rgba(0,0,0,0.4)] backdrop-blur-xl"
-            : "border-transparent bg-transparent",
+            ? "bg-[#050816]/70 shadow-[0_12px_50px_rgba(34,211,238,0.2)]"
+            : "bg-[#050816]/55",
         )}
       >
         <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 ">
@@ -95,15 +95,22 @@ export function Header() {
             href="/"
             className="group inline-flex items-center gap-2.5 sm:gap-3"
           >
-            <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/30 bg-[#0b1229] shadow-[0_0_25px_rgba(34,211,238,0.22)] transition group-hover:border-cyan-300/70">
-              <Shield className="h-5 w-5 text-cyan-300" />
+            <span className="inline-flex h-10 w-10 items-center justify-center overflow-hidden rounded-xl border border-cyan-400/35 bg-[#0b1229] shadow-[0_0_25px_rgba(34,211,238,0.22)] transition group-hover:border-cyan-300/70">
+              <Image
+                src="/logo.png"
+                alt="XyberSec logo"
+                width={30}
+                height={30}
+                className="h-7 w-7 object-contain"
+                priority
+              />
             </span>
             <div className="leading-tight">
               {/* <p className="hidden text-xs uppercase tracking-[0.24em] text-zinc-500 sm:block">
                 Next
               </p> */}
-              <p className="whitespace-nowrap text-sm font-semibold text-zinc-500 sm:text-base">
-                Cyber <span className="text-cyan-300">Camp</span>
+              <p className="whitespace-nowrap text-sm font-semibold text-zinc-100 sm:text-base">
+                Xyber<span className="text-cyan-300">Sec</span>
               </p>
             </div>
           </Link>
@@ -147,7 +154,7 @@ export function Header() {
                   variant="ghost"
                   className={cn(
                     "hover:bg-cyan-400/10 hover:text-cyan-200",
-                    isScrolled ? "text-zinc-100" : "text-zinc-500",
+                    "text-zinc-100",
                   )}
                 >
                   Sign In
@@ -161,7 +168,7 @@ export function Header() {
                   variant="outline"
                   className={cn(
                     "border-cyan-400/30 bg-transparent hover:bg-cyan-400/10 hover:text-cyan-200",
-                    isScrolled ? "text-zinc-100" : "text-zinc-500",
+                    "text-zinc-100",
                   )}
                 >
                   Dashboard
@@ -288,7 +295,7 @@ function NavLink({
           ? "bg-cyan-400/12 text-cyan-200 shadow-[0_0_20px_rgba(34,211,238,0.12)]"
           : isScrolled
             ? "text-zinc-100"
-            : "text-zinc-500",
+            : "text-zinc-200",
       )}
       aria-current={isActive ? "page" : undefined}
     >
