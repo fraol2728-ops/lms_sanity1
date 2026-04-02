@@ -7,54 +7,47 @@ import type { CareerPath } from "./types";
 interface PathCardProps {
   path: CareerPath;
   isActive: boolean;
-  onSelect: (id: string) => void;
-  reducedMotionScale?: boolean;
+  onSelect: () => void;
 }
 
-export function PathCard({
-  path,
-  isActive,
-  onSelect,
-  reducedMotionScale: _reducedMotionScale = false,
-}: PathCardProps) {
+export function PathCard({ path, isActive, onSelect }: PathCardProps) {
   return (
-    <article
-      data-path-id={path.id}
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-label={`Center ${path.title} path card`}
       className={cn(
-        "group relative h-[220px] w-[360px] shrink-0 overflow-hidden rounded-2xl border border-white/10 bg-[#11111c] transition-[transform,opacity,border-color,box-shadow] duration-300 ease-out will-change-transform",
+        "group relative h-[220px] w-[360px] shrink-0 overflow-hidden rounded-2xl border text-left transition-all duration-300 ease-out",
         isActive
-          ? "z-30 border-cyan-200 shadow-[0_0_0_1px_rgba(56,189,248,0.55),0_35px_90px_rgba(8,145,178,0.62)] [--card-scale:2]"
-          : "shadow-[0_10px_25px_rgba(0,0,0,0.35)]",
+          ? "scale-100 border-cyan-200/80 opacity-100 shadow-[0_0_0_1px_rgba(56,189,248,0.55),0_35px_90px_rgba(8,145,178,0.62)]"
+          : "scale-[0.94] border-white/10 opacity-55 hover:opacity-80",
       )}
-      style={{
-        opacity: "var(--card-opacity,0.9)",
-        transform: "translateZ(0) scale(var(--card-scale,0.98))",
-      }}
     >
-      {isActive ? (
-        <div
-          className="pointer-events-none absolute inset-0 -z-10 scale-[1.8] rounded-[40px] bg-[radial-gradient(circle_at_50%_50%,rgba(56,189,248,0.78),rgba(34,211,238,0.5)_34%,rgba(14,116,144,0.32)_58%,rgba(15,23,42,0)_82%)] blur-3xl"
-          aria-hidden="true"
+      {path.thumbnailUrl ? (
+        <Image
+          src={path.thumbnailUrl}
+          alt={path.title}
+          fill
+          className="object-cover"
+          sizes="360px"
         />
-      ) : null}
-      <button
-        type="button"
-        onClick={() => onSelect(path.id)}
-        className="relative h-full w-full text-left"
-        aria-label={`Center ${path.title} path card`}
-      >
-        {path.thumbnailUrl ? (
-          <Image
-            src={path.thumbnailUrl}
-            alt={path.title}
-            fill
-            className="object-cover"
-            sizes="360px"
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-black" />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-700 via-slate-800 to-black" />
+      )}
+      <div
+        className={cn(
+          "absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-transparent transition-opacity",
+          isActive ? "opacity-100" : "opacity-70",
         )}
-      </button>
-    </article>
+      />
+      <div className="absolute bottom-4 left-4 right-4">
+        <p className="line-clamp-2 text-lg font-semibold text-white">
+          {path.title}
+        </p>
+        <p className="mt-1 text-xs uppercase tracking-[0.2em] text-cyan-200/90">
+          {path.phases.length} phases
+        </p>
+      </div>
+    </button>
   );
 }

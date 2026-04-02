@@ -5,8 +5,6 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   memo,
-  type MouseEvent as ReactMouseEvent,
-  type PointerEvent as ReactPointerEvent,
   type UIEvent as ReactUIEvent,
   useCallback,
   useEffect,
@@ -16,6 +14,8 @@ import {
 } from "react";
 import { PathCard } from "./PathCard";
 import type { CareerPath } from "./types";
+
+const CARD_WIDTH = 360;
 
 const PathDetails = dynamic(() => import("./PathDetails"), {
   loading: () => (
@@ -34,352 +34,125 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
     () => paths.filter((path) => Boolean(path.id)),
     [paths],
   );
-  const loopedPaths = useMemo(
-    () =>
-      Array.from({ length: 3 }, (_, setIndex) =>
-        safePaths.map((path, originalIndex) => ({
-          originalId: path.id,
-          originalIndex,
-          loopSetIndex: setIndex,
-          key: `${path.id}-${setIndex}`,
-          path,
-        })),
-      ).flat(),
-    [safePaths],
-  );
-  const [activePathId, setActivePathId] = useState<string>(
-    safePaths[0]?.id ?? "",
-  );
-  const [isMobile, setIsMobile] = useState(false);
-  const [parallaxX, setParallaxX] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(0);
   const scrollerRef = useRef<HTMLDivElement>(null);
-  const carouselShellRef = useRef<HTMLDivElement>(null);
-  const lightingRef = useRef<HTMLDivElement>(null);
-  const cardStepRef = useRef(0);
-  const singleSetWidthRef = useRef(0);
-  const isPointerDownRef = useRef(false);
-  const startXRef = useRef(0);
-  const startScrollLeftRef = useRef(0);
-  const centerSyncFrameRef = useRef<number | null>(null);
-  const hasDraggedRef = useRef(false);
-  const isAutoSnappingRef = useRef(false);
-  const throttleTimeoutRef = useRef<number | null>(null);
-  const lightingFrameRef = useRef<number | null>(null);
-  const pendingLightXRef = useRef(0);
-  const pendingLightYRef = useRef(0);
-  const pendingLightOpacityRef = useRef(0.16);
+  const detailsRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const rafRef = useRef<number | null>(null);
+  const snapTimeoutRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    if (!safePaths.length) return;
-
-    setActivePathId((current) =>
-      safePaths.some((path) => path.id === current) ? current : safePaths[0].id,
-    );
-  }, [safePaths]);
-
-  const activePath = useMemo(
-    () => safePaths.find((path) => path.id === activePathId) ?? safePaths[0],
-    [activePathId, safePaths],
-  );
-
-  const enforceLoopBounds = useCallback(() => {
-    const container = scrollerRef.current;
-    if (!container || !safePaths.length) return;
-
-    const singleSetWidth = singleSetWidthRef.current;
-    if (!singleSetWidth) return;
-
-    const left = container.scrollLeft;
-    const minLeft = singleSetWidth * 0.5;
-    const maxLeft = singleSetWidth * 2.5;
-
-    if (left <= minLeft) {
-      container.scrollLeft = left + singleSetWidth;
-      return;
-    }
-
-    if (left >= maxLeft) {
-      container.scrollLeft = left - singleSetWidth;
-    }
-  }, [safePaths.length]);
-
-  const resolveCenteredCard = useCallback(() => {
-    const container = scrollerRef.current;
-    if (!container) return null;
-
-    const containerRect = container.getBoundingClientRect();
-    const containerCenter = containerRect.left + containerRect.width / 2;
-    const cards = Array.from(
-      container.querySelectorAll<HTMLElement>("[data-path-id]"),
-    );
-
-    if (!cards.length) return null;
-
-    let nearest: HTMLElement | null = cards[0];
-    let nearestDistance = Number.POSITIVE_INFINITY;
-
-    for (const card of cards) {
-      const rect = card.getBoundingClientRect();
-      const cardCenter = rect.left + rect.width / 2;
-      const distance = Math.abs(cardCenter - containerCenter);
-
-      if (distance < nearestDistance) {
-        nearestDistance = distance;
-        nearest = card;
-      }
-    }
-
-    return nearest;
-  }, []);
-
-  const snapToNearestCard = useCallback(
-    (behavior: ScrollBehavior = "smooth") => {
-      const container = scrollerRef.current;
-      if (!container) return;
-
-      const nearestCard = resolveCenteredCard();
-      if (!nearestCard) return;
-
-      const cardLeft = nearestCard.offsetLeft;
-      const cardWidth = nearestCard.offsetWidth;
-      const leftTarget = cardLeft - container.clientWidth / 2 + cardWidth / 2;
-
-      isAutoSnappingRef.current = true;
-      container.scrollTo({ left: leftTarget, behavior });
-
-      window.setTimeout(
-        () => {
-          isAutoSnappingRef.current = false;
-        },
-        behavior === "smooth" ? 260 : 0,
-      );
-    },
-    [resolveCenteredCard],
-  );
-
-  const detectActiveCard = useCallback(() => {
-    const nearestCard = resolveCenteredCard();
-    if (!nearestCard) return;
-    const nearestId = nearestCard.dataset.pathId ?? "";
-    if (nearestId && nearestId !== activePathId) {
-      setActivePathId(nearestId);
-    }
-  }, [activePathId, resolveCenteredCard]);
-
-  const scheduleCenterSync = useCallback(() => {
-    if (centerSyncFrameRef.current !== null) return;
-
-    centerSyncFrameRef.current = window.requestAnimationFrame(() => {
-      const container = scrollerRef.current;
-      if (container) {
-        enforceLoopBounds();
-        detectActiveCard();
-        setParallaxX(-container.scrollLeft * 0.2);
-        const containerRect = container.getBoundingClientRect();
-        const containerCenter = containerRect.left + containerRect.width / 2;
-        const maxDistance = containerRect.width * (isMobile ? 0.95 : 0.8);
-        const cards = Array.from(
-          container.querySelectorAll<HTMLElement>("[data-path-id]"),
-        );
-
-        for (const card of cards) {
-          const rect = card.getBoundingClientRect();
-          const cardCenter = rect.left + rect.width / 2;
-          const ratio = Math.min(
-            1,
-            Math.abs(cardCenter - containerCenter) / maxDistance,
-          );
-          const scale = Number(
-            (1 - ratio * (isMobile ? 0.03 : 0.06)).toFixed(3),
-          );
-          const opacity = Number(
-            (1 - ratio * (isMobile ? 0.2 : 0.3)).toFixed(3),
-          );
-
-          card.style.setProperty("--card-scale", `${scale}`);
-          card.style.setProperty("--card-opacity", `${opacity}`);
-        }
-      }
-      centerSyncFrameRef.current = null;
-    });
-  }, [detectActiveCard, enforceLoopBounds, isMobile]);
-
-  const flushLightingPosition = useCallback(() => {
-    const layer = lightingRef.current;
-    if (!layer) return;
-
-    layer.style.setProperty("--light-x", `${pendingLightXRef.current}px`);
-    layer.style.setProperty("--light-y", `${pendingLightYRef.current}px`);
-    layer.style.setProperty(
-      "--light-opacity",
-      pendingLightOpacityRef.current.toString(),
-    );
-    lightingFrameRef.current = null;
-  }, []);
-
-  const scheduleLighting = useCallback(() => {
-    if (lightingFrameRef.current !== null) return;
-    lightingFrameRef.current = window.requestAnimationFrame(
-      flushLightingPosition,
-    );
-  }, [flushLightingPosition]);
-
-  useEffect(() => {
-    const container = scrollerRef.current;
-    if (!container || !safePaths.length) return;
-
-    const firstCard = container.querySelector<HTMLElement>("[data-path-id]");
-    if (firstCard) {
-      const gap = Number.parseFloat(
-        window.getComputedStyle(container).columnGap || "0",
-      );
-      cardStepRef.current = firstCard.offsetWidth + gap;
-      singleSetWidthRef.current = cardStepRef.current * safePaths.length;
-      container.scrollLeft = singleSetWidthRef.current;
-      snapToNearestCard("auto");
-    }
-    scheduleCenterSync();
-
-    const mq = window.matchMedia("(max-width: 767px)");
-    const handleMediaChange = () => setIsMobile(mq.matches);
-    handleMediaChange();
-    mq.addEventListener("change", handleMediaChange);
-
-    return () => {
-      mq.removeEventListener("change", handleMediaChange);
-      if (throttleTimeoutRef.current !== null) {
-        window.clearTimeout(throttleTimeoutRef.current);
-        throttleTimeoutRef.current = null;
-      }
-      if (centerSyncFrameRef.current !== null) {
-        window.cancelAnimationFrame(centerSyncFrameRef.current);
-      }
-      if (lightingFrameRef.current !== null) {
-        window.cancelAnimationFrame(lightingFrameRef.current);
-      }
-    };
-  }, [safePaths.length, scheduleCenterSync, snapToNearestCard]);
+  const activePath = safePaths[activeIndex];
 
   const centerCard = useCallback(
-    (pathId: string, behavior: ScrollBehavior = "smooth") => {
+    (index: number, behavior: ScrollBehavior = "smooth") => {
       const container = scrollerRef.current;
-      if (!container || !safePaths.length) return;
+      const card = cardRefs.current[index];
+      if (!container || !card) return;
 
-      const pathIndex = safePaths.findIndex((path) => path.id === pathId);
-      if (pathIndex < 0) return;
-      const targetIndex = safePaths.length + pathIndex;
       const leftTarget =
-        targetIndex * cardStepRef.current +
-        cardStepRef.current / 2 -
-        container.clientWidth / 2;
-
+        card.offsetLeft - container.clientWidth / 2 + card.offsetWidth / 2;
       container.scrollTo({ left: leftTarget, behavior });
-      setActivePathId(pathId);
-      scheduleCenterSync();
-    },
-    [safePaths, scheduleCenterSync],
-  );
-
-  const onPointerDown = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      const container = scrollerRef.current;
-      if (!container) return;
-
-      isPointerDownRef.current = true;
-      hasDraggedRef.current = false;
-      startXRef.current = event.clientX;
-      startScrollLeftRef.current = container.scrollLeft;
-
-      container.setPointerCapture(event.pointerId);
+      setActiveIndex(index);
     },
     [],
   );
 
-  const onPointerMove = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      const container = scrollerRef.current;
+  const findClosestIndexToCenter = useCallback(() => {
+    const container = scrollerRef.current;
+    if (!container || !safePaths.length) return -1;
 
-      if (!container || !isPointerDownRef.current) return;
+    const containerCenter = container.scrollLeft + container.clientWidth / 2;
+    let closestIndex = 0;
+    let closestDistance = Number.POSITIVE_INFINITY;
 
-      const delta = event.clientX - startXRef.current;
+    for (let index = 0; index < safePaths.length; index += 1) {
+      const card = cardRefs.current[index];
+      if (!card) continue;
 
-      if (Math.abs(delta) > 4) {
-        hasDraggedRef.current = true;
+      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
+      const distance = Math.abs(cardCenter - containerCenter);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestIndex = index;
       }
+    }
 
-      container.scrollLeft = startScrollLeftRef.current - delta;
-      scheduleCenterSync();
-    },
-    [scheduleCenterSync],
-  );
+    return closestIndex;
+  }, [safePaths.length]);
 
-  const onPointerUp = useCallback(
-    (event: ReactPointerEvent<HTMLDivElement>) => {
-      const container = scrollerRef.current;
+  const syncActiveIndexFromScroll = useCallback(() => {
+    const closestIndex = findClosestIndexToCenter();
+    if (closestIndex < 0) return;
 
-      if (!container) return;
-
-      isPointerDownRef.current = false;
-      container.releasePointerCapture(event.pointerId);
-
-      snapToNearestCard();
-
-      window.setTimeout(() => {
-        hasDraggedRef.current = false;
-      }, 0);
-    },
-    [snapToNearestCard],
-  );
-
-  const scrollByStep = useCallback(
-    (direction: "left" | "right") => {
-      if (!safePaths.length) return;
-
-      const currentIndex = safePaths.findIndex(
-        (path) => path.id === activePathId,
-      );
-      const directionStep = direction === "left" ? -1 : 1;
-      const fallbackIndex = 0;
-      const normalizedCurrentIndex =
-        currentIndex >= 0 ? currentIndex : fallbackIndex;
-      const nextIndex =
-        (normalizedCurrentIndex + directionStep + safePaths.length) %
-        safePaths.length;
-
-      centerCard(safePaths[nextIndex].id);
-    },
-    [activePathId, centerCard, safePaths],
-  );
+    setActiveIndex((current) =>
+      current === closestIndex ? current : closestIndex,
+    );
+  }, [findClosestIndexToCenter]);
 
   const onScroll = useCallback(
     (_event: ReactUIEvent<HTMLDivElement>) => {
-      if (throttleTimeoutRef.current !== null) return;
-      throttleTimeoutRef.current = window.setTimeout(() => {
-        throttleTimeoutRef.current = null;
-        scheduleCenterSync();
-      }, 16);
+      if (rafRef.current !== null) return;
+      rafRef.current = window.requestAnimationFrame(() => {
+        syncActiveIndexFromScroll();
+        rafRef.current = null;
+      });
+
+      if (snapTimeoutRef.current !== null) {
+        window.clearTimeout(snapTimeoutRef.current);
+      }
+      snapTimeoutRef.current = window.setTimeout(() => {
+        const closestIndex = findClosestIndexToCenter();
+        if (closestIndex >= 0) {
+          centerCard(closestIndex);
+        }
+      }, 140);
     },
-    [scheduleCenterSync],
+    [centerCard, findClosestIndexToCenter, syncActiveIndexFromScroll],
   );
 
-  const onShellMouseMove = useCallback(
-    (event: ReactMouseEvent<HTMLDivElement>) => {
-      if (isMobile) return;
-      const shell = carouselShellRef.current;
-      if (!shell) return;
-      const rect = shell.getBoundingClientRect();
-      pendingLightXRef.current = event.clientX - rect.left;
-      pendingLightYRef.current = event.clientY - rect.top;
-      pendingLightOpacityRef.current = 0.18;
-      scheduleLighting();
+  const goToRelativeCard = useCallback(
+    (step: number) => {
+      if (!safePaths.length) return;
+      const nextIndex =
+        (activeIndex + step + safePaths.length) % safePaths.length;
+      centerCard(nextIndex);
     },
-    [isMobile, scheduleLighting],
+    [activeIndex, centerCard, safePaths.length],
   );
 
-  const onShellMouseLeave = useCallback(() => {
-    pendingLightOpacityRef.current = 0;
-    scheduleLighting();
-  }, [scheduleLighting]);
+  const onCardClick = useCallback(
+    (index: number) => {
+      centerCard(index);
+      detailsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    },
+    [centerCard],
+  );
+
+  useEffect(() => {
+    if (!safePaths.length) return;
+    centerCard(Math.min(activeIndex, safePaths.length - 1), "auto");
+  }, [activeIndex, centerCard, safePaths.length]);
+
+  useEffect(() => {
+    const onResize = () => {
+      if (!safePaths.length) return;
+      centerCard(activeIndex, "auto");
+    };
+
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if (rafRef.current !== null) {
+        window.cancelAnimationFrame(rafRef.current);
+      }
+      if (snapTimeoutRef.current !== null) {
+        window.clearTimeout(snapTimeoutRef.current);
+      }
+    };
+  }, [activeIndex, centerCard, safePaths.length]);
 
   if (!activePath) return null;
 
@@ -399,7 +172,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         <div className="hidden items-center gap-2 md:flex">
           <button
             type="button"
-            onClick={() => scrollByStep("left")}
+            onClick={() => goToRelativeCard(-1)}
             className="rounded-full border border-white/15 bg-white/5 p-2 text-zinc-200 transition hover:border-cyan-300/40 hover:text-cyan-100"
             aria-label="Scroll paths left"
           >
@@ -407,7 +180,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
           </button>
           <button
             type="button"
-            onClick={() => scrollByStep("right")}
+            onClick={() => goToRelativeCard(1)}
             className="rounded-full border border-white/15 bg-white/5 p-2 text-zinc-200 transition hover:border-cyan-300/40 hover:text-cyan-100"
             aria-label="Scroll paths right"
           >
@@ -416,55 +189,35 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         </div>
       </div>
 
-      <div
-        ref={carouselShellRef}
-        className="relative overflow-hidden rounded-3xl"
-      >
-        <div
-          className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_40%,rgba(14,116,144,0.22),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(14,165,233,0.2),transparent_42%),linear-gradient(115deg,#09090f_0%,#111827_45%,#060b14_100%)] transition-transform duration-300"
-          style={{ transform: `translate3d(${parallaxX}px, 0, 0)` }}
-          aria-hidden="true"
-        />
-        <div
-          ref={lightingRef}
-          className="pointer-events-none absolute inset-0 z-10 hidden transition-opacity duration-200 md:block"
-          style={{
-            opacity: "var(--light-opacity, 0)",
-            background:
-              "radial-gradient(300px circle at var(--light-x, 50%) var(--light-y, 50%), rgba(56,189,248,0.2), transparent 68%)",
-          }}
-          aria-hidden="true"
-        />
-        {/* biome-ignore lint/a11y/noStaticElementInteractions: draggable carousel surface */}
+      <div className="relative overflow-hidden rounded-3xl">
+        <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_40%,rgba(14,116,144,0.22),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(14,165,233,0.2),transparent_42%),linear-gradient(115deg,#09090f_0%,#111827_45%,#060b14_100%)]" />
         <div
           ref={scrollerRef}
-          role="presentation"
           className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-180px)] pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           onScroll={onScroll}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
-          onMouseMove={onShellMouseMove}
-          onMouseLeave={onShellMouseLeave}
         >
-          {loopedPaths.map((entry) => (
-            <div key={entry.key} className="snap-center">
+          {safePaths.map((path, index) => (
+            <div
+              key={path.id}
+              ref={(element) => {
+                cardRefs.current[index] = element;
+              }}
+              className="snap-center"
+              style={{ width: `${CARD_WIDTH}px` }}
+            >
               <PathCard
-                path={entry.path}
-                isActive={entry.originalId === activePath.id}
-                reducedMotionScale={isMobile}
-                onSelect={(id) => {
-                  if (hasDraggedRef.current) return;
-                  centerCard(id);
-                }}
+                path={path}
+                isActive={index === activeIndex}
+                onSelect={() => onCardClick(index)}
               />
             </div>
           ))}
         </div>
       </div>
 
-      <PathDetails path={activePath} />
+      <div id="active-phase" ref={detailsRef}>
+        <PathDetails path={activePath} />
+      </div>
       <div>
         <Link
           href={`/programs/${activePath.slug}`}
