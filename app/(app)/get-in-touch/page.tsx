@@ -15,22 +15,22 @@ import { useSearchParams } from "next/navigation";
 const contactCards = [
   {
     title: "Email",
-    description: "support@xybersec.com",
-    href: "mailto:support@xybersec.com",
+    description: "devfraol@gmail.com",
+    href: "mailto:devfraol@gmail.com",
     cta: "Send Email",
     icon: Mail,
   },
   {
     title: "WhatsApp",
     description: "Quick replies for project questions and estimates.",
-    href: "https://wa.me/251900000000",
+    href: "https://wa.me/0935366719",
     cta: "Chat on WhatsApp",
     icon: MessageCircle,
   },
   {
     title: "Phone",
-    description: "+251 91 000 0000",
-    href: "tel:+251910000000",
+    description: "+251 935366719",
+    href: "tel:+251935366719",
     cta: "Call Now",
     icon: Phone,
   },
@@ -39,12 +39,12 @@ const contactCards = [
 const socialLinks = [
   {
     label: "Telegram",
-    href: "https://t.me/xybersec",
+    href: "https://t.me/devfraol",
     icon: Send,
   },
   {
     label: "LinkedIn",
-    href: "https://www.linkedin.com",
+    href: "https://www.linkedin.com/in/devfraol",
     icon: Linkedin,
   },
   {
