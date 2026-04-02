@@ -1,4 +1,5 @@
 import { Check } from "lucide-react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -55,13 +56,14 @@ export function PricingCard({
       </ul>
 
       <Button
+        asChild
         className={cn(
           "mt-8 w-full border border-white/15 bg-white/5 text-white hover:bg-white/10",
           popular &&
             "border-cyan-300/40 bg-cyan-300/20 text-cyan-50 hover:bg-cyan-300/30",
         )}
       >
-        {cta}
+        <Link href="/get-in-touch">{cta}</Link>
       </Button>
     </article>
   );
