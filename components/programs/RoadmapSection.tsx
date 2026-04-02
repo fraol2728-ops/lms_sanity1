@@ -43,25 +43,23 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
 
   const activePath = safePaths[activeIndex];
 
-  const centerCard = useCallback(
+  const scrollCardIntoView = useCallback(
     (index: number, behavior: ScrollBehavior = "smooth") => {
       const container = scrollerRef.current;
       const card = cardRefs.current[index];
       if (!container || !card) return;
 
-      const leftTarget =
-        card.offsetLeft - container.clientWidth / 2 + card.offsetWidth / 2;
-      container.scrollTo({ left: leftTarget, behavior });
+      container.scrollTo({ left: card.offsetLeft, behavior });
       setActiveIndex(index);
     },
     [],
   );
 
-  const findClosestIndexToCenter = useCallback(() => {
+  const findClosestIndexToStart = useCallback(() => {
     const container = scrollerRef.current;
     if (!container || !safePaths.length) return -1;
 
-    const containerCenter = container.scrollLeft + container.clientWidth / 2;
+    const containerStart = container.scrollLeft;
     let closestIndex = 0;
     let closestDistance = Number.POSITIVE_INFINITY;
 
@@ -69,8 +67,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       const card = cardRefs.current[index];
       if (!card) continue;
 
-      const cardCenter = card.offsetLeft + card.offsetWidth / 2;
-      const distance = Math.abs(cardCenter - containerCenter);
+      const distance = Math.abs(card.offsetLeft - containerStart);
       if (distance < closestDistance) {
         closestDistance = distance;
         closestIndex = index;
@@ -81,13 +78,13 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
   }, [safePaths.length]);
 
   const syncActiveIndexFromScroll = useCallback(() => {
-    const closestIndex = findClosestIndexToCenter();
+    const closestIndex = findClosestIndexToStart();
     if (closestIndex < 0) return;
 
     setActiveIndex((current) =>
       current === closestIndex ? current : closestIndex,
     );
-  }, [findClosestIndexToCenter]);
+  }, [findClosestIndexToStart]);
 
   const onScroll = useCallback(
     (_event: ReactUIEvent<HTMLDivElement>) => {
@@ -101,13 +98,13 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         window.clearTimeout(snapTimeoutRef.current);
       }
       snapTimeoutRef.current = window.setTimeout(() => {
-        const closestIndex = findClosestIndexToCenter();
+        const closestIndex = findClosestIndexToStart();
         if (closestIndex >= 0) {
-          centerCard(closestIndex);
+          scrollCardIntoView(closestIndex);
         }
       }, 140);
     },
-    [centerCard, findClosestIndexToCenter, syncActiveIndexFromScroll],
+    [findClosestIndexToStart, scrollCardIntoView, syncActiveIndexFromScroll],
   );
 
   const goToRelativeCard = useCallback(
@@ -115,31 +112,31 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
       if (!safePaths.length) return;
       const nextIndex =
         (activeIndex + step + safePaths.length) % safePaths.length;
-      centerCard(nextIndex);
+      scrollCardIntoView(nextIndex);
     },
-    [activeIndex, centerCard, safePaths.length],
+    [activeIndex, safePaths.length, scrollCardIntoView],
   );
 
   const onCardClick = useCallback(
     (index: number) => {
-      centerCard(index);
+      scrollCardIntoView(index);
       detailsRef.current?.scrollIntoView({
         behavior: "smooth",
         block: "start",
       });
     },
-    [centerCard],
+    [scrollCardIntoView],
   );
 
   useEffect(() => {
     if (!safePaths.length) return;
-    centerCard(Math.min(activeIndex, safePaths.length - 1), "auto");
-  }, [activeIndex, centerCard, safePaths.length]);
+    scrollCardIntoView(Math.min(activeIndex, safePaths.length - 1), "auto");
+  }, [activeIndex, safePaths.length, scrollCardIntoView]);
 
   useEffect(() => {
     const onResize = () => {
       if (!safePaths.length) return;
-      centerCard(activeIndex, "auto");
+      scrollCardIntoView(activeIndex, "auto");
     };
 
     window.addEventListener("resize", onResize);
@@ -152,7 +149,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         window.clearTimeout(snapTimeoutRef.current);
       }
     };
-  }, [activeIndex, centerCard, safePaths.length]);
+  }, [activeIndex, safePaths.length, scrollCardIntoView]);
 
   if (!activePath) return null;
 
@@ -164,8 +161,8 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
             Choose your cybersecurity career path
           </h2>
           <p className="mt-2 max-w-4xl text-zinc-300">
-            Swipe or drag to explore. The centered card becomes active and
-            updates the phases below.
+            Swipe or drag to explore. The left-most card in view becomes active
+            and updates the phases below.
           </p>
         </div>
 
@@ -193,7 +190,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
         <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(circle_at_15%_40%,rgba(14,116,144,0.22),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(14,165,233,0.2),transparent_42%),linear-gradient(115deg,#09090f_0%,#111827_45%,#060b14_100%)]" />
         <div
           ref={scrollerRef}
-          className="flex snap-x snap-mandatory gap-6 overflow-x-auto px-[calc(50%-180px)] pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-8 pt-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           onScroll={onScroll}
         >
           {safePaths.map((path, index) => (
@@ -202,7 +199,7 @@ function RoadmapSectionComponent({ paths }: RoadmapSectionProps) {
               ref={(element) => {
                 cardRefs.current[index] = element;
               }}
-              className="snap-center"
+              className="snap-start"
               style={{ width: `${CARD_WIDTH}px` }}
             >
               <PathCard

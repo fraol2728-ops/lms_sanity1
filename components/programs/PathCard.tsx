@@ -40,14 +40,6 @@ export function PathCard({ path, isActive, onSelect }: PathCardProps) {
           isActive ? "opacity-100" : "opacity-70",
         )}
       />
-      <div className="absolute bottom-4 left-4 right-4">
-        <p className="line-clamp-2 text-lg font-semibold text-white">
-          {path.title}
-        </p>
-        <p className="mt-1 text-xs uppercase tracking-[0.2em] text-cyan-200/90">
-          {path.phases.length} phases
-        </p>
-      </div>
     </button>
   );
 }
