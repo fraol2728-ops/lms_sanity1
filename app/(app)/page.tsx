@@ -1,4 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
+import type { Metadata } from "next";
 import {
   ContinueLearning,
   CTA,
@@ -7,14 +8,12 @@ import {
   Hero,
   HowItWorks,
   PlatformPreview,
-  PopularCourses,
   TrainingPaths,
 } from "@/components/landing";
 import { RoadmapSection } from "@/components/roadmap/roadmap-section";
 import { ProgramShowcaseList } from "@/components/sections/program-showcase-list";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildMetadata, siteConfig } from "@/lib/seo";
-import type { Metadata } from "next";
 import { sanityFetch } from "@/sanity/lib/live";
 import {
   ALL_COURSES_QUERY,
@@ -187,7 +186,6 @@ export default async function Home() {
       <main aria-label="Xybersec homepage">
         <Hero courses={allCourses} />
         <RoadmapSection courses={allCourses} />
-        <PopularCourses courses={courses} />
         <ProgramShowcaseList
           courses={allCourses.length ? allCourses : courses}
         />
