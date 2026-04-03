@@ -13,6 +13,8 @@ export const metadata: Metadata = buildMetadata({
   description:
     "Build modern, secure, and scalable websites with flexible plans designed for startups and growing businesses.",
   path: "/services/web-development",
+  image:
+    "https://dev.to/nextpixelcreative/what-is-web-development-and-why-does-your-business-need-it-49fj",
   keywords: [
     "web development service",
     "secure website development",
