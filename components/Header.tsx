@@ -84,10 +84,10 @@ export function Header() {
     <>
       <header
         className={cn(
-          "fixed inset-x-0 top-0 z-50 border-b border-cyan-300/20 bg-[#050816]/55 shadow-[0_12px_45px_rgba(34,211,238,0.14)] backdrop-blur-2xl transition-all duration-300",
+          "fixed inset-x-0 top-0 z-50 border-b border-zinc-800/80 bg-[#050505]/95 shadow-[0_10px_30px_rgba(0,0,0,0.45)] backdrop-blur-2xl transition-all duration-300",
           isScrolled
-            ? "bg-[#050816]/70 shadow-[0_12px_50px_rgba(34,211,238,0.2)]"
-            : "bg-[#050816]/55",
+            ? "bg-[#020202]/98 shadow-[0_12px_35px_rgba(0,0,0,0.55)]"
+            : "bg-[#050505]/95",
         )}
       >
         <nav className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8 ">
