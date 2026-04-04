@@ -1,169 +1,54 @@
-import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
-import {
-  ContinueLearning,
-  CTA,
-  Features,
-  Footer,
-  Hero,
-  HowItWorks,
-  PlatformPreview,
-  TrainingPaths,
-} from "@/components/landing";
-import { RoadmapSection } from "@/components/roadmap/roadmap-section";
-import { ProgramShowcaseList } from "@/components/sections/program-showcase-list";
+import { AboutSection } from "@/components/home/AboutSection";
+import { BlogPreview } from "@/components/home/BlogPreview";
+import { CTASection } from "@/components/home/CTASection";
+import { HeroSection } from "@/components/home/HeroSection";
+import { HomeFooter } from "@/components/home/HomeFooter";
+import { ProcessSection } from "@/components/home/ProcessSection";
+import { ServicesSection } from "@/components/home/ServicesSection";
+import { StatsSection } from "@/components/home/StatsSection";
 import { StructuredData } from "@/components/seo/StructuredData";
 import { buildMetadata, siteConfig } from "@/lib/seo";
 import { sanityFetch } from "@/sanity/lib/live";
-import {
-  ALL_COURSES_QUERY,
-  DASHBOARD_COURSES_QUERY,
-  FEATURED_COURSES_QUERY,
-} from "@/sanity/lib/queries";
-import type {
-  ALL_COURSES_QUERYResult,
-  DASHBOARD_COURSES_QUERYResult,
-  FEATURED_COURSES_QUERYResult,
-} from "@/sanity.types";
-
-function getContinueCourse(
-  courses: DASHBOARD_COURSES_QUERYResult,
-  userId: string,
-): {
-  title: string;
-  progressLabel: string;
-  progressPercent: number;
-  href: string;
-} | null {
-  const withProgress = courses
-    .map((course) => {
-      const totalLessons = course.lessonCount ?? 0;
-      const completedLessons =
-        course.modules?.reduce((courseTotal, module) => {
-          const moduleCompleted =
-            module.lessons?.reduce((lessonTotal, lesson) => {
-              return (
-                lessonTotal + (lesson.completedBy?.includes(userId) ? 1 : 0)
-              );
-            }, 0) ?? 0;
-
-          return courseTotal + moduleCompleted;
-        }, 0) ?? 0;
-
-      const progressPercent =
-        totalLessons > 0
-          ? Math.min(100, (completedLessons / totalLessons) * 100)
-          : 0;
-
-      return {
-        title: course.title ?? "Untitled Course",
-        totalLessons,
-        completedLessons,
-        progressPercent,
-        href: course.slug?.current
-          ? `/courses/${course.slug.current}`
-          : "/dashboard",
-      };
-    })
-    .filter(
-      (course) =>
-        course.totalLessons > 0 &&
-        course.completedLessons < course.totalLessons,
-    )
-    .sort((a, b) => b.progressPercent - a.progressPercent);
-
-  const selected = withProgress[0];
-  if (!selected) {
-    return null;
-  }
-
-  return {
-    title: selected.title,
-    progressLabel: `${selected.completedLessons}/${selected.totalLessons} lessons completed`,
-    progressPercent: selected.progressPercent,
-    href: selected.href,
-  };
-}
+import { FEATURED_COURSES_QUERY } from "@/sanity/lib/queries";
+import type { FEATURED_COURSES_QUERYResult } from "@/sanity.types";
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildMetadata({
-    title: "Xybersec Academy Cybersecurity Learning Platform",
+    title: "Solaris Energy | Premium Solar Solutions",
     description:
-      "Xybersec Academy by DevFraol teaches cybersecurity through structured Xybersec roadmaps, hands-on labs, and guided tracks for red team, blue team, and web pentesting.",
+      "Premium residential and commercial solar solutions designed for long-term savings, sustainability, and reliable clean energy.",
     path: "/",
     keywords: [
-      "xybersec academy",
-      "xybersec",
-      "cybersecurity platform",
-      "red team roadmap",
-      "blue team roadmap",
-      "web pentesting",
+      "solar provider",
+      "residential solar",
+      "commercial solar",
+      "solar installation",
+      "clean energy",
     ],
   });
 }
 
 export default async function Home() {
-  const { userId } = await auth();
-
-  let courses: FEATURED_COURSES_QUERYResult = [];
-  let allCourses: ALL_COURSES_QUERYResult = [];
-  let dashboardCourses: DASHBOARD_COURSES_QUERYResult = [];
+  let posts: FEATURED_COURSES_QUERYResult = [];
 
   try {
-    const featuredCoursesPromise = sanityFetch({
+    const result = (await sanityFetch({
       query: FEATURED_COURSES_QUERY,
-    }) as Promise<{ data: FEATURED_COURSES_QUERYResult }>;
+    })) as { data: FEATURED_COURSES_QUERYResult };
 
-    const allCoursesPromise = sanityFetch({
-      query: ALL_COURSES_QUERY,
-    }) as Promise<{ data: ALL_COURSES_QUERYResult }>;
-
-    const dashboardCoursesPromise = userId
-      ? (sanityFetch({
-          query: DASHBOARD_COURSES_QUERY,
-          params: { userId },
-        }) as Promise<{ data: DASHBOARD_COURSES_QUERYResult }>)
-      : Promise.resolve({ data: [] as DASHBOARD_COURSES_QUERYResult });
-
-    const [featuredResult, allCoursesResult, dashboardResult] =
-      await Promise.all([
-        featuredCoursesPromise,
-        allCoursesPromise,
-        dashboardCoursesPromise,
-      ]);
-
-    courses = featuredResult.data ?? [];
-    allCourses = allCoursesResult.data ?? [];
-    dashboardCourses = dashboardResult.data ?? [];
+    posts = result.data ?? [];
   } catch (error) {
-    console.error("Failed to load homepage Sanity data", error);
+    console.error("Failed to load featured homepage content", error);
   }
 
-  const continueCourse = userId
-    ? getContinueCourse(dashboardCourses, userId)
-    : null;
-
-  const faqSchema = {
+  const organizationSchema = {
     "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: [
-      {
-        "@type": "Question",
-        name: "What is Xybersec?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Xybersec is a cybersecurity learning platform for mastering offensive and defensive skills through structured roadmaps and practical labs.",
-        },
-      },
-      {
-        "@type": "Question",
-        name: "Does Xybersec offer online cybersecurity training?",
-        acceptedAnswer: {
-          "@type": "Answer",
-          text: "Yes. The platform offers online tech and cybersecurity courses tailored for learners in Ethiopia, including hands-on content and guided learning paths.",
-        },
-      },
-    ],
+    "@type": "Organization",
+    name: "Solaris Energy",
+    url: siteConfig.url,
+    description:
+      "Trusted solar provider delivering affordable clean energy systems for homes and businesses.",
   };
 
   const breadcrumbSchema = {
@@ -180,23 +65,19 @@ export default async function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-[#050816] text-white">
-      <StructuredData data={faqSchema} />
+    <div className="min-h-screen bg-white text-slate-900">
+      <StructuredData data={organizationSchema} />
       <StructuredData data={breadcrumbSchema} />
-      <main aria-label="Xybersec homepage">
-        <Hero courses={allCourses} />
-        <RoadmapSection courses={allCourses} />
-        <ProgramShowcaseList
-          courses={allCourses.length ? allCourses : courses}
-        />
-        <PlatformPreview />
-        <Features />
-        <TrainingPaths />
-        <HowItWorks />
-        <ContinueLearning continueCourse={continueCourse} />
-        <CTA />
+      <main aria-label="Solar provider homepage">
+        <HeroSection />
+        <StatsSection />
+        <AboutSection />
+        <ServicesSection />
+        <ProcessSection />
+        <BlogPreview posts={posts} />
+        <CTASection />
       </main>
-      <Footer />
+      <HomeFooter />
     </div>
   );
 }
