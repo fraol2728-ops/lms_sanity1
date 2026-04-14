@@ -22,7 +22,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
 
   return (
     <div className="h-screen overflow-hidden bg-[#050816] text-white">
-      <main className="relative z-10 h-full px-4 pb-4 pt-24 sm:px-6 lg:px-8 lg:pb-8 lg:pt-28">
+      <main className="relative z-10 h-full px-4 py-4 sm:px-6 lg:px-8 lg:py-8">
         <div className="mx-auto h-full max-w-[96rem]">
           <LessonPageContent lesson={lesson} userId={userId} />
         </div>

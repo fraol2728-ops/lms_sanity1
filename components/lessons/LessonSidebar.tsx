@@ -32,10 +32,6 @@ export function LessonSidebar({
 }: LessonSidebarProps) {
   if (!modules?.length) return null;
 
-  const currentModuleId = modules.find((module) =>
-    module.lessons?.some((lesson) => lesson._id === currentLessonId),
-  )?._id;
-
   return (
     <motion.aside
       initial={{ opacity: 0, x: -14 }}
@@ -57,7 +53,7 @@ export function LessonSidebar({
       <div className="h-[calc(100%-5.5rem)] overflow-y-auto p-3">
         <Accordion
           type="multiple"
-          defaultValue={currentModuleId ? [currentModuleId] : []}
+          defaultValue={modules.map((module) => module._id)}
           className="space-y-2"
         >
           {modules.map((module, moduleIndex) => {
