@@ -1,12 +1,9 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import { Rocket, Search, ShieldCheck } from "lucide-react";
+import { Rocket, ShieldCheck } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 type HeroCourse = {
   _id: string;
@@ -49,7 +46,7 @@ const fadeIn: Variants = {
   },
 };
 
-const searchReveal: Variants = {
+const companiesReveal: Variants = {
   hidden: { opacity: 0, scale: 0.95 },
   visible: {
     opacity: 1,
@@ -58,33 +55,50 @@ const searchReveal: Variants = {
   },
 };
 
-export function Hero({ courses }: HeroProps) {
-  const router = useRouter();
-  const [searchTerm, setSearchTerm] = useState("");
+const trustedCompanies = [
+  {
+    name: "Google",
+    emblem: "G",
+    emblemClass: "bg-blue-500/25 text-blue-100",
+  },
+  {
+    name: "Microsoft",
+    emblem: "MS",
+    emblemClass: "bg-cyan-500/25 text-cyan-100",
+  },
+  {
+    name: "Amazon",
+    emblem: "a",
+    emblemClass: "bg-orange-500/25 text-orange-100",
+  },
+  {
+    name: "Cisco",
+    emblem: "Ci",
+    emblemClass: "bg-sky-500/25 text-sky-100",
+  },
+  {
+    name: "IBM",
+    emblem: "IBM",
+    emblemClass: "bg-indigo-500/25 text-indigo-100",
+  },
+  {
+    name: "Cloudflare",
+    emblem: "Cf",
+    emblemClass: "bg-amber-500/25 text-amber-100",
+  },
+  {
+    name: "NVIDIA",
+    emblem: "NV",
+    emblemClass: "bg-emerald-500/25 text-emerald-100",
+  },
+  {
+    name: "Palo Alto Networks",
+    emblem: "PA",
+    emblemClass: "bg-fuchsia-500/25 text-fuchsia-100",
+  },
+];
 
-  const autoCompleteOptions = courses
-    .map((course) => course.title)
-    .filter((title): title is string => Boolean(title));
-
-  const handleSearch = (keyword?: string) => {
-    const query = (keyword ?? searchTerm).trim().toLowerCase();
-    if (!query) {
-      return;
-    }
-
-    const exactCourse = courses.find((course) => {
-      const title = course.title?.toLowerCase() ?? "";
-      return title.includes(query) && course.slug?.current;
-    });
-
-    if (exactCourse?.slug?.current) {
-      router.push(`/courses/${exactCourse.slug.current}`);
-      return;
-    }
-
-    router.push(`/courses?search=${encodeURIComponent(query)}`);
-  };
-
+export function Hero({ courses: _courses }: HeroProps) {
   return (
     <section
       id="hero"
@@ -143,7 +157,8 @@ export function Hero({ courses }: HeroProps) {
           variants={fadeUpSoft}
           className="text-balance text-5xl font-light leading-[1.05] text-white sm:text-6xl lg:text-7xl"
         >
-          Offensive <span className="font-bold">Security</span> Through Real-World Training
+          Offensive <span className="font-bold">Security</span> Through
+          Real-World Training
         </motion.h1>
 
         <motion.p
@@ -178,38 +193,40 @@ export function Hero({ courses }: HeroProps) {
         </motion.div>
 
         <motion.div
-          variants={searchReveal}
-          className="group w-full rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_0_0_rgba(56,189,248,0)] backdrop-blur-xl transition-all duration-300 hover:border-cyan-300/35 hover:shadow-[0_0_40px_rgba(34,211,238,0.2)] sm:p-5"
+          variants={companiesReveal}
+          className="w-full rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_0_0_rgba(56,189,248,0)] backdrop-blur-xl sm:p-5"
         >
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-cyan-200/70" />
-              <Input
-                value={searchTerm}
-                onChange={(event) => setSearchTerm(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") {
-                    handleSearch();
-                  }
-                }}
-                list="hero-course-suggestions"
-                placeholder="Search courses (e.g. penetration testing, SOC analyst, ethical hacking)"
-                className="h-12 rounded-xl border-white/10 bg-[#050a18]/80 pl-12 text-base text-cyan-50 placeholder:text-cyan-100/60 transition-all duration-300 focus-visible:border-cyan-300/45 focus-visible:ring-2 focus-visible:ring-cyan-300/20"
-              />
-              <datalist id="hero-course-suggestions">
-                {autoCompleteOptions.map((title) => (
-                  <option key={title} value={title} />
-                ))}
-              </datalist>
-            </div>
+          <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-100/80">
+            Trusted by teams at top tech companies
+          </p>
 
-            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Button
-                onClick={() => handleSearch()}
-                className="h-12 rounded-xl bg-cyan-400 px-8 font-semibold text-[#041018] transition-all duration-300 hover:bg-cyan-300"
-              >
-                Search Courses
-              </Button>
+          <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
+            <motion.div
+              className="flex w-max gap-3"
+              animate={{ x: ["0%", "-50%"] }}
+              transition={{
+                duration: 28,
+                ease: "linear",
+                repeat: Number.POSITIVE_INFINITY,
+              }}
+            >
+              {[...trustedCompanies, ...trustedCompanies].map(
+                (company, index) => (
+                  <div
+                    key={`${company.name}-${index}`}
+                    className="flex min-w-[190px] items-center gap-3 rounded-xl border border-white/10 bg-[#050a18]/80 px-4 py-3"
+                  >
+                    <span
+                      className={`inline-flex h-8 min-w-8 items-center justify-center rounded-md px-1 text-xs font-semibold uppercase tracking-wide ${company.emblemClass}`}
+                    >
+                      {company.emblem}
+                    </span>
+                    <span className="text-sm font-medium text-cyan-50">
+                      {company.name}
+                    </span>
+                  </div>
+                ),
+              )}
             </motion.div>
           </div>
         </motion.div>
