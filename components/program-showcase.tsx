@@ -46,6 +46,10 @@ export function ProgramShowcase({
     program.level ?? (program.tier ? tierToLevel[program.tier] : "All Levels");
   const category = program.category ?? "Cybersecurity";
   const imageUrl = program.image ?? program.thumbnail?.asset?.url;
+  const descriptionPoints = description
+    .split(".")
+    .map((sentence) => sentence.trim())
+    .filter(Boolean);
 
   return (
     <motion.section
@@ -65,9 +69,35 @@ export function ProgramShowcase({
           <h2 className="text-3xl font-bold tracking-tight text-[#e5e7eb] md:text-4xl">
             {title}
           </h2>
-          <p className="max-w-xl text-base leading-relaxed text-[#9ca3af] md:text-lg">
-            {description}
-          </p>
+          <motion.ul
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.3 }}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.12,
+                },
+              },
+            }}
+            className="max-w-xl space-y-2 text-base leading-relaxed text-[#9ca3af] md:text-lg"
+          >
+            {descriptionPoints.map((point, index) => (
+              <motion.li
+                key={`${program._id}-point-${index}`}
+                variants={{
+                  hidden: { opacity: 0, x: -14 },
+                  visible: { opacity: 1, x: 0 },
+                }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="flex items-start gap-3"
+              >
+                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300/90" />
+                <span>{point}.</span>
+              </motion.li>
+            ))}
+          </motion.ul>
           <div className="flex flex-wrap gap-3">
             <Badge
               variant="secondary"
