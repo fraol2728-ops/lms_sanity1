@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { StructuredData } from "@/components/seo/StructuredData";
+import { LanguageProvider } from "@/context/language";
 import { siteConfig } from "@/lib/seo";
 import "../styles/globals.css";
 
@@ -68,10 +69,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" dir="ltr" suppressHydrationWarning>
       <body className={`${inter.className} antialiased`}>
         <StructuredData data={organizationSchema} />
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

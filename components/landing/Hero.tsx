@@ -4,6 +4,9 @@ import { motion, type Variants } from "framer-motion";
 import { Rocket, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/language";
+import { translations } from "@/lib/translations";
+import { cn } from "@/lib/utils";
 
 type HeroCourse = {
   _id: string;
@@ -56,11 +59,7 @@ const companiesReveal: Variants = {
 };
 
 const trustedCompanies = [
-  {
-    name: "Google",
-    emblem: "G",
-    emblemClass: "bg-blue-500/25 text-blue-100",
-  },
+  { name: "Google", emblem: "G", emblemClass: "bg-blue-500/25 text-blue-100" },
   {
     name: "Microsoft",
     emblem: "MS",
@@ -71,11 +70,7 @@ const trustedCompanies = [
     emblem: "a",
     emblemClass: "bg-orange-500/25 text-orange-100",
   },
-  {
-    name: "Cisco",
-    emblem: "Ci",
-    emblemClass: "bg-sky-500/25 text-sky-100",
-  },
+  { name: "Cisco", emblem: "Ci", emblemClass: "bg-sky-500/25 text-sky-100" },
   {
     name: "IBM",
     emblem: "IBM",
@@ -99,10 +94,16 @@ const trustedCompanies = [
 ];
 
 export function Hero({ courses: _courses }: HeroProps) {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+
   return (
     <section
       id="hero"
-      className="relative flex min-h-screen items-center justify-center overflow-hidden border-b border-cyan-400/10 px-6 text-center lg:px-12"
+      className={cn(
+        "relative flex min-h-screen items-center justify-center overflow-hidden border-b border-cyan-400/10 px-6 lg:px-12",
+        lang === "ar" ? "text-right" : "text-center",
+      )}
     >
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(34,211,238,0.22),transparent_40%),radial-gradient(circle_at_85%_0%,rgba(59,130,246,0.26),transparent_45%),linear-gradient(to_bottom,#040711,#050816)]" />
       <div
@@ -150,23 +151,21 @@ export function Hero({ courses: _courses }: HeroProps) {
           className="mx-auto inline-flex items-center gap-2 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-xs uppercase tracking-[0.24em] text-cyan-100"
         >
           <ShieldCheck className="h-4 w-4" />
-          XyberSec-Academy
+          {t.heroBadge}
         </motion.div>
 
         <motion.h1
           variants={fadeUpSoft}
           className="text-balance text-5xl font-light leading-[1.05] text-white sm:text-6xl lg:text-7xl"
         >
-          Offensive <span className="font-bold">Security</span> Through
-          Real-World Training
+          {t.heroTitle}
         </motion.h1>
 
         <motion.p
           variants={fadeIn}
           className="max-w-3xl text-base leading-relaxed text-zinc-300/90 sm:text-xl"
         >
-          Learn ethical hacking, penetration testing, and cyber defense with
-          structured courses.
+          {t.heroSubtitle}
         </motion.p>
 
         <motion.div
@@ -176,7 +175,7 @@ export function Hero({ courses: _courses }: HeroProps) {
           <Link href="/ai">
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Button className="h-11 w-full bg-cyan-400 px-8 font-semibold text-[#041018] hover:bg-cyan-300 sm:w-auto">
-                Chat With AI
+                {t.chatWithAi}
               </Button>
             </motion.div>
           </Link>
@@ -186,7 +185,7 @@ export function Hero({ courses: _courses }: HeroProps) {
                 variant="outline"
                 className="h-11 w-full border-cyan-400/40 bg-[#081127]/70 px-8 text-cyan-100 hover:bg-cyan-400/10 sm:w-auto"
               >
-                Explore Courses
+                {t.exploreServices}
               </Button>
             </motion.div>
           </Link>
@@ -197,9 +196,8 @@ export function Hero({ courses: _courses }: HeroProps) {
           className="w-full rounded-2xl border border-white/10 bg-white/5 p-4 shadow-[0_0_0_rgba(56,189,248,0)] backdrop-blur-xl sm:p-5"
         >
           <p className="mb-4 text-sm uppercase tracking-[0.2em] text-cyan-100/80">
-            Trusted by teams at top tech companies
+            {t.trustedBy}
           </p>
-
           <div className="overflow-hidden [mask-image:linear-gradient(to_right,transparent,white_10%,white_90%,transparent)]">
             <motion.div
               className="flex w-max gap-3"
@@ -221,7 +219,7 @@ export function Hero({ courses: _courses }: HeroProps) {
                     >
                       {company.emblem}
                     </span>
-                    <span className="text-sm font-medium text-cyan-50">
+                    <span className="text-sm text-zinc-200">
                       {company.name}
                     </span>
                   </div>

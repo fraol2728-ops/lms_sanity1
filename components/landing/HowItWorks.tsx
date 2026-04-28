@@ -1,21 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useLanguage } from "@/context/language";
+import { translations } from "@/lib/translations";
+import { cn } from "@/lib/utils";
 import { AnimatedSection, staggerContainer } from "./animations";
 
-const steps = [
-  "Choose a learning path",
-  "Complete lessons",
-  "Become a cybersecurity professional",
-];
-
 export function HowItWorks() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+  const steps = [t.step1, t.step2, t.step3];
+
   return (
-    <AnimatedSection className="mx-auto max-w-7xl px-6 py-20 lg:px-12">
+    <AnimatedSection
+      className={cn(
+        "mx-auto max-w-7xl px-6 py-20 lg:px-12",
+        lang === "ar" ? "text-right" : "text-left",
+      )}
+    >
       <div className="mb-10">
-        <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">How It Works</p>
+        <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">
+          {t.howItWorks}
+        </p>
         <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-          A clear progression from beginner to practitioner
+          {t.howItWorksTitle}
         </h2>
       </div>
 
