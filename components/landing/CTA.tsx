@@ -3,9 +3,14 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/language";
+import { translations } from "@/lib/translations";
 import { AnimatedSection } from "./animations";
 
 export function CTA() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+
   return (
     <AnimatedSection className="mx-auto max-w-7xl px-6 pb-24 pt-16 lg:px-12">
       <motion.div
@@ -17,12 +22,12 @@ export function CTA() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(34,211,238,0.3),transparent_48%)]" />
         <div className="relative z-10">
           <h2 className="text-3xl font-black text-white sm:text-5xl">
-            Start Your Cybersecurity Journey Today
+            {t.ctaTitle}
           </h2>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link href="/dashboard">
               <Button className="h-11 bg-cyan-400 px-8 text-[#02101d] hover:bg-cyan-300">
-                Get Started
+                {t.getQuote}
               </Button>
             </Link>
             <Link href="#courses">
@@ -30,7 +35,7 @@ export function CTA() {
                 variant="outline"
                 className="h-11 border-cyan-300/50 bg-transparent px-8 text-cyan-100 hover:bg-cyan-400/10"
               >
-                Browse Courses
+                {t.browseCourses}
               </Button>
             </Link>
           </div>

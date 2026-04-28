@@ -3,6 +3,9 @@
 import { motion } from "framer-motion";
 import { Play, Terminal } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useLanguage } from "@/context/language";
+import { translations } from "@/lib/translations";
+import { cn } from "@/lib/utils";
 import { AnimatedSection } from "./animations";
 
 const TERMINAL_COLUMNS = [
@@ -71,10 +74,12 @@ function TerminalPanel({
   label,
   prompt,
   commands,
+  lang,
 }: {
   label: string;
   prompt: string;
   commands: readonly string[];
+  lang: "en" | "ar";
 }) {
   const typedCommand = useAutoTyping(commands);
   const history = useMemo(() => {
@@ -103,7 +108,7 @@ function TerminalPanel({
             </div>
           </div>
           <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 text-[11px] uppercase tracking-[0.25em] text-cyan-200/80">
-            Linux terminal
+            {lang === "ar" ? "طرفية لينكس" : "Linux terminal"}
           </span>
         </div>
       </div>
@@ -137,8 +142,10 @@ function TerminalPanel({
 
         <div className="grid gap-3 border-t border-cyan-400/10 pt-4 text-xs text-cyan-100/45 sm:grid-cols-2 sm:text-sm">
           <div>Ubuntu 24.04 LTS · zsh · secured workspace</div>
-          <div className="sm:text-right">
-            Live command simulation · auto rotating
+          <div className={cn(lang === "ar" ? "sm:text-left" : "sm:text-right")}>
+            {lang === "ar"
+              ? "محاكاة أوامر مباشرة · تدوير تلقائي"
+              : "Live command simulation · auto rotating"}
           </div>
         </div>
       </div>
@@ -147,19 +154,24 @@ function TerminalPanel({
 }
 
 export function PlatformPreview() {
+  const { lang } = useLanguage();
+  const t = translations[lang];
+
   return (
     <>
       <AnimatedSection className="mx-auto max-w-7xl px-6 py-20 lg:px-12">
         <div className="mx-auto max-w-3xl text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">
-            Platform Experience
+            {t.aboutTitle}
           </p>
           <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-            Linux workflow built for cyber ops
+            {lang === "ar"
+              ? "سير عمل لينكس مصمم لعمليات الأمن السيبراني"
+              : "Linux workflow built for cyber ops"}
           </h2>
           {/* <p className="mt-4 text-base text-zinc-300 sm:text-lg">
             Replace the old dashboard cards with a more immersive lab feel: two
-            animated Linux terminals running rotating commands side by side.
+            animated {lang === "ar" ? "طرفية لينكس" : "Linux terminal"}s running rotating commands side by side.
           </p> */}
         </div>
 
@@ -176,7 +188,7 @@ export function PlatformPreview() {
                 delay: index * 0.12,
               }}
             >
-              <TerminalPanel {...terminal} />
+              <TerminalPanel {...terminal} lang={lang} />
             </motion.div>
           ))}
         </div>
@@ -185,7 +197,7 @@ export function PlatformPreview() {
       <AnimatedSection className="mx-auto max-w-7xl px-6 pb-20 lg:px-12">
         <div className="mb-8 max-w-3xl">
           <p className="text-sm uppercase tracking-[0.3em] text-cyan-300/80">
-            Preview
+            {lang === "ar" ? "معاينة" : "Preview"}
           </p>
           {/* <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
             Watch the platform in action

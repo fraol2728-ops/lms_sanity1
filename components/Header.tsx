@@ -14,30 +14,35 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/context/language";
+import { translations } from "@/lib/translations";
 import { cn } from "@/lib/utils";
-
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/programs", label: "Programs" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/docs", label: "Docs" },
-  { href: "/community", label: "Community" },
-  { href: "/ai", label: "AI Lab", isNew: true },
-];
-
-const commandPaletteLinks = [
-  { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/courses", label: "My Courses" },
-  { href: "/pricing", label: "Pricing" },
-  { href: "/docs", label: "Docs" },
-  { href: "/community", label: "Community" },
-  { href: "/ai", label: "AI Lab", isNew: true },
-  { href: "/notes", label: "Notes" },
-];
 
 export function Header() {
   const pathname = usePathname();
+  const { lang, setLang, isRTL } = useLanguage();
+  const t = translations[lang];
+
+  const navLinks = [
+    { href: "/", label: t.navHome },
+    { href: "/programs", label: t.navPrograms },
+    { href: "/pricing", label: t.navPricing },
+    { href: "/docs", label: t.navDocs },
+    { href: "/community", label: t.navCommunity },
+    { href: "/ai", label: t.navAiLab, isNew: true },
+  ];
+
+  const commandPaletteLinks = [
+    { href: "/", label: t.navHome },
+    { href: "/dashboard", label: t.navDashboard },
+    { href: "/dashboard/courses", label: t.navMyCourses },
+    { href: "/pricing", label: t.navPricing },
+    { href: "/docs", label: t.navDocs },
+    { href: "/community", label: t.navCommunity },
+    { href: "/ai", label: t.navAiLab, isNew: true },
+    { href: "/notes", label: t.navNotes },
+  ];
+
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [commandOpen, setCommandOpen] = useState(false);
@@ -77,7 +82,7 @@ export function Header() {
       commandPaletteLinks.filter((item) =>
         item.label.toLowerCase().includes(query.toLowerCase()),
       ),
-    [query],
+    [commandPaletteLinks, query],
   );
 
   return (
@@ -106,9 +111,6 @@ export function Header() {
               />
             </span>
             <div className="leading-tight">
-              {/* <p className="hidden text-xs uppercase tracking-[0.24em] text-zinc-500 sm:block">
-                Next
-              </p> */}
               <p className="whitespace-nowrap text-sm font-semibold text-zinc-100 sm:text-base">
                 Xyber<span className="text-cyan-300">Sec</span>
               </p>
@@ -129,11 +131,39 @@ export function Header() {
                     : pathname === link.href
                 }
                 isNew={link.isNew}
+                newLabel={t.newLabel}
               />
             ))}
           </div>
 
           <div className="hidden items-center gap-2 md:flex">
+            <div className="inline-flex rounded-lg border border-cyan-400/20 bg-[#0d1430]/70 p-0.5">
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-xs font-semibold transition",
+                  lang === "en"
+                    ? "bg-cyan-400 text-[#02111b]"
+                    : "text-zinc-300 hover:text-cyan-200",
+                )}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("ar")}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-xs font-semibold transition",
+                  lang === "ar"
+                    ? "bg-cyan-400 text-[#02111b]"
+                    : "text-zinc-300 hover:text-cyan-200",
+                )}
+              >
+                AR
+              </button>
+            </div>
+
             <button
               type="button"
               onClick={() => setCommandOpen(true)}
@@ -141,7 +171,7 @@ export function Header() {
             >
               <span className="inline-flex items-center gap-2">
                 <Search className="h-4 w-4" />
-                Search
+                {t.search}
               </span>
               <span className="inline-flex items-center gap-1 rounded border border-cyan-400/20 px-1.5 py-0.5 text-xs text-zinc-400">
                 <Command className="h-3 w-3" />K
@@ -157,7 +187,7 @@ export function Header() {
                     "text-zinc-100",
                   )}
                 >
-                  Sign In
+                  {t.signIn}
                 </Button>
               </SignInButton>
             </SignedOut>
@@ -171,7 +201,7 @@ export function Header() {
                     "text-zinc-100",
                   )}
                 >
-                  Dashboard
+                  {t.navDashboard}
                 </Button>
               </Link>
               <UserButton
@@ -206,18 +236,48 @@ export function Header() {
           )}
         >
           <div className="space-y-1 px-4 py-4">
+            <div className="mb-2 inline-flex rounded-lg border border-cyan-400/20 bg-[#0d1430]/70 p-0.5">
+              <button
+                type="button"
+                onClick={() => setLang("en")}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-xs font-semibold transition",
+                  lang === "en"
+                    ? "bg-cyan-400 text-[#02111b]"
+                    : "text-zinc-300 hover:text-cyan-200",
+                )}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => setLang("ar")}
+                className={cn(
+                  "rounded-md px-2.5 py-1 text-xs font-semibold transition",
+                  lang === "ar"
+                    ? "bg-cyan-400 text-[#02111b]"
+                    : "text-zinc-300 hover:text-cyan-200",
+                )}
+              >
+                AR
+              </button>
+            </div>
             <button
               type="button"
               onClick={() => setCommandOpen(true)}
               className="mb-2 flex w-full items-center gap-2 rounded-md border border-cyan-400/20 px-3 py-2 text-sm text-zinc-200"
             >
-              <Search className="h-4 w-4" /> Search (⌘/Ctrl + K)
+              <Search className="h-4 w-4" /> {t.search} (⌘/Ctrl + K)
             </button>
 
-            <MobileNavLink href="/" label="Home" isActive={pathname === "/"} />
+            <MobileNavLink
+              href="/"
+              label={t.navHome}
+              isActive={pathname === "/"}
+            />
             <MobileNavLink
               href="/programs"
-              label="Programs"
+              label={t.navPrograms}
               isActive={
                 pathname === "/programs" || pathname.startsWith("/programs/")
               }
@@ -229,6 +289,7 @@ export function Header() {
                 label={link.label}
                 isActive={pathname === link.href}
                 isNew={link.isNew}
+                newLabel={t.newLabel}
               />
             ))}
 
@@ -240,7 +301,7 @@ export function Header() {
                   variant="ghost"
                   className="w-full justify-start text-zinc-200 hover:bg-cyan-400/10 hover:text-cyan-200"
                 >
-                  Sign In
+                  {t.signIn}
                 </Button>
               </SignInButton>
             </SignedOut>
@@ -251,7 +312,7 @@ export function Header() {
                   variant="ghost"
                   className="w-full justify-start text-zinc-200 hover:bg-cyan-400/10 hover:text-cyan-200"
                 >
-                  Dashboard
+                  {t.navDashboard}
                 </Button>
               </Link>
               <div className="px-3 py-2">
@@ -268,6 +329,10 @@ export function Header() {
         setQuery={setQuery}
         setOpen={setCommandOpen}
         filteredLinks={filteredLinks}
+        searchNavigation={t.searchNavigation}
+        noNavigationResults={t.noNavigationResults}
+        commandPalette={t.commandPalette}
+        isRTL={isRTL}
       />
     </>
   );
@@ -279,12 +344,14 @@ function NavLink({
   isScrolled,
   isActive,
   isNew,
+  newLabel,
 }: {
   href: string;
   label: string;
   isScrolled: boolean;
   isActive?: boolean;
   isNew?: boolean;
+  newLabel: string;
 }) {
   return (
     <Link
@@ -302,7 +369,7 @@ function NavLink({
       <span>{label}</span>
       {isNew ? (
         <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
-          New
+          {newLabel}
         </span>
       ) : null}
     </Link>
@@ -314,11 +381,13 @@ function MobileNavLink({
   label,
   isActive,
   isNew,
+  newLabel,
 }: {
   href: string;
   label: string;
   isActive?: boolean;
   isNew?: boolean;
+  newLabel?: string;
 }) {
   return (
     <Link
@@ -332,7 +401,7 @@ function MobileNavLink({
       <span>{label}</span>
       {isNew ? (
         <span className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-300">
-          New
+          {newLabel}
         </span>
       ) : null}
     </Link>
@@ -345,12 +414,20 @@ function CommandPalette({
   setQuery,
   setOpen,
   filteredLinks,
+  searchNavigation,
+  noNavigationResults,
+  commandPalette,
+  isRTL,
 }: {
   open: boolean;
   query: string;
   setQuery: (value: string) => void;
   setOpen: (value: boolean) => void;
   filteredLinks: { href: string; label: string }[];
+  searchNavigation: string;
+  noNavigationResults: string;
+  commandPalette: string;
+  isRTL: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -379,7 +456,8 @@ function CommandPalette({
       }}
       role="dialog"
       aria-modal="true"
-      aria-label="Command palette"
+      aria-label={commandPalette}
+      dir={isRTL ? "rtl" : "ltr"}
     >
       <div className="w-full max-w-xl rounded-2xl border border-cyan-400/30 bg-[#070d24] p-4 shadow-[0_20px_60px_rgba(0,0,0,0.65)]">
         <div className="mb-3 flex items-center gap-3 rounded-xl border border-cyan-400/20 bg-[#0b1430] px-3 py-2">
@@ -388,8 +466,11 @@ function CommandPalette({
             ref={inputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search navigation"
-            className="w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-500"
+            placeholder={searchNavigation}
+            className={cn(
+              "w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-500",
+              isRTL ? "text-right" : "text-left",
+            )}
           />
         </div>
 
@@ -411,7 +492,7 @@ function CommandPalette({
             ))
           ) : (
             <div className="rounded-xl border border-dashed border-cyan-400/20 px-4 py-6 text-center text-sm text-zinc-400">
-              No navigation results for{" "}
+              {noNavigationResults}{" "}
               <span className="text-cyan-300">{query}</span>
             </div>
           )}
