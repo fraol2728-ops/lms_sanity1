@@ -26,7 +26,7 @@ export function Header() {
   const navLinks = [
     { href: "/", label: t.navHome },
     { href: "/programs", label: t.navPrograms },
-    { href: "/pricing", label: t.navPricing },
+    { href: "/pricin", label: t.navPricing },
     { href: "/docs", label: t.navDocs },
     { href: "/community", label: t.navCommunity },
     { href: "/ai", label: t.navAiLab, isNew: true },
@@ -36,7 +36,7 @@ export function Header() {
     { href: "/", label: t.navHome },
     { href: "/dashboard", label: t.navDashboard },
     { href: "/dashboard/courses", label: t.navMyCourses },
-    { href: "/pricing", label: t.navPricing },
+    { href: "/pricin", label: t.navPricing },
     { href: "/docs", label: t.navDocs },
     { href: "/community", label: t.navCommunity },
     { href: "/ai", label: t.navAiLab, isNew: true },
